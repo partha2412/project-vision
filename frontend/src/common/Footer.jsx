@@ -17,7 +17,7 @@ const Footer = () => {
         <p>Media Outreach</p>
         <p>Distributor Queries</p>
       </div>
- 
+
       {/* Column 2 */}
       <div className="mb-4 md:mb-0">
         <h3 className="font-bold mb-2">Knowledge</h3>
