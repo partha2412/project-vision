@@ -23,18 +23,20 @@ const NavBar = () => {
         <nav className="flex items-center space-x-2 md:space-x-4 text-black font-medium ml-auto">
           {/* Login */}
           <button
-
             className="relative px-2 md:px-3 py-1 rounded-sm group text-sm md:text-base"
           >
             <span className="relative z-10">Trach Order</span>
             <span className="absolute left-0 bottom-0 w-0 h-[2px] bg-black transition-all duration-300 group-hover:w-full"></span>
           </button>
 
-          {/* Home */}
+          {/* Signup */}
           <button className="relative py-1 px-2 text-sm md:text-base font-medium group" onClick={() => navigate("/login")} >
-            <div className='size-5'>
+
+            {/* <div className='size-5 md:size-0'>
               <img src={signup} alt="" />
-            </div>
+            </div> */}
+            <div className=''>SignUp & SignIn</div>
+
             <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-slate-500 transition-all duration-300 group-hover:w-full"></span>
           </button>
 
