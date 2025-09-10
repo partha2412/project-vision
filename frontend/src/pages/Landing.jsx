@@ -16,7 +16,7 @@ const Landing = () => {
         <div>
             <div className='flex flex-col '>
 
-               <Navbar/>
+               {/* <Navbar/> */}
                 {/* Sliding 1st Slide */}
                 <div className='bg-sky-400 h-155'>
                     <Carousel images={images} />
@@ -25,7 +25,6 @@ const Landing = () => {
                  <BuyOneGetOne/>
                  <LowerNavbar/>
                 
-
             </div>
         </div>
     )

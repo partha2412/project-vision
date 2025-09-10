@@ -9,11 +9,14 @@ import Checkout from "./pages/Checkout";
 import Aviator from "./pages/Aviator";
 import SingleProductCheckout from "./pages/SingleProductCheckout";
 import BuyonegetOne from "./pages/BuyonegetOne";
+import Navbar from "./pages/Navbar";
 
 
 function App() {
   return (
+
     <BrowserRouter>
+    <Navbar/>
       <Routes>
         {/* Your existing pages */}
         <Route path="/" element={<Landing />} />
