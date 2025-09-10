@@ -146,38 +146,35 @@ const airflexData = [
     price: "3405",
     star: '2',
     rating: '1200',
-    title: "LA E14360",
+    title: "Daily wear",
     descriptio: "top"
   },
   {
     id:"2",
     image: [
-      "https://static5.lenskart.com/media/catalog/product/pro/1/thumbnail/480x480/9df78eab33525d08d6e5fb8d27136e95//l/i/Lenskart-Air-LA-E14360-C1-Eyeglasses_J_1838.jpg",
-      "https://static5.lenskart.com/media/catalog/product/pro/1/thumbnail/480x480/9df78eab33525d08d6e5fb8d27136e95//l/i/Lenskart-Air-LA-E14360-C1-Eyeglasses_J_1837.jpg",
-      "https://static5.lenskart.com/media/catalog/product/pro/1/thumbnail/480x480/9df78eab33525d08d6e5fb8d27136e95//l/i/Lenskart-Air-LA-E14360-C1-Eyeglasses_J_1839.jpg",
-      "https://static5.lenskart.com/media/catalog/product/pro/1/thumbnail/480x480/9df78eab33525d08d6e5fb8d27136e95//l/i/Lenskart-Air-LA-E14360-C1-Eyeglasses_J_1842.jpg",
-
+      "https://img.ebdcdn.com/product/frame/white/pm0136_3.jpg?im=Resize,width=600,height=300,aspect=fill;UnsharpMask,sigma=1.0,gain=1.0"
+     
     ],
     prev_price: "4999",
     price: "2955",
     star: '3',
     rating: '1200',
-    title: "LA E14360",
+    title: "Glases Frames",
     descriptio: "top"
   },
   {
     image: [
-      "https://static5.lenskart.com/media/catalog/product/pro/1/thumbnail/480x480/9df78eab33525d08d6e5fb8d27136e95//l/i/Lenskart-Air-LA-E14360-C1-Eyeglasses_J_1838.jpg",
-      "https://static5.lenskart.com/media/catalog/product/pro/1/thumbnail/480x480/9df78eab33525d08d6e5fb8d27136e95//l/i/Lenskart-Air-LA-E14360-C1-Eyeglasses_J_1837.jpg",
-      "https://static5.lenskart.com/media/catalog/product/pro/1/thumbnail/480x480/9df78eab33525d08d6e5fb8d27136e95//l/i/Lenskart-Air-LA-E14360-C1-Eyeglasses_J_1839.jpg",
-      "https://static5.lenskart.com/media/catalog/product/pro/1/thumbnail/480x480/9df78eab33525d08d6e5fb8d27136e95//l/i/Lenskart-Air-LA-E14360-C1-Eyeglasses_J_1842.jpg",
+      "https://firstlens.in/cdn/shop/files/First-Lens-Crystal-Blue-Computer-Glasses-001-2_2604f6b3-a7b7-46ce-bf17-565d5e51f65a.png?v=1755275043&width=1080",
+      "https://firstlens.in/cdn/shop/files/First-Lens-Crystal-Blue-Computer-Glasses-001-2_2604f6b3-a7b7-46ce-bf17-565d5e51f65a.png?v=1755275043&width=1080",
+      "https://firstlens.in/cdn/shop/files/First-Lens-Crystal-Blue-Computer-Glasses-001-2_2604f6b3-a7b7-46ce-bf17-565d5e51f65a.png?v=1755275043&width=1080",
+      "https://firstlens.in/cdn/shop/files/First-Lens-Crystal-Blue-Computer-Glasses-001-2_2604f6b3-a7b7-46ce-bf17-565d5e51f65a.png?v=1755275043&width=1080",
 
     ],
     prev_price: "399",
     price: "345",
     star: '3.4',
     rating: '1200',
-    title: "LA E14360",
+    title: "Computer glasses",
     descriptio: "top"
   },
   {
