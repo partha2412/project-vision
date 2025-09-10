@@ -10,7 +10,7 @@ const SingleProduct = () => {
       "A lightweight serum that reduces the appearance of skin blemishes and congestion while improving overall skin texture and radiance.",
     price: "₹799",
   };
-
+ 
   return (
     <div >
       <div className="bg-white h-screen shadow-lg rounded-2xl max-w-4xl w-full grid grid-cols-1 md:grid-cols-2 overflow-hidden">
