@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import right from "../photo/right-arrow-svgrepo-com.svg"
-import left from "../photo/left-arrow-svgrepo-com.svg"
+import right from "../assets/icon/right-arrow-svgrepo-com.svg"
+import left from "../assets/icon/left-arrow-svgrepo-com.svg"
 
 const Carousel = ({ images }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -64,7 +64,7 @@ const Carousel = ({ images }) => {
             {/* Slide images */}
             <div
                 className="h-full flex transition-transform duration-700 ease-in-out"
-                style={{ transform: `translateX(-${currentIndex * 100}%) `}}
+                style={{ transform: `translateX(-${currentIndex * 100}%)` }}
             >
                 {images.map((img, idx) => (
                     <img
@@ -128,3 +128,4 @@ const Carousel = ({ images }) => {
 };
 
 export default Carousel;
+

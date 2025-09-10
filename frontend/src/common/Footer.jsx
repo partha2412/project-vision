@@ -1,10 +1,10 @@
 import React from 'react'
 import { FaFacebook, FaWhatsapp, FaInstagram } from "react-icons/fa";
 
-const LowerNavbar = () => {
+const Footer = () => {
   return (
     <>  
-     <div className="h-[250px] bg-black text-white px-8 py-6 flex flex-ro md:flex-row  gap-10 justify-between">
+     <div className="absolute h-[250px] w-full bg-black text-white px-8 py-6 grid grid-cols-3 gap-10 justify-between">
       
       {/* Column 1 */}
       <div className="mb-4 md:mb-0 ">
@@ -31,10 +31,9 @@ const LowerNavbar = () => {
       <div className="mb-4 md:mb-0">
         <h3 className="font-bold mb-2">Contact Us</h3>
         <p>Need help fast? Fill out our form or email help@beminimalist.co</p>
-      </div>
 
-      {/* Social Icons */}
-      <div className="flex items-center space-x-4 text-2xl">
+        {/* Social Icons */}
+      <div className="mt-10 flex items-center space-x-4 text-2xl">
         <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300  bg-blue-600">
           <FaFacebook />
         </a>
@@ -46,10 +45,14 @@ const LowerNavbar = () => {
         </a>
       </div>
 
+      </div>
+
+      
+
     </div>
      </>
    
   )
 }
 
-export default LowerNavbar
+export default Footer
