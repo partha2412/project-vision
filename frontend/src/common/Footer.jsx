@@ -1,7 +1,7 @@
 import React from 'react'
 import { FaFacebook, FaWhatsapp, FaInstagram } from "react-icons/fa";
 
-const LowerNavbar = () => {
+const Footer = () => {
   return (
     <>  
      <div className="h-[250px] bg-black text-white px-8 py-6 flex flex-ro md:flex-row  gap-10 justify-between">
@@ -52,4 +52,4 @@ const LowerNavbar = () => {
   )
 }
 
-export default LowerNavbar
+export default Footer

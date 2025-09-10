@@ -2,17 +2,17 @@ import React from 'react';
 
 import { IoCartOutline } from "react-icons/io5";
 import { CiHeart } from "react-icons/ci";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+
+import { useNavigate } from 'react-router-dom';
 
 
-const Navbar = () => {
-    const navigate = useNavigate();
+const NavBar = () => {
+  const navigate = useNavigate();
   return (
     <div>
   {/* Header */}
-       <header className="w-full flex items-center p-4 bg-white shadow-md z-50">
-         <div className="text-2xl md:text-5xl font-extrabold tracking-widest text-gray-900 uppercase">
+       <header className="w-full flex items-center p-4 bg-white shadow-md z-50 ">
+         <div className="text-2xl md:text-5xl font-extrabold tracking-widest text-gray-900 uppercase cursor-pointer"  onClick={()=>navigate("/")}>
            Vision
          </div>
  
@@ -28,22 +28,16 @@ const Navbar = () => {
            </button>
  
            {/* Home */}
-          <button className="relative py-1 px-2 text-sm md:text-base font-medium group">
-  <Link to="/login">
-    Sign In & Sign Up
-    <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-slate-500 transition-all duration-300 group-hover:w-full"></span>
-  </Link>
-</button>
+           <button className="relative py-1 px-2 text-sm md:text-base font-medium group" onClick={()=>navigate("/login")} >
+             Sign In & Sign up
+             <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-slate-500 transition-all duration-300 group-hover:w-full"></span>
+           </button>
  
        
  
            {/* Heart Icon */}
-           <button 
-                   onClick={()=>navigate("/wishlist")} 
-           className="relative py-1 px-2 group">
-             <span
-     
-             className="relative z-10 text-[22px] md:text-[28px]">
+           <button className="relative py-1 px-2 group" onClick={()=>navigate("/wishlist")}>
+             <span className="relative z-10 text-[22px] md:text-[28px]">
                <CiHeart />
              </span>
              <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-slate-500 transition-all duration-300 group-hover:w-full"></span>
@@ -62,4 +56,4 @@ const Navbar = () => {
   )
 }
 
-export default Navbar
+export default NavBar

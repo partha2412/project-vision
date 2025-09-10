@@ -1,7 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 const Login = () => {
+    const [email, setEmail] = useState();
+    const [password, setPassword] = useState();
+
+    async function handleSubmit(){
+        const result = ""
+    }
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
       <div className="bg-white w-[90%] max-w-md p-8 rounded-xl shadow-lg">
@@ -16,11 +22,13 @@ const Login = () => {
             type="email"
             placeholder="Email Address"
             className="border rounded-lg p-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            onChange={(e)=>setEmail(e.target.value)}
           />
           <input
             type="password"
             placeholder="Password"
             className="border rounded-lg p-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            onChange={(e)=>setPassword(e.target.value)}
           />
 
           <button

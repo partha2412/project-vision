@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+
 import airflex from "../photo/airflex.webp";
 import aviator from "../photo/aviator.webp";
 import blend from "../photo/blend.webp";
@@ -9,7 +10,7 @@ import clubmaster from "../photo/clubmaster.webp";
 import image179 from "../photo/image179.webp";
 import trans from "../photo/trans.webp";
 
-const Middlebar = () => {
+const Slide2 = () => {
   const navigate = useNavigate();
 
   const images = [
@@ -50,7 +51,7 @@ const Middlebar = () => {
 
             <button
               className="mt-2 px-3 py-1 bg-black text-white text-sm font-semibold rounded-md"
-              onClick={() => navigate(item.route)}
+              onClick={() => navigate(`/products/${item.name}`)}
             >
               Explore
             </button>
@@ -61,4 +62,4 @@ const Middlebar = () => {
   );
 };
 
-export default Middlebar;
+export default Slide2;

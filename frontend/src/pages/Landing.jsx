@@ -1,9 +1,5 @@
-import React from 'react'
-import Carousel from './Carousl.jsx'
-import Middlebar from './Middlebar.jsx'
-import LowerNavbar from './LowerNavbar.jsx'
-import Navbar from "./Navbar.jsx"
-import BuyOneGetOne from './BuyonegetOne.jsx'
+import Carousel from '../components/Carousl'
+import Slide2 from './Slide2'
 
 const Landing = () => {
     const images = [
@@ -14,17 +10,19 @@ const Landing = () => {
     ]
     return (
         <div>
-            <div className='flex flex-col '>
+            <div className='flex flex-col h-screen'>
 
-               <Navbar/>
+
                 {/* Sliding 1st Slide */}
-                <div className='bg-sky-400 h-155'>
+                <div className='bg-sky-400 h-180'>
                     <Carousel images={images} />
                 </div>
-                 <Middlebar/>
-                 <BuyOneGetOne/>
-                 <LowerNavbar/>
-                
+
+                {/* Next Slide */}
+                <div className='h-full'>
+                    <Slide2/>
+                </div>
+
 
             </div>
         </div>

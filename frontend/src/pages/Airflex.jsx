@@ -8,10 +8,8 @@ import two from "../photo/2.webp"
 import three from "../photo/3.webp"
 import four from "../photo/4.webp"
 import five from "../photo/5.webp"
-import LowerNavbar from "./LowerNavbar";
+//import LowerNavbar from "./LowerNavbar";
 import { CiHeart } from "react-icons/ci";
-
-
 
 
 // 👉 replace with real Airflex product images
@@ -114,7 +112,7 @@ const Airflex = () => {
         ))}
        
       </div>
-       <LowerNavbar/>
+       {/* <LowerNavbar/> */}
     </div>
   );
 };
