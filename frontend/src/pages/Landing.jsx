@@ -13,10 +13,15 @@ const Landing = () => {
             <div className='flex flex-col h-screen'>
 
 
+<<<<<<< HEAD
+=======
+               {/* <Navbar/> */}
+>>>>>>> e0948946888a7df33599e9f16f3df43edac58a4d
                 {/* Sliding 1st Slide */}
                 <div className='bg-sky-400 h-180'>
                     <Carousel images={images} />
                 </div>
+<<<<<<< HEAD
 
                 {/* Next Slide */}
                 <div className='h-full'>
@@ -24,6 +29,12 @@ const Landing = () => {
                 </div>
 
 
+=======
+                 <Middlebar/>
+                 <BuyOneGetOne/>
+                 <LowerNavbar/>
+                
+>>>>>>> e0948946888a7df33599e9f16f3df43edac58a4d
             </div>
         </div>
     )

@@ -42,7 +42,7 @@ const NavBar = () => {
              </span>
              <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-slate-500 transition-all duration-300 group-hover:w-full"></span>
            </button>
- 
+  
            {/* Cart Icon */}
            <button className="relative py-1 px-2 group">
              <span className="relative z-10 text-[22px] md:text-[28px]">
