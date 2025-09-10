@@ -61,8 +61,8 @@ const Login = () => {
 
  HEAD
           <p className="text-gray-900 text-sm mt-2 text-center cursor-pointer hover:underline ">
-=======
-          <p className="text-sm mt-2 text-center cursor-pointer hover:underline text-blue-500"> 7ef326b8ece89d33ba923e05c599ad6f17ec1cd9
+          <p className="text-sm mt-2 text-center cursor-pointer hover:underline text-blue-500">
+7ef326b8ece89d33ba923e05c599ad6f17ec1cd9
             Forgot Password?
           </p>
         </div>
