@@ -19,7 +19,7 @@ const LeftOptions = () => {
     return (
         <div className='w-100'>
             {/* All Options */}
-            <div className='h-full w-full bg-amber-300 pt-4'>
+            <div className='h-full w-full bg-slate-300 pt-4'>
                 <div className='flex flex-col justify-center'>
                     {/* Sorting */}
                     <div>
@@ -50,19 +50,21 @@ const LeftOptions = () => {
 
                     {/* Range */}
                     <div>
-                        <div className="flex flex-col items-center justify-center bg-gray-100">
-                            <label className="mb-4 text-lg font-semibold text-gray-700">
-                                Value: {value}
+                        <div className="flex flex-col p-4 w-full justify-center bg-gray-100">
+                            <label className="text-[18px] font-normal text-gray-700">
+                                Price:<span className='font-bold text-[20px] pl-4'>₹0 - ₹{value}</span>
                             </label>
-
-                            <input
-                                type="range"
-                                min="0"
-                                max="100"
-                                value={value}
-                                onChange={(e) => setValue(e.target.value)}
-                                className=" accent-blue-500"
-                            />
+                            <div className='w-full h-full'>
+                                <input
+                                    type="range"
+                                    min="0"
+                                    max="100"
+                                    value={value}
+                                    onChange={(e) => setValue(e.target.value)}
+                                    className=" accent-blue-500 w-full "
+                                />
+                                <div></div>
+                            </div>
                         </div>
                     </div>
                 </div>

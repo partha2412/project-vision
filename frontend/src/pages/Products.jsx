@@ -1,10 +1,24 @@
 import { useLocation } from "react-router-dom";
 import Carousel from '../components/Carousl_Products';
+import { useContext, useState } from "react";
+import { WishlistContext } from "../context/WishlistContext";
 
 const Products = ({ data }) => {
+  const { wishlist, addToWishlist, removeFromWishlist } = useContext(WishlistContext);
 
- // console.log(data);
-  
+  const toggleWish = (item) => {
+    const exists = wishlist.some((w) => w.id === item.id);
+    if (exists) {
+      removeFromWishlist(item.id);
+    } else {
+      addToWishlist(item); // only add if not already present
+    }
+  };
+
+
+
+  // console.log(data);
+
   function handleClick() {
 
   }
@@ -12,16 +26,16 @@ const Products = ({ data }) => {
 
   return (
     <div className="min-h-screen w-screen bg-gradient-to-b from-gray-200 to-gray-400  py-12 flex flex-col items-center">
-      <h1 className="text-3xl md:text-2xl font-bold text-center text-gray-900 mb-4 tracking-wide">
-        ✨ Our Premium Skincare Collection ✨
+      <h1 className="text-2xl md:text-2xl font-bold text-center text-gray-900 mb-4 tracking-wide">
+        ✨ Our Premium VISION Collection ✨
       </h1>
 
       {/* Responsive Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-3 lg:grid-cols-2 gap-5 md:gap-5 p-1  ">
+      <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-2 duration-300 ">
         {data.map((item, index) => (
           <div
             key={index}
-            className="bg-white h-100 w-100  shadow-sm rounded-xl overflow-hidden hover:shadow-2xl transform transition duration-300 flex flex-col"
+            className="bg-white h-90 w-100 shadow-sm rounded-xl overflow-hidden hover:shadow-2xl transform transition duration-300 flex flex-col"
           >
             {/* Product Image Carousel */}
             <div className="relative w-full h-[60%] sm:h-full md:h-full justify-center items-center overflow-hidden  ">
@@ -39,7 +53,48 @@ const Products = ({ data }) => {
 
 
             {/* Product Info */}
-            <div className="p-5  flex flex-col h-[40%]">
+            <div className="p-5 relative flex flex-col h-[40%]">
+
+              {/* Wish list */}
+              <div className="absolute right-8 bottom-20 ">
+
+                {/* Wishlist Button (always visible now) */}
+                {/* Wishlist Button */}
+                <button
+                  className="flex justify-center items-center bg-slate-300/80 w-10 h-10 rounded-full transition-all transform hover:scale-110 cursor-pointer shadow-lg"
+                  onClick={() => toggleWish(item)}  // pass item, not index
+                >
+                  {/* SVG heart icon */}
+                  {wishlist.find((w) => w.id === item.id) ? (
+                    // Filled red heart if item is in wishlist
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      className="size-7 text-red-700"
+                    >
+                      <path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
+                    </svg>
+                  ) : (
+                    // Empty heart if item is not in wishlist
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                      className="size-7 text-slate-700"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"
+                      />
+                    </svg>
+                  )}
+                </button>
+
+              </div>
 
               {/* Rating */}
               <div className="flex items-center gap-1">

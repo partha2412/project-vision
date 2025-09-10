@@ -12,7 +12,7 @@ import WishlistPage from './pages/WishlistPage'
 
 const App = () => {
   return (
-    <div>
+    <div className='relative'>
 
       {/* <Navbar2/> */}
       <BrowserRouter>
@@ -25,8 +25,6 @@ const App = () => {
           <Route path='/products/:type' element={<ProductsPage />} />
           <Route path='/wishlist' element={<WishlistPage/>} />
 
-
-        {/* ok bro */}
           <Route path='/checkout' element={<Checkout />} />
           <Route path='/vto' element={<VTO />} />
           

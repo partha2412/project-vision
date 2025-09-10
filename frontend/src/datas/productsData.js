@@ -134,6 +134,7 @@ const data = [
 
 const airflexData = [
   {
+    id:"1",
     image: [
       "https://static5.lenskart.com/media/catalog/product/pro/1/thumbnail/480x480/9df78eab33525d08d6e5fb8d27136e95//l/i/Lenskart-Air-LA-E14360-C1-Eyeglasses_J_1838.jpg",
       "https://static5.lenskart.com/media/catalog/product/pro/1/thumbnail/480x480/9df78eab33525d08d6e5fb8d27136e95//l/i/Lenskart-Air-LA-E14360-C1-Eyeglasses_J_1837.jpg",
@@ -141,14 +142,15 @@ const airflexData = [
       "https://static5.lenskart.com/media/catalog/product/pro/1/thumbnail/480x480/9df78eab33525d08d6e5fb8d27136e95//l/i/Lenskart-Air-LA-E14360-C1-Eyeglasses_J_1842.jpg",
 
     ],
-    prev_price: "399",
-    price: "345",
+    prev_price: "3099",
+    price: "3405",
     star: '2',
     rating: '1200',
     title: "LA E14360",
     descriptio: "top"
   },
   {
+    id:"2",
     image: [
       "https://static5.lenskart.com/media/catalog/product/pro/1/thumbnail/480x480/9df78eab33525d08d6e5fb8d27136e95//l/i/Lenskart-Air-LA-E14360-C1-Eyeglasses_J_1838.jpg",
       "https://static5.lenskart.com/media/catalog/product/pro/1/thumbnail/480x480/9df78eab33525d08d6e5fb8d27136e95//l/i/Lenskart-Air-LA-E14360-C1-Eyeglasses_J_1837.jpg",
@@ -156,8 +158,8 @@ const airflexData = [
       "https://static5.lenskart.com/media/catalog/product/pro/1/thumbnail/480x480/9df78eab33525d08d6e5fb8d27136e95//l/i/Lenskart-Air-LA-E14360-C1-Eyeglasses_J_1842.jpg",
 
     ],
-    prev_price: "399",
-    price: "345",
+    prev_price: "4999",
+    price: "2955",
     star: '3',
     rating: '1200',
     title: "LA E14360",
@@ -179,6 +181,7 @@ const airflexData = [
     descriptio: "top"
   },
   {
+    id:"3",
     image: [
       "https://static5.lenskart.com/media/catalog/product/pro/1/thumbnail/480x480/9df78eab33525d08d6e5fb8d27136e95//l/i/Lenskart-Air-LA-E14360-C1-Eyeglasses_J_1838.jpg",
       "https://static5.lenskart.com/media/catalog/product/pro/1/thumbnail/480x480/9df78eab33525d08d6e5fb8d27136e95//l/i/Lenskart-Air-LA-E14360-C1-Eyeglasses_J_1837.jpg",
@@ -194,6 +197,7 @@ const airflexData = [
     descriptio: "top"
   },
   {
+    id:"4",
     image: [
       "https://static5.lenskart.com/media/catalog/product/pro/1/thumbnail/480x480/9df78eab33525d08d6e5fb8d27136e95//l/i/Lenskart-Air-LA-E14360-C1-Eyeglasses_J_1838.jpg",
       "https://static5.lenskart.com/media/catalog/product/pro/1/thumbnail/480x480/9df78eab33525d08d6e5fb8d27136e95//l/i/Lenskart-Air-LA-E14360-C1-Eyeglasses_J_1837.jpg",
@@ -212,6 +216,7 @@ const airflexData = [
 
 const aviatorData = [
   {
+    id:"5",
     image: [
       "https://static5.lenskart.com/media/catalog/product/pro/1/thumbnail/480x480/9df78eab33525d08d6e5fb8d27136e95//l/i/black-gunmetal-full-rim-aviator-lenskart-air-fusion-la-e14958-c4-eyeglasses_g_2873_09_22_23.jpg",
       "https://static5.lenskart.com/media/catalog/product/pro/1/thumbnail/480x480/9df78eab33525d08d6e5fb8d27136e95//l/i/black-gunmetal-full-rim-aviator-lenskart-air-fusion-la-e14958-c4-eyeglasses_g_2872_09_22_23.jpg",
@@ -226,6 +231,7 @@ const aviatorData = [
     descriptio: "top"
   },
   {
+    id:"6",
     image: [
       "https://static5.lenskart.com/media/catalog/product/pro/1/thumbnail/480x480/9df78eab33525d08d6e5fb8d27136e95//v/i/vincent-chase-vc-e15958-c1-eyeglasses_g_3363_18_09_2023.jpg",
       "https://static5.lenskart.com/media/catalog/product/pro/1/thumbnail/480x480/9df78eab33525d08d6e5fb8d27136e95//v/i/vincent-chase-vc-e15958-c1-eyeglasses_g_3362_18_09_2023.jpg",
@@ -242,6 +248,7 @@ const aviatorData = [
 ]
 const blendData = [
   {
+    id:"1",
     image: [
       "https://static5.lenskart.com/media/catalog/product/pro/1/thumbnail/480x480/9df78eab33525d08d6e5fb8d27136e95//l/i/Lenskart-Air-LA-E14360-C1-Eyeglasses_J_1838.jpg",
       "https://static5.lenskart.com/media/catalog/product/pro/1/thumbnail/480x480/9df78eab33525d08d6e5fb8d27136e95//l/i/Lenskart-Air-LA-E14360-C1-Eyeglasses_J_1837.jpg",
@@ -260,6 +267,7 @@ const blendData = [
 
 const cateeyeData = [
   {
+    id:"2",
     image: [
       "https://static5.lenskart.com/media/catalog/product/pro/1/thumbnail/480x480/9df78eab33525d08d6e5fb8d27136e95//v/i/pink-transparent-multicolour-full-rim-cat-eye-vincent-chase-classic-acetate-vc-e16668-c2-eyeglasses_img_2122_19_jan24.jpg",
       "https://static5.lenskart.com/media/catalog/product/pro/1/thumbnail/480x480/9df78eab33525d08d6e5fb8d27136e95//v/i/pink-transparent-multicolour-full-rim-cat-eye-vincent-chase-classic-acetate-vc-e16668-c2-eyeglasses_img_2121_19_jan24.jpg",
@@ -274,6 +282,7 @@ const cateeyeData = [
     descriptio: "top"
   },
   {
+    id:"3",
     image: [
       "https://static5.lenskart.com/media/catalog/product/pro/1/thumbnail/480x480/9df78eab33525d08d6e5fb8d27136e95//l/i/pink-transparent-full-rim-cat-eye-lenskart-air-fusion-la-e14101-c2-eyeglasses_lenskart-air-la-e14101-c2-c2-eyeglasses_g_7524_28july23.jpg",
       "https://static5.lenskart.com/media/catalog/product/pro/1/thumbnail/480x480/9df78eab33525d08d6e5fb8d27136e95//l/i/pink-transparent-full-rim-cat-eye-lenskart-air-fusion-la-e14101-c2-eyeglasses_lenskart-air-la-e14101-c2-c2-eyeglasses_g_7523_28july23.jpg",
@@ -288,6 +297,7 @@ const cateeyeData = [
     descriptio: "top"
   },
   {
+    id:"4",
     image: [
       "https://static5.lenskart.com/media/catalog/product/pro/1/thumbnail/480x480/9df78eab33525d08d6e5fb8d27136e95//l/i/grey-transparent-silver-full-rim-cat-eye-lenskart-air-classic-la-e14575-c2-eyeglasses_g_4817_14_06_2022.jpg",
       "https://static5.lenskart.com/media/catalog/product/pro/1/thumbnail/480x480/9df78eab33525d08d6e5fb8d27136e95//l/i/grey-transparent-silver-full-rim-cat-eye-lenskart-air-classic-la-e14575-c2-eyeglasses_g_4816_14_06_2022.jpg",

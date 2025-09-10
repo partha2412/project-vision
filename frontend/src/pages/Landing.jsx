@@ -1,5 +1,6 @@
 import Carousel from '../components/Carousl'
-import Slide2 from './Slide2'
+import BuyOneGetOne from './slides/BuyOneGetOne'
+import Slide2 from './slides/Slide2'
 
 const Landing = () => {
     const images = [
@@ -10,7 +11,7 @@ const Landing = () => {
     ]
     return (
         <div>
-            <div className='flex flex-col h-screen'>
+            <div className='flex flex-col h-full'>
 
 
                 {/* Sliding 1st Slide */}
@@ -21,6 +22,10 @@ const Landing = () => {
                 {/* Next Slide */}
                 <div className='h-full'>
                     <Slide2/>
+                </div>
+
+                <div>
+                    <BuyOneGetOne/>
                 </div>
 
 
