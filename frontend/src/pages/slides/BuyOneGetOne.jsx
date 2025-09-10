@@ -1,5 +1,5 @@
 import React from "react";
-import lens from "../photo/lens.webp";
+import lens from "../../photo/lens.webp";
 
 const BuyOneGetOne = () => {
   return (
