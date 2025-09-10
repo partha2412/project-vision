@@ -59,7 +59,7 @@ const Login = () => {
             </span>
           </p>
 
-          <p className="text-gray-900 text-sm mt-2 text-center cursor-pointer hover:underline text-blue-500">
+          <p className="text-sm mt-2 text-center cursor-pointer hover:underline text-blue-500">
             Forgot Password?
           </p>
         </div>
