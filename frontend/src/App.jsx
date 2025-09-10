@@ -26,7 +26,7 @@ const App = () => {
           <Route path='/wishlist' element={<WishlistPage/>} />
 
 
-
+        {/* ok bro */}
           <Route path='/checkout' element={<Checkout />} />
           <Route path='/vto' element={<VTO />} />
           
