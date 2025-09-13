@@ -21,6 +21,7 @@ const NavBar = () => {
 
         {/* Navbar */}
         <nav className="flex items-center space-x-2 md:space-x-4 text-black font-medium ml-auto">
+          
           {/* Track */}
           <button
             className="relative px-2 md:px-3 py-1 rounded-sm group text-sm md:text-base"
