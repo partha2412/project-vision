@@ -9,7 +9,7 @@ function classNames(...classes) {
 
 const ProfileSettings = () => {
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white shadow-md rounded-lg mt-8">
+    <div className="max-w-4xl mx-auto p-6 bg-white shadow-md rounded-lg mt-8 ">
       <h1 className="text-2xl font-bold mb-6">Account Settings</h1>
 
       <Tab.Group>
@@ -34,7 +34,7 @@ const ProfileSettings = () => {
         <Tab.Panels>
           {/* My Orders Tab */}
           <Tab.Panel>
-            <p className="text-gray-500">You have no orders yet.</p>
+            <p className="text-gray-500 h-screen">You have no orders yet.</p>
           </Tab.Panel>
 
           {/* Account Info Tab */}
@@ -121,7 +121,7 @@ const ProfileSettings = () => {
 
           {/* Address Book Tab */}
           <Tab.Panel>
-            <div className="space-y-4 max-w-lg">
+            <div className="space-y-4 max-w-lg ">
               <p className="text-gray-500">No address saved.</p>
 
               <div className="mt-6 border-t pt-4">
