@@ -11,7 +11,7 @@ const ProductsPage = () => {
     const dataset = datasets[type]
 
     const [showOptions, setShowOptions] = useState(false);
-    console.log(showOptions);
+    //console.log(showOptions);
 
 
     return (
