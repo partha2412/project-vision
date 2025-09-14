@@ -9,6 +9,13 @@ import ProductsPage from './pages/ProductsPage'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import WishlistPage from './pages/WishlistPage'
+import ProfileSettings from './pages/ProfileSettings'
+import SignupPage from './pages/SignupPage'
+import Admin from './pages/Admin'
+import Pending from './pages/Pending'
+import Notifications from './pages/Notifications'
+import Analytics from './pages/Analytics'
+import AdminDashboard from './pages/AdminDashboard'
 
 const App = () => {
   return (
@@ -21,12 +28,22 @@ const App = () => {
           {/* <Route path='/' element={<Landing/>} /> */}
           <Route path='/' element={<Landing />} />
           <Route path='/login' element={<Login />} />
-          <Route path='/signup' element={<Signup />} />
+          <Route path='/signup' element={<SignupPage />} />
           <Route path='/products/:type' element={<ProductsPage />} />
           <Route path='/wishlist' element={<WishlistPage/>} />
 
+          <Route path='/userdashboard' element={<ProfileSettings/>} />
+
           <Route path='/checkout' element={<Checkout />} />
           <Route path='/vto' element={<VTO />} />
+         <Route path='/admin' element={<Admin />} />
+          <Route path='/p' element={<Pending/>} />
+          <Route path='/notification' element={<Notifications/>} />
+          <Route path='/ana' element={<Analytics/>} />
+          <Route path='/admindashboard' element={<AdminDashboard/>} />
+
+
+
           
         </Routes>
       </BrowserRouter>
