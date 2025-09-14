@@ -16,6 +16,8 @@ import Pending from './pages/Pending'
 import Notifications from './pages/Notifications'
 import Analytics from './pages/Analytics'
 import AdminDashboard from './pages/AdminDashboard'
+import AdminSettings from './pages/AdminSettings'
+
 
 const App = () => {
   return (
@@ -41,6 +43,8 @@ const App = () => {
           <Route path='/notification' element={<Notifications/>} />
           <Route path='/ana' element={<Analytics/>} />
           <Route path='/admindashboard' element={<AdminDashboard/>} />
+           <Route path='/ad' element={<AdminSettings/>} />
+
 
 
 
