@@ -1,160 +1,122 @@
-import React, { useRef, useEffect } from "react";
+import React from "react";
 
-export default function VTO() {
-    const videoRef = useRef(null);
-    const canvasRef = useRef(null);
-
-    useEffect(() => {
-        const image_png = "./glass1.png"; // ✅ place in public/models folder
-        const size = 1.9;
-        const horizontal = 0;
-        const vertical = -0.03;
-
-        const loadFaceMesh = async () => {
-            const [{ FaceMesh }, { Camera }] = await Promise.all([
-                import("@mediapipe/face_mesh"),
-                import("@mediapipe/camera_utils"),
-            ]);
-
-            const faceMesh = new FaceMesh({
-                locateFile: (file) =>
-                    `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
-            });
-
-            faceMesh.setOptions({
-                maxNumFaces: 1,
-                refineLandmarks: true,
-                minDetectionConfidence: 0.5,
-                minTrackingConfidence: 0.5,
-            });
-
-            // ✅ Preload glasses image
-            const glasses = new Image();
-            glasses.src = image_png;
-            await new Promise((resolve) => (glasses.onload = resolve));
-
-            const canvas = canvasRef.current;
-            const ctx = canvas.getContext("2d");
-
-            faceMesh.onResults((results) => {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                if (results.multiFaceLandmarks?.length > 0) {
-                    const landmarks = results.multiFaceLandmarks[0];
-
-                    // Landmarks for eyes
-                    const leftEye = landmarks[33];
-                    const rightEye = landmarks[263];
-
-                    const x1 = leftEye.x * canvas.width;
-                    const y1 = leftEye.y * canvas.height;
-                    const x2 = rightEye.x * canvas.width;
-                    const y2 = rightEye.y * canvas.height;
-
-                    // Midpoint and rotation
-                    const midX = (x1 + x2) / 2;
-                    const midY = (y1 + y2) / 2;
-                    const eyeDistance = Math.hypot(x2 - x1, y2 - y1);
-                    const angle = Math.atan2(y2 - y1, x2 - x1);
-
-                    // Glasses size
-                    const glassesWidth = eyeDistance * size;
-                    const glassesHeight =
-                        glassesWidth * (glasses.height / glasses.width || 0.5);
-
-                    const offsetX = horizontal;
-                    const offsetY = -eyeDistance * vertical;
-
-                    ctx.save();
-                    ctx.translate(midX, midY);
-                    ctx.rotate(angle);
-
-                    // --- Transparent background processing ---
-                    const offCanvas = document.createElement("canvas");
-                    offCanvas.width = glasses.width;
-                    offCanvas.height = glasses.height;
-                    const offCtx = offCanvas.getContext("2d");
-
-                    offCtx.drawImage(glasses, 0, 0);
-                    const imageData = offCtx.getImageData(
-                        0,
-                        0,
-                        offCanvas.width,
-                        offCanvas.height
-                    );
-                    const data = imageData.data;
-
-                    for (let i = 0; i < data.length; i += 4) {
-                        const r = data[i],
-                            g = data[i + 1],
-                            b = data[i + 2];
-                        if (r > 240 && g > 240 && b > 240) {
-                            data[i + 3] = 0; // transparent
-                        }
-                    }
-
-                    offCtx.putImageData(imageData, 0, 0);
-
-                    ctx.drawImage(
-                        offCanvas,
-                        -glassesWidth / 2 + offsetX,
-                        -glassesHeight / 2 + offsetY,
-                        glassesWidth,
-                        glassesHeight
-                    );
-
-                    ctx.restore();
-                }
-            });
-
-            const video = videoRef.current;
-            const startCamera = async () => {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                video.srcObject = stream;
-
-                video.onloadedmetadata = () => {
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-
-                    const camera = new Camera(video, {
-                        onFrame: async () => {
-                            await faceMesh.send({ image: video });
-                        },
-                        width: video.videoWidth,
-                        height: video.videoHeight,
-                    });
-                    camera.start();
-                };
-            };
-
-            startCamera();
-        };
-
-        loadFaceMesh();
-    }, []);
-
-    return (
-        <div className="flex flex-col items-center justify-center h-screen bg-gray-900">
-            <h2 className="text-2xl font-bold text-white mb-4">
-                👓 Virtual Try-On (AR Overlay)
+const Checkout = () => {
+  return (
+    <div className="bg-gray-100 min-h-screen flex justify-center items-center p-4">
+      <div className="w-full max-w-5xl bg-white shadow-lg rounded-lg grid grid-cols-1 md:grid-cols-2 overflow-hidden">
+        {/* Left: Delivery & Payment */}
+        <div className="p-8 space-y-8">
+          {/* Delivery Section */}
+          <div>
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+              Delivery Information
             </h2>
-
-            <div className="relative w-[600px] h-[400px] border-4 border-white rounded-lg shadow-lg">
-                {/* Webcam */}
-                <video
-                    ref={videoRef}
-                    autoPlay
-                    playsInline
-                    muted
-                    className="w-full h-full object-cover transform scale-x-[-1] rounded-lg"
-                />
-
-                {/* Overlay Canvas */}
-                <canvas
-                    ref={canvasRef}
-                    className="absolute top-0 left-0 w-full h-full transform scale-x-[-1] pointer-events-none"
-                />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <input
+                className="border rounded-md p-4 w-full text-base focus:ring-2 focus:ring-blue-500"
+                type="text"
+                placeholder="First name"
+              />
+              <input
+                className="border rounded-md p-4 w-full text-base focus:ring-2 focus:ring-blue-500"
+                type="text"
+                placeholder="Last name"
+              />
             </div>
+            <input
+              className="border rounded-md p-4 w-full mt-4 text-base focus:ring-2 focus:ring-blue-500"
+              type="text"
+              placeholder="Address"
+            />
+            <input
+              className="border rounded-md p-4 w-full mt-4 text-base focus:ring-2 focus:ring-blue-500"
+              type="text"
+              placeholder="Apartment, suite, etc. (optional)"
+            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              <input
+                className="border rounded-md p-4 w-full text-base focus:ring-2 focus:ring-blue-500"
+                type="text"
+                placeholder="City"
+              />
+              <input
+                className="border rounded-md p-4 w-full text-base focus:ring-2 focus:ring-blue-500"
+                type="text"
+                placeholder="PIN code"
+              />
+            </div>
+            <input
+              className="border rounded-md p-4 w-full mt-4 text-base focus:ring-2 focus:ring-blue-500"
+              type="text"
+              placeholder="Phone"
+            />
+          </div>
+
+          {/* Payment Section */}
+          <div>
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+              Payment Method
+            </h2>
+            <div className="space-y-3">
+              <label className="flex items-center gap-2 cursor-pointer border rounded-md p-4 hover:bg-gray-50">
+                <input
+                  type="radio"
+                  name="payment"
+                  defaultChecked
+                  className="text-blue-600 focus:ring-blue-500"
+                />
+                <span className="text-gray-700">
+                  Razorpay Secure (UPI, Cards, Wallets, NetBanking)
+                </span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer border rounded-md p-4 hover:bg-gray-50">
+                <input
+                  type="radio"
+                  name="payment"
+                  className="text-blue-600 focus:ring-blue-500"
+                />
+                <span className="text-gray-700">Cash on Delivery</span>
+              </label>
+            </div>
+          </div>
+
+          {/* Confirm Button */}
+          <div className="pt-6">
+            <button className="w-full py-3 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700 transition duration-200">
+              Place Order
+            </button>
+          </div>
         </div>
-    );
-}
+
+        {/* Right: Order Summary */}
+        <div className="bg-gray-50 p-8 border-l space-y-6">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">
+            Order Summary
+          </h2>
+
+          <div className="space-y-4">
+            <div className="flex justify-between text-gray-700">
+              <span>Product 1</span>
+              <span>$20.00</span>
+            </div>
+            <div className="flex justify-between text-gray-700">
+              <span>Product 2</span>
+              <span>$15.00</span>
+            </div>
+            <div className="flex justify-between text-gray-700">
+              <span>Shipping</span>
+              <span>$5.00</span>
+            </div>
+          </div>
+
+          <div className="border-t pt-4 flex justify-between font-semibold text-gray-900">
+            <span>Total</span>
+            <span>$40.00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Checkout;
