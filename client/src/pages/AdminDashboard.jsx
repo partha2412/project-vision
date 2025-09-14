@@ -6,12 +6,14 @@ import {
   Package,
   PlusCircle,
 } from "lucide-react";
+import { FaUserEdit } from "react-icons/fa";
 
 // Import your existing pages/components
 import Admin from "./Admin";         // Products + Orders
 import Pending from "./Pending";     // Filtered orders
 import Notifications from "./Notifications";
 import Analytics from "./Analytics";
+import AdminSettings from "./AdminSettings";
 
 const AdminDashboard = () => {
   const [activePage, setActivePage] = useState("analytics"); // default page
@@ -22,6 +24,8 @@ const AdminDashboard = () => {
     { id: "admin", label: "Products & Orders", icon: <ClipboardList className="w-5 h-5" /> },
     { id: "pending", label: "Pending Orders", icon: <Package className="w-5 h-5" /> },
     { id: "notifications", label: "Notifications", icon: <Bell className="w-5 h-5" /> },
+    { id:  "update profile", label:  "update profile", icon: <FaUserEdit className="w-5 h-5" /> },
+
   ];
 
   return (
@@ -54,6 +58,8 @@ const AdminDashboard = () => {
         {activePage === "admin" && <Admin />}
         {activePage === "pending" && <Pending />}
         {activePage === "notifications" && <Notifications />}
+        {activePage === "update profile" && <AdminSettings />}
+
       </main>
     </div>
   );
