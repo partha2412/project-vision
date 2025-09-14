@@ -12,7 +12,7 @@ const Login = () => {
         <img
           src="https://s3.zeelool.com/admin/product/group/cca5c1942d0476d07a9db831b7cdddd8.jpg"
           alt="Background"
-          className="h-screen w-full object-fill"
+          className="h-full w-full object-cover"
         />
       </div>
 

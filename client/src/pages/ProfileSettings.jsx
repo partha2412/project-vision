@@ -46,7 +46,7 @@ const ProfileSettings = () => {
                 </label>
                 <input
                   type="text"
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                  className="mt-1 block w-full p-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                   placeholder="John"
                 />
               </div>
@@ -56,7 +56,7 @@ const ProfileSettings = () => {
                 </label>
                 <input
                   type="text"
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                  className="mt-1 block w-full p-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Doe"
                 />
               </div>
@@ -66,7 +66,7 @@ const ProfileSettings = () => {
                 </label>
                 <input
                   type="email"
-                  className="mt-1 block w-full bg-gray-100 border-gray-300 rounded-md shadow-sm"
+                  className="mt-1 block w-full p-2 bg-gray-100 border-gray-300 rounded-md shadow-sm"
                   placeholder="johndoe@email.com"
                   readOnly
                 />
@@ -75,7 +75,7 @@ const ProfileSettings = () => {
                 <label className="block text-sm font-medium text-gray-700">
                   Gender
                 </label>
-                <select className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                <select className="mt-1 block w-full p-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
                   <option>Select Gender</option>
                   <option>Male</option>
                   <option>Female</option>
@@ -90,17 +90,17 @@ const ProfileSettings = () => {
                   <input
                     type="password"
                     placeholder="Current Password"
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full p-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                   />
                   <input
                     type="password"
                     placeholder="New Password"
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full p-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                   />
                   <input
                     type="password"
                     placeholder="Confirm New Password"
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full p-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
                 <div className="mt-4">
@@ -121,7 +121,7 @@ const ProfileSettings = () => {
 
           {/* Address Book Tab */}
           <Tab.Panel>
-            <div className="space-y-4 max-w-lg ">
+            <div className="space-y-20 max-w-lg ">
               <p className="text-gray-500">No address saved.</p>
 
               <div className="mt-6 border-t pt-4">
@@ -130,34 +130,34 @@ const ProfileSettings = () => {
                   <input
                     type="text"
                     placeholder="Label (Home, Work, etc.)"
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full p-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                   />
                   <input
                     type="text"
                     placeholder="Address Line 1"
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full p-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                   />
                   <input
                     type="text"
                     placeholder="Address Line 2"
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full p-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                   />
                   <div className="grid grid-cols-2 gap-4">
                     <input
                       type="text"
                       placeholder="City"
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                      className="mt-1 block w-full p-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                     />
                     <input
                       type="text"
                       placeholder="State"
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                      className="mt-1 block w-full p-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
                   <input
                     type="text"
                     placeholder="ZIP / PIN"
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full p-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                   />
                   <div>
                     <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">

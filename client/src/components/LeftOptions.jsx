@@ -14,7 +14,7 @@ const LeftOptions = () => {
   ];
 
   return (
-    <div className="w-full sm:w-72 bg-white rounded-2xl  overflow-hidden shadow-2xl">
+    <div className="w-full sm:w-72 mt-14 bg-white  overflow-hidden shadow-2xl">
       {/* Sidebar Title */}
       <div className="bg-gradient-to-r from-purple-500 to-pink-500 p-4">
         <h1 className="text-xl font-bold text-white text-center">

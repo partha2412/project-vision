@@ -4,18 +4,11 @@ export default function VTO() {
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
 
-
-
     useEffect(() => {
-        // API calling
-        const results = '';
-
-        const image_png = "/models/glasses3.png";
+        const image_png = "./glass1.png"; // ✅ place in public/models folder
         const size = 1.9;
         const horizontal = 0;
         const vertical = -0.03;
-
-
 
         const loadFaceMesh = async () => {
             const [{ FaceMesh }, { Camera }] = await Promise.all([
@@ -35,8 +28,10 @@ export default function VTO() {
                 minTrackingConfidence: 0.5,
             });
 
+            // ✅ Preload glasses image
             const glasses = new Image();
-            glasses.src = image_png; // place this in /public/models
+            glasses.src = image_png;
+            await new Promise((resolve) => (glasses.onload = resolve));
 
             const canvas = canvasRef.current;
             const ctx = canvas.getContext("2d");
@@ -56,29 +51,25 @@ export default function VTO() {
                     const x2 = rightEye.x * canvas.width;
                     const y2 = rightEye.y * canvas.height;
 
-                    // Midpoint between eyes
+                    // Midpoint and rotation
                     const midX = (x1 + x2) / 2;
                     const midY = (y1 + y2) / 2;
-
                     const eyeDistance = Math.hypot(x2 - x1, y2 - y1);
                     const angle = Math.atan2(y2 - y1, x2 - x1);
-                    //console.log(angle);
-                    
 
-                    // Glasses size (relative to eye distance)
-                    const glassesWidth = eyeDistance * (size);
+                    // Glasses size
+                    const glassesWidth = eyeDistance * size;
                     const glassesHeight =
                         glassesWidth * (glasses.height / glasses.width || 0.5);
 
-                    // Position offsets (adjust as needed)
-                    const offsetX = horizontal; // move left/right
-                    const offsetY = -eyeDistance * (vertical); // move up/down
+                    const offsetX = horizontal;
+                    const offsetY = -eyeDistance * vertical;
 
                     ctx.save();
                     ctx.translate(midX, midY);
                     ctx.rotate(angle);
 
-                    // --- Remove white background ---
+                    // --- Transparent background processing ---
                     const offCanvas = document.createElement("canvas");
                     offCanvas.width = glasses.width;
                     offCanvas.height = glasses.height;
@@ -94,17 +85,16 @@ export default function VTO() {
                     const data = imageData.data;
 
                     for (let i = 0; i < data.length; i += 4) {
-                        const r = data[i];
-                        const g = data[i + 1];
-                        const b = data[i + 2];
+                        const r = data[i],
+                            g = data[i + 1],
+                            b = data[i + 2];
                         if (r > 240 && g > 240 && b > 240) {
-                            data[i + 3] = 0; // make transparent
+                            data[i + 3] = 0; // transparent
                         }
                     }
 
                     offCtx.putImageData(imageData, 0, 0);
 
-                    // Draw glasses with offsets
                     ctx.drawImage(
                         offCanvas,
                         -glassesWidth / 2 + offsetX,
