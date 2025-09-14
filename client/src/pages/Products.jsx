@@ -27,13 +27,13 @@ const Products = ({ data }) => {
       </h1>
       
       {/* Responsive Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 w-full max-w-7xl">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2  0 w-full max-w-7xl">
         
         {data.map((item, index) => (
           <div
             key={index}
             className="bg-white shadow-lg rounded-2xl overflow-hidden 
-            hover:shadow-2xl transform hover:-translate-y-2 
+            hover:shadow-2xl transform hover:scale-110 scale-100
             transition-all flex flex-col w-[110%] mx-auto h-[80%] "
           >
             {/* Product Image */}
