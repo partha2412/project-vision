@@ -58,7 +58,7 @@ const NavBar = () => {
           </button>
 
           {/* Cart Icon */}
-          <button className="relative py-1 px-2 group">
+          <button className="relative py-1 px-2 group" onClick={()=>navigate("/cart")}>
             <span className="relative z-10 text-[22px] md:text-[28px]">
               <IoCartOutline />
             </span>

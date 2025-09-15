@@ -1,10 +1,14 @@
 import { useContext } from "react";
 import Carousel from "../components/Carousl_Products";
 import { WishlistContext } from "../context/WishlistContext";
+import { CartContext } from "../context/CartContext";
 
 const Products = ({ data }) => {
   const { wishlist, addToWishlist, removeFromWishlist } =
     useContext(WishlistContext);
+
+  const { addToCart } = useContext(CartContext)
+  console.log( addToCart );
 
   const toggleWish = (item) => {
     const exists = wishlist.some((w) => w.id === item.id);
@@ -37,7 +41,7 @@ const Products = ({ data }) => {
             transition-all flex flex-col w-[110%] mx-auto h-[80%] "
           >
             {/* Product Image */}
-            <div className="relative w-full h-56 sm:h-60 md:h-64 flex justify-center items-center overflow-hidden">
+            <div className="relative w-full h-56 sm:h-60 md:h-80 flex justify-center items-center overflow-hidden">
               {Array.isArray(item.image) ? (
                 <Carousel
                   images={item.image.filter((src) => src.trim() !== "")}
@@ -142,8 +146,9 @@ const Products = ({ data }) => {
                   (20% OFF)
                 </p>
               </div>
-
+                {/* Add to cart */}
               <button
+                onClick={() => addToCart(item)}
                 className="mt-auto w-full py-2 rounded-lg 
                 bg-gradient-to-r from-purple-500 to-pink-500 
                 text-white font-semibold shadow-md hover:opacity-90 transition"

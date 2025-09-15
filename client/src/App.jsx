@@ -17,6 +17,7 @@ import Notifications from './pages/Notifications'
 import Analytics from './pages/Analytics'
 import AdminDashboard from './pages/AdminDashboard'
 import AdminSettings from './pages/AdminSettings'
+import CartPage from './pages/CartPage'
 
 
 const App = () => {
@@ -33,6 +34,7 @@ const App = () => {
           <Route path='/signup' element={<SignupPage />} />
           <Route path='/products/:type' element={<ProductsPage />} />
           <Route path='/wishlist' element={<WishlistPage/>} />
+          <Route path='/cart' element={<CartPage/>} />
 
           <Route path='/userdashboard' element={<ProfileSettings/>} />
 
