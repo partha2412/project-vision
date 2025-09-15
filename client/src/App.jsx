@@ -17,7 +17,6 @@ import Notifications from './pages/Notifications'
 import Analytics from './pages/Analytics'
 import AdminDashboard from './pages/AdminDashboard'
 import AdminSettings from './pages/AdminSettings'
-import CartPage from './pages/CartPage'
 
 
 const App = () => {
