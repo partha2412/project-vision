@@ -18,7 +18,11 @@ import Analytics from './pages/Analytics'
 import AdminDashboard from './pages/AdminDashboard'
 import AdminSettings from './pages/AdminSettings'
 import CartPage from './pages/CartPage'
-
+import AllProducts from "./pages/AllProduct";
+import ProductDetail from "./pages/ProductDetails";
+import Men from "./pages/Men";
+import Women from "./pages/Women";
+import Kids from "./pages/Kids";
 
 const App = () => {
   return (
@@ -46,6 +50,11 @@ const App = () => {
           <Route path='/ana' element={<Analytics/>} />
           <Route path='/admindashboard' element={<AdminDashboard/>} />
            <Route path='/ad' element={<AdminSettings/>} />
+           <Route path="/products" element={<AllProducts />} />
+          <Route path="/product/:id" element={<ProductDetail />} />
+          <Route path="/men" element={<Men />} />
+          <Route path="/women" element={<Women />} />
+          <Route path="/kids" element={<Kids />} />
 
 
 
