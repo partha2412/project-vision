@@ -46,6 +46,7 @@ const ProductsPage = () => {
           ${showOptions ? "translate-x-0" : "-translate-x-full"}`}>
                 <LeftOptions />
             </div>
+            
             <Products data={dataset} />
         </div>
     )
