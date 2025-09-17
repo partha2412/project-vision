@@ -26,7 +26,7 @@ import Kids from "./pages/Kids";
 
 const App = () => {
   return (
-    <div className='relative'>
+    <div className='relative h-screen'>
 
       {/* <Navbar2/> */}
       <BrowserRouter>
