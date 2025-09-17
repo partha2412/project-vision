@@ -8,7 +8,7 @@ const Products = ({ data }) => {
     useContext(WishlistContext);
 
   const { addToCart } = useContext(CartContext)
-  console.log( addToCart );
+  //console.log( addToCart );
 
   const toggleWish = (item) => {
     const exists = wishlist.some((w) => w.id === item.id);
