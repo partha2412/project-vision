@@ -37,20 +37,20 @@ const App = () => {
           <Route path='/login' element={<Login />} />
           <Route path='/signup' element={<SignupPage />} />
           <Route path='/products/:type' element={<ProductsPage />} />
-          <Route path='/wishlist' element={<WishlistPage/>} />
-          <Route path='/cart' element={<CartPage/>} />
+          <Route path='/wishlist' element={<WishlistPage />} />
+          <Route path='/cart' element={<CartPage />} />
 
-          <Route path='/userdashboard' element={<ProfileSettings/>} />
+          <Route path='/userdashboard' element={<ProfileSettings />} />
 
           <Route path='/checkout' element={<Checkout />} />
           <Route path='/vto' element={<VTO />} />
-         <Route path='/admin' element={<Admin />} />
-          <Route path='/p' element={<Pending/>} />
-          <Route path='/notification' element={<Notifications/>} />
-          <Route path='/ana' element={<Analytics/>} />
-          <Route path='/admindashboard' element={<AdminDashboard/>} />
-           <Route path='/ad' element={<AdminSettings/>} />
-           <Route path="/products" element={<AllProducts />} />
+          {/* <Route path='/admin' element={<Admin />} />
+          <Route path='/p' element={<Pending />} />
+          <Route path='/notification' element={<Notifications />} />
+          <Route path='/ana' element={<Analytics />} /> */}
+          <Route path='/admindashboard' element={<AdminDashboard />} />
+          {/* <Route path='/ad' element={<AdminSettings />} /> */}
+          <Route path="/products" element={<AllProducts />} />
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/men" element={<Men />} />
           <Route path="/women" element={<Women />} />
@@ -59,7 +59,7 @@ const App = () => {
 
 
 
-          
+
         </Routes>
       </BrowserRouter>
       <Footer />

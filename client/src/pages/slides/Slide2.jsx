@@ -1,7 +1,7 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import left from '../../assets/icon/left-arrow-svgrepo-com.svg'
-import right from '../../assets/icon/right-arrow-svgrepo-com.svg'
+import left from "../../assets/icon/left-arrow-svgrepo-com.svg";
+import right from "../../assets/icon/right-arrow-svgrepo-com.svg";
 
 import airflex from "../../photo/airflex.webp";
 import aviator from "../../photo/aviator.webp";
@@ -15,29 +15,54 @@ import trans from "../../photo/trans.webp";
 const Slide2 = () => {
   const navigate = useNavigate();
   const scrollRef = useRef(null);
+  const [isHovered, setIsHovered] = useState(false);
 
   const images = [
-    { src: airflex, name: "airflex", route: "/airflex" },
-    { src: aviator, name: "aviator", route: "/aviator" },
-    { src: blend, name: "blend", route: "/blend" },
-    { src: cateeye, name: "cateeye", route: "/cateeye" },
-    { src: clipon, name: "clipon", route: "/clipon" },
-    { src: clubmaster, name: "clubmaster", route: "/clubmaster" },
-    { src: image179, name: "image179", route: "/image179" },
-    { src: trans, name: "trans", route: "/trans" },
+    { src: airflex, name: "airflex" },
+    { src: aviator, name: "aviator" },
+    { src: blend, name: "blend" },
+    { src: cateeye, name: "cateeye" },
+    { src: clipon, name: "clipon" },
+    { src: clubmaster, name: "clubmaster" },
+    { src: image179, name: "image179" },
+    { src: trans, name: "trans" },
   ];
 
   const scroll = (direction) => {
     if (scrollRef.current) {
       scrollRef.current.scrollBy({
-        left: direction === "left" ? -300 : 300, // adjust scroll distance
+        left: direction === "left" ? -300 : 300,
         behavior: "smooth",
       });
     }
   };
 
+  // Auto-scroll loop
+  useEffect(() => {
+    let interval;
+    if (!isHovered) {
+      interval = setInterval(() => {
+        if (scrollRef.current) {
+          const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+
+          // If reached end → reset back to start
+          if (scrollLeft + clientWidth >= scrollWidth) {
+            scrollRef.current.scrollTo({ left: 0, behavior: "smooth" });
+          } else {
+            scrollRef.current.scrollBy({ left: 300, behavior: "smooth" });
+          }
+        }
+      }, 2000); // auto scroll every 2.5s
+    }
+    return () => clearInterval(interval);
+  }, [isHovered]);
+
   return (
-    <div className="w-full bg-white flex items-center p-6 relative">
+    <div
+      className="w-full bg-white flex items-center p-6 relative "
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       {/* Left Side Text */}
       <div className="min-w-[200px] mr-6">
         <h1 className="text-3xl md:text-4xl text-black font-bold leading-snug">
@@ -51,18 +76,18 @@ const Slide2 = () => {
       {/* Scroll Buttons */}
       <button
         onClick={() => scroll("left")}
-        className="absolute left-[220px] z-10  text-white px-3 py-2 rounded-full shadow-md duration-300 cursor-pointer hover:bg-gray-200"
+        className="absolute left-[220px] z-10 px-3 py-2 rounded-full  shadow-md duration-300 cursor-pointer hover:bg-gray-200"
       >
         <div className="size-8">
-          <img src={left} ></img>
+          <img src={left} alt="left" />
         </div>
       </button>
       <button
         onClick={() => scroll("right")}
-        className="absolute right-4 z-10 text-white px-3 py-2 rounded-full shadow-md duration-300 cursor-pointer hover:bg-gray-200"
+        className="absolute right-4 z-10 px-3 py-2 rounded-full shadow-md duration-300 cursor-pointer hover:bg-gray-200"
       >
         <div className="size-8">
-          <img src={right} ></img>
+          <img src={right} alt="right" />
         </div>
       </button>
 
@@ -70,15 +95,16 @@ const Slide2 = () => {
       <div
         ref={scrollRef}
         className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth"
-        style={{ scrollBehavior: "smooth" }}
       >
         {images.map((item, index) => (
           <div
             key={index}
             onClick={() => navigate(`/products/${item.name}`)}
-            className="flex-shrink-0 w-40 sm:w-80 hover:bg-gray-100 duration-300 cursor-pointer rounded-lg flex flex-col items-center justify-between p-3"
+            className="flex-shrink-0 w-40 sm:w-80  hover:bg-gray-100 duration-300 cursor-pointer rounded-lg flex flex-col items-center justify-between p-3"
           >
-            <div className="text-lg mb-3 font-semibold capitalize">{item.name}</div>
+            <div className="text-lg mb-3 font-semibold capitalize">
+              {item.name}
+            </div>
             <img
               src={item.src}
               alt={item.name}
@@ -87,10 +113,14 @@ const Slide2 = () => {
 
             <button
               className="mt-5 px-3 py-2 bg-black hover:bg-gray-500 duration-300 cursor-pointer text-white text-sm font-semibold rounded-md"
-              onClick={() => navigate(`/products/${item.name}`)}
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/products/${item.name}`);
+              }}
             >
               Explore
             </button>
+
           </div>
         ))}
       </div>

@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import products from "../datas/product";
 import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
 import { WishlistContext } from "../context/WishlistContext";
+import Slide1 from "./product_details_Bottom_Slides/Slide1";
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -61,7 +62,7 @@ export default function ProductDetail() {
         {/* Left: Image Section */}
         <div className="md:w-3/4">
           {/* Main Image Slider */}
-          <div className="w-full h-[450px] overflow-hidden relative rounded-lg shadow-2xl border-2 border-gray-200">
+          <div className="w-full h-[450px] overflow-hidden relative rounded-lg shadow-xl border-2 border-gray-200">
             <div
               className="flex transition-transform duration-700 ease-in-out h-full"
               style={{ transform: `translateX(-${currentIndex * 100}%)` }}
@@ -128,9 +129,9 @@ export default function ProductDetail() {
               <button
                 key={i}
                 onClick={() => setCurrentIndex(i)}
-                className={`w-4 h-4 rounded-full border-2 transition-all duration-300 ${
+                className={`w-4 h-4 rounded-full border transition-all duration-300 ${
                   currentIndex === i
-                    ? "bg-blue-500 border-blue-700 shadow-lg transform scale-125"
+                    ? "bg-blue-300 border-blue-700 shadow-lg transform scale-120"
                     : "bg-white border-gray-400"
                 }`}
                 aria-label={`Go to image ${i + 1}`}
@@ -178,7 +179,7 @@ export default function ProductDetail() {
 
           {/* Price & Discount */}
           <div className="mt-4">
-            <span className="text-xl font-semibold">₹{product.price}</span>
+            <span className="text-4xl font-semibold">₹{product.price}</span>
             <span className="line-through text-gray-500 ml-3">
               ₹{product.oldPrice}
             </span>
@@ -196,6 +197,10 @@ export default function ProductDetail() {
             </button>
           </div>
         </div>
+      </div>
+      {/* Other Div */}
+      <div className="mt-4 h-screen">
+        <Slide1/>
       </div>
     </div>
   );

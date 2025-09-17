@@ -6,13 +6,13 @@ import { WishlistProvider } from './context/WishlistContext.jsx'
 import { CartProvider } from './context/CartContext.jsx'
 
 createRoot(document.getElementById('root')).render(
-
-  <StrictMode>
+  <CartProvider>
     <WishlistProvider>
-      <CartProvider>
+      <StrictMode>
+
         <App />
-      </CartProvider>
+
+      </StrictMode>
     </WishlistProvider>
-  </StrictMode>
-  ,
+  </CartProvider>,
 )
