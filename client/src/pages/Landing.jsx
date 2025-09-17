@@ -1,6 +1,7 @@
 import Carousel from '../components/Carousl'
 import BuyOneGetOne from './slides/BuyOneGetOne'
 import Slide2 from './slides/Slide2'
+import CategorySection from "../components/CategorySection";
 
 const Landing = () => {
     const images = [
@@ -22,6 +23,10 @@ const Landing = () => {
                 {/* Next Slide */}
                 <div className='h-full'>
                     <Slide2/>
+                </div>
+                {/* Men / Women / Kids Section */}
+                 <div>
+                   <CategorySection />
                 </div>
 
                 <div>

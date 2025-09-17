@@ -16,15 +16,32 @@ const ProductsPage = () => {
 
     return (
         <div className='flex relative'>
-            <div className="absolute left-4 top-4 z-50">
-                <button onClick={() => setShowOptions(!showOptions)} className="p-4 bg-gradient-to-r from-purple-500 to-pink-400">
-                    <div className="flex flex-col gap-1">
-                        <div className="w-7 h-1 p-[2px] bg-pink-100"></div>
-                        <div className="w-7 h-1 p-[2px] bg-pink-100"></div>
-                        <div className="w-7 h-1 p-[2px] bg-pink-100"></div>
-                    </div>
-                </button>
-            </div>
+           <div className="absolute left-4 top-4 z-50">
+      <button
+        onClick={() => setShowOptions(!showOptions)}
+        className="relative w-11 h-11 flex items-center justify-center rounded-xl bg-white border border-gray-200 shadow-md hover:shadow-xl transition duration-300"
+        >
+        {/* Hamburger / X */}
+         <div className="space-y-1.5">
+         <span
+          className={`block h-0.5 w-6 rounded-full bg-gray-800 transform transition duration-300 ${
+          showOptions ? "rotate-45 translate-y-2" : ""
+          }`}
+         ></span>
+         <span
+          className={`block h-0.5 w-6 rounded-full bg-gray-800 transition-opacity duration-300 ${
+          showOptions ? "opacity-0" : "opacity-100"
+           }`}
+         ></span>
+         <span
+          className={`block h-0.5 w-6 rounded-full bg-gray-800 transform transition duration-300 ${
+          showOptions ? "-rotate-45 -translate-y-2" : ""
+          }`}
+        >
+        </span>
+        </div>
+      </button>
+       </div>
             <div className={`absolute z-30 top-4 left-0 px-4 h-full w-80 flex bg-white shadow-lg transform transition-transform duration-300 ease-in-out
           ${showOptions ? "translate-x-0" : "-translate-x-full"}`}>
                 <LeftOptions />
