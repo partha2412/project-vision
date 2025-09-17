@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import products from "../datas/product";
 import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
 import { WishlistContext } from "../context/WishlistContext";
+import Slide1 from "./product_details_Bottom_Slides/Slide1";
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -198,8 +199,8 @@ export default function ProductDetail() {
         </div>
       </div>
       {/* Other Div */}
-      <div className="bg-amber-400 mt-4 h-screen">
-        next section
+      <div className="mt-4 h-screen">
+        <Slide1/>
       </div>
     </div>
   );
