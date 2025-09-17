@@ -40,7 +40,7 @@ const products = [
     brand: "VisionPro",
     price: 1299,
     oldPrice: 1699,
-    rating: 4.0,
+    rating: 3.0,
     category: "eyeglasses",
     images: [
       "https://static5.lenskart.com/media/catalog/product/pro/1/thumbnail/480x480/9df78eab33525d08d6e5fb8d27136e95//j/i/john-jacobs-jj-e16116-c2-eyeglasses_g_8778_19_10_2023.jpg",
