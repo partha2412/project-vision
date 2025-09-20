@@ -1,175 +1,265 @@
 // src/components/ProfileSettings.js
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Tab } from '@headlessui/react';
+import { FaStar } from 'react-icons/fa';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
 
+// Mock Data
+const mockOrders = [
+  {
+    id: 101,
+    date: '2025-09-15',
+    status: 'Delivered',
+    amount: 1299,
+    items: [{ name: 'Stylish Sunglasses', qty: 1, price: 1299 }],
+    address: '123 Main St, Kolkata, WB',
+    payment: 'Credit Card',
+  },
+  {
+    id: 102,
+    date: '2025-08-22',
+    status: 'Shipped',
+    amount: 799,
+    items: [{ name: 'Leather Wallet', qty: 1, price: 799 }],
+    address: '123 Main St, Kolkata, WB',
+    payment: 'UPI',
+  },
+];
+
+const mockWishlist = [
+  { id: 1, name: 'Sunglasses', price: 1299 },
+  { id: 2, name: 'Watch', price: 2999 },
+];
+
+const mockReviews = [
+  { id: 1, product: 'Stylish Sunglasses', rating: 4, comment: 'Loved it!' },
+];
+
+const mockNotifications = [
+  { id: 1, message: 'Your order #101 has been delivered', date: '2025-09-18' },
+  { id: 2, message: '50% off on Leather Wallet!', date: '2025-09-10' },
+];
+
 const ProfileSettings = () => {
+  const [orders] = useState(mockOrders);
+  const [wishlist, setWishlist] = useState(mockWishlist);
+  const [darkMode, setDarkMode] = useState(false);
+
+  const removeWishlist = (id) => {
+    setWishlist(wishlist.filter((item) => item.id !== id));
+  };
+
+  const tabs = [
+    'Orders',
+    'Account Info',
+    'Address Book',
+    'Wishlist',
+    'Payment Methods',
+    'Reviews',
+    'Notifications',
+    'Rewards',
+  ];
+
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white shadow-md rounded-lg mt-8 ">
-      <h1 className="text-2xl font-bold mb-6">Account Settings</h1>
+    <div className={`${darkMode ? 'dark' : ''} min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors`}>
+      <div className="max-w-6xl mx-auto p-6 bg-white dark:bg-gray-800 shadow-md rounded-lg mt-8">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold dark:text-white">Account Settings</h1>
+         {/*<button
+            className="px-4 py-2 bg-gray-700 dark:bg-gray-300 text-white dark:text-gray-900 rounded hover:bg-gray-900 dark:hover:bg-gray-400 transition"
+            onClick={() => setDarkMode(!darkMode)}
+          >
+            {darkMode ? 'Light Mode' : 'Dark Mode'}
+          </button>*/}
+        </div>
 
-      <Tab.Group>
-        <Tab.List className="flex space-x-4 border-b mb-4">
-          {['My Orders', 'Account Info', 'Address Book'].map((tab) => (
-            <Tab
-              key={tab}
-              className={({ selected }) =>
-                classNames(
-                  'py-2 px-4 text-sm font-medium',
-                  selected
-                    ? 'border-b-2 border-blue-600 text-blue-600'
-                    : 'text-gray-600 hover:text-blue-500'
-                )
-              }
-            >
-              {tab}
-            </Tab>
-          ))}
-        </Tab.List>
+        <Tab.Group>
+          <div className="flex">
+            {/* Left-side Tabs */}
+            <Tab.List className="flex flex-col w-56 space-y-2 border-r dark:border-gray-600 pr-4">
+              {tabs.map((tab) => (
+                <Tab
+                  key={tab}
+                  className={({ selected }) =>
+                    classNames(
+                      'py-2 px-4 text-left text-sm font-medium rounded hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none',
+                      selected
+                        ? 'bg-blue-100 dark:bg-blue-600 text-blue-600 dark:text-white font-semibold'
+                        : 'text-gray-600 dark:text-gray-300'
+                    )
+                  }
+                >
+                  {tab}
+                </Tab>
+              ))}
+            </Tab.List>
 
-        <Tab.Panels>
-          {/* My Orders Tab */}
-          <Tab.Panel>
-            <p className="text-gray-500 h-screen">You have no orders yet.</p>
-          </Tab.Panel>
+            {/* Tab Panels */}
+            <Tab.Panels className="flex-1 pl-6">
+              {/* Orders Tab */}
+              <Tab.Panel>
+                {orders.length === 0 ? (
+                  <p className="text-gray-500 dark:text-gray-300">No orders yet.</p>
+                ) : (
+                  <div className="space-y-4">
+                    {orders.map((order) => (
+                      <div
+                        key={order.id}
+                        className="border p-4 rounded shadow-sm flex flex-col md:flex-row justify-between items-start dark:border-gray-600"
+                      >
+                        <div>
+                          <p className="font-medium dark:text-white">Order #{order.id}</p>
+                          <p className="text-gray-500 text-sm dark:text-gray-300">Date: {order.date}</p>
+                          <p
+                            className={`text-sm ${
+                              order.status === 'Delivered' ? 'text-green-600' : 'text-yellow-500'
+                            } dark:text-gray-300`}
+                          >
+                            Status: {order.status}
+                          </p>
+                          <p className="text-gray-700 dark:text-gray-300">Total: ₹{order.amount}</p>
+                        </div>
+                        <div className="mt-2 md:mt-0">
+                          <button className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">
+                            View Details
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </Tab.Panel>
 
-          {/* Account Info Tab */}
-          <Tab.Panel>
-            <div className="space-y-6 max-w-lg">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  First Name
-                </label>
-                <input
-                  type="text"
-                  className="mt-1 block w-full p-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="John"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Last Name
-                </label>
-                <input
-                  type="text"
-                  className="mt-1 block w-full p-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Doe"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  className="mt-1 block w-full p-2 bg-gray-100 border-gray-300 rounded-md shadow-sm"
-                  placeholder="johndoe@email.com"
-                  readOnly
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Gender
-                </label>
-                <select className="mt-1 block w-full p-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                  <option>Select Gender</option>
-                  <option>Male</option>
-                  <option>Female</option>
-                  <option>Other</option>
-                </select>
-              </div>
-
-              {/* Change Password */}
-              <div className="mt-4 pt-4 border-t">
-                <h2 className="text-lg font-semibold mb-2">Change Password</h2>
-                <div className="space-y-4">
+              {/* Account Info */}
+              <Tab.Panel>
+                <div className="space-y-6 max-w-lg">
                   <input
-                    type="password"
-                    placeholder="Current Password"
-                    className="mt-1 block w-full p-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    type="text"
+                    placeholder="First Name"
+                    className="block w-full p-2 border rounded dark:bg-gray-700 dark:text-white"
                   />
                   <input
-                    type="password"
-                    placeholder="New Password"
-                    className="mt-1 block w-full p-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    type="text"
+                    placeholder="Last Name"
+                    className="block w-full p-2 border rounded dark:bg-gray-700 dark:text-white"
                   />
                   <input
-                    type="password"
-                    placeholder="Confirm New Password"
-                    className="mt-1 block w-full p-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    type="email"
+                    placeholder="Email"
+                    className="block w-full p-2 border rounded dark:bg-gray-700 dark:text-white"
                   />
-                </div>
-                <div className="mt-4">
-                  <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                    Change Password
+                  <select className="block w-full p-2 border rounded dark:bg-gray-700 dark:text-white">
+                    <option>Select Gender</option>
+                    <option>Male</option>
+                    <option>Female</option>
+                    <option>Other</option>
+                  </select>
+                  <button className="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                    Save Changes
                   </button>
                 </div>
-              </div>
+              </Tab.Panel>
 
-              {/* Save Account Info */}
-              <div className="mt-6">
-                <button className="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700">
-                  Save Changes
+              {/* Address Book */}
+              <Tab.Panel>
+                <p className="text-gray-500 dark:text-gray-300">No address saved yet.</p>
+              </Tab.Panel>
+
+              {/* Wishlist */}
+              <Tab.Panel>
+                {wishlist.length === 0 ? (
+                  <p className="text-gray-500 dark:text-gray-300">Your wishlist is empty.</p>
+                ) : (
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {wishlist.map((item) => (
+                      <div
+                        key={item.id}
+                        className="border p-4 rounded shadow dark:border-gray-600 dark:text-white"
+                      >
+                        <p className="font-medium">{item.name}</p>
+                        <p className="text-blue-600 dark:text-blue-400 font-semibold">₹{item.price}</p>
+                        <div className="flex gap-2 mt-2">
+                          <button
+                            className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-700"
+                            onClick={() => removeWishlist(item.id)}
+                          >
+                            Remove
+                          </button>
+                          <button className="px-2 py-1 bg-green-500 text-white rounded hover:bg-green-700">
+                            Move to Cart
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </Tab.Panel>
+
+              {/* Payment Methods */}
+              <Tab.Panel>
+                <p className="text-gray-500 dark:text-gray-300">No payment methods saved.</p>
+                <button className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                  Add Payment Method
                 </button>
-              </div>
-            </div>
-          </Tab.Panel>
+              </Tab.Panel>
 
-          {/* Address Book Tab */}
-          <Tab.Panel>
-            <div className="space-y-20 max-w-lg ">
-              <p className="text-gray-500">No address saved.</p>
+              {/* Reviews */}
+              <Tab.Panel>
+                {mockReviews.length === 0 ? (
+                  <p className="text-gray-500 dark:text-gray-300">No reviews yet.</p>
+                ) : (
+                  <div className="space-y-4">
+                    {mockReviews.map((rev) => (
+                      <div
+                        key={rev.id}
+                        className="border p-4 rounded shadow dark:border-gray-600 dark:text-white"
+                      >
+                        <p className="font-medium">{rev.product}</p>
+                        <div className="flex items-center gap-1">
+                          {Array.from({ length: rev.rating }).map((_, i) => (
+                            <FaStar key={i} className="text-yellow-500" />
+                          ))}
+                        </div>
+                        <p>{rev.comment}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </Tab.Panel>
 
-              <div className="mt-6 border-t pt-4">
-                <h3 className="font-semibold text-lg mb-2">Add New Address</h3>
-                <div className="space-y-4">
-                  <input
-                    type="text"
-                    placeholder="Label (Home, Work, etc.)"
-                    className="mt-1 block w-full p-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Address Line 1"
-                    className="mt-1 block w-full p-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Address Line 2"
-                    className="mt-1 block w-full p-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                  />
-                  <div className="grid grid-cols-2 gap-4">
-                    <input
-                      type="text"
-                      placeholder="City"
-                      className="mt-1 block w-full p-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                    />
-                    <input
-                      type="text"
-                      placeholder="State"
-                      className="mt-1 block w-full p-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="ZIP / PIN"
-                    className="mt-1 block w-full p-2 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                  />
-                  <div>
-                    <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                      Add Address
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Tab.Panel>
-        </Tab.Panels>
-      </Tab.Group>
+              {/* Notifications */}
+              <Tab.Panel>
+                {mockNotifications.length === 0 ? (
+                  <p className="text-gray-500 dark:text-gray-300">No notifications.</p>
+                ) : (
+                  <ul className="space-y-2">
+                    {mockNotifications.map((notif) => (
+                      <li
+                        key={notif.id}
+                        className="border p-3 rounded shadow dark:border-gray-600 dark:text-white"
+                      >
+                        <p>{notif.message}</p>
+                        <p className="text-gray-400 text-sm">{notif.date}</p>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </Tab.Panel>
+
+              {/* Rewards */}
+              <Tab.Panel>
+                <p className="text-gray-700 dark:text-gray-300 font-semibold">Loyalty Points: 450</p>
+                <p className="text-gray-500 dark:text-gray-400">
+                  Redeem points on checkout for discounts!
+                </p>
+              </Tab.Panel>
+            </Tab.Panels>
+          </div>
+        </Tab.Group>
+      </div>
     </div>
   );
 };
