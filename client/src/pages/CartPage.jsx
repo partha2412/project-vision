@@ -32,7 +32,7 @@ const CartPage = () => {
   const discountedTotal = subtotal - subtotal * discount;
 
   return (
-    <div style={{ padding: "2rem" }}>
+    <div className="h-full" style={{ padding: "2rem" }}>
       <h1>CartPage Page</h1>
       {cart.length === 0 ? (
         <p>Your cart is empty 🛒</p>

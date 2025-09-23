@@ -9,7 +9,7 @@ const WishlistPage = () => {
 
 
   return (
-    <div className="p-6 ">
+    <div className="p-6 h-screen">
       <h1 className="text-3xl font-bold mb-6">My Wishlist ❤️</h1>
       {wishlist.length === 0 ? (
         <p>Your wishlist is empty.</p>
