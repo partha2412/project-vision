@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate, Navigate } from "react-router-dom";
 import products from "../datas/product";
 import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
 import { WishlistContext } from "../context/WishlistContext";
@@ -7,6 +7,7 @@ import Slide1 from "./product_details_Bottom_Slides/Slide1";
 import ReviewPage from "./ReviewPage";
 
 export default function ProductDetail() {
+  const navigate = useNavigate();
   const { id } = useParams();
   const product = products.find((p) => p.id === id);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -215,6 +216,9 @@ export default function ProductDetail() {
             </button>
             <button className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-700 transition-colors duration-300 font-medium">
               Buy Now
+            </button>
+            <button onClick={()=>navigate('/vto')} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700 transition-colors duration-300 font-medium">
+              Try Now
             </button>
           </div>
         </div>

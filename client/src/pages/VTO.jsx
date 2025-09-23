@@ -11,9 +11,9 @@ export default function VTO() {
         const results = '';
 
         const image_png = "./glass1.png"; 
-        const size = 1.9;
-        const horizontal = 0;
-        const vertical = -0.03;
+        const size = 2;
+        const horizontal = 1.4;
+        const vertical = -0.07;
 
 
 
