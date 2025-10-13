@@ -183,7 +183,7 @@ exports.hardDeleteProduct = async (req, res) => {
       return res.status(404).json({ success: false, message: "Product not found" });
     }
 
-    await product.remove(); // remove from DB
+    await Product.findByIdAndDelete(id); // remove from DB
     res.status(200).json({ success: true, message: "Product permanently deleted" });
   } catch (error) {
     res.status(500).json({ success: false, message: "Server error while deleting product", error: error.message });
