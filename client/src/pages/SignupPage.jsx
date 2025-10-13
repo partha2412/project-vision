@@ -1,21 +1,31 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Camera } from "lucide-react";
 
 const SignupPage = () => {
   const navigate = useNavigate();
-  const [photo, setPhoto] = useState(null);
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: ""
+  });
 
-  const handlePhotoUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setPhoto(URL.createObjectURL(file));
-    }
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log("User signed up:", formData);
+    
+    // Save user locally (simulate login)
+    localStorage.setItem('user', JSON.stringify(formData));
+    
+    navigate("/"); // go to home page
   };
 
   return (
     <div className="flex min-h-screen w-full bg-gray-100">
-      
       {/* Left Side Image */}
       <div className="w-1/2 hidden md:block">
         <img
@@ -32,55 +42,43 @@ const SignupPage = () => {
             Create Account
           </h1>
 
-          {/* Profile Photo Upload */}
-          <div className="flex flex-col items-center mb-6">
-            <label className="relative cursor-pointer group">
-              <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-gray-200 shadow-md flex items-center justify-center bg-gray-100">
-                {photo ? (
-                  <img
-                    src={photo}
-                    alt="Profile Preview"
-                    className="w-full h-full object-fill"
-                  />
-                ) : (
-                  <Camera className="w-10 h-10 text-gray-400 group-hover:text-blue-500 transition" />
-                )}
-              </div>
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handlePhotoUpload}
-              />
-            </label>
-            <p className="text-sm text-gray-600 mt-2">Upload Profile Photo</p>
-          </div>
-
-          {/* Form */}
-          <form
-            className="flex flex-col gap-6"
-            onSubmit={(e) => {
-              e.preventDefault();
-              console.log("User signed up!");
-              navigate("/login");
-            }}
-          >
+          <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
             <input
               type="text"
-              placeholder="Full Name"
+              name="firstName"
+              placeholder="First Name"
+              value={formData.firstName}
+              onChange={handleChange}
               className="w-full bg-transparent border-b-2 border-gray-300 text-gray-800 placeholder-gray-500 focus:outline-none focus:border-blue-500 transition"
+              required
+            />
+            <input
+              type="text"
+              name="lastName"
+              placeholder="Last Name"
+              value={formData.lastName}
+              onChange={handleChange}
+              className="w-full bg-transparent border-b-2 border-gray-300 text-gray-800 placeholder-gray-500 focus:outline-none focus:border-blue-500 transition"
+              required
             />
             <input
               type="email"
+              name="email"
               placeholder="Email Address"
+              value={formData.email}
+              onChange={handleChange}
               className="w-full bg-transparent border-b-2 border-gray-300 text-gray-800 placeholder-gray-500 focus:outline-none focus:border-blue-500 transition"
+              required
             />
             <input
               type="password"
+              name="password"
               placeholder="Password"
+              value={formData.password}
+              onChange={handleChange}
               className="w-full bg-transparent border-b-2 border-gray-300 text-gray-800 placeholder-gray-500 focus:outline-none focus:border-blue-500 transition"
+              required
             />
-
             <button className="w-full py-3 mt-4 rounded-full text-white font-semibold bg-blue-500 hover:bg-blue-600 hover:scale-105 transition transform shadow-md">
               Sign Up
             </button>
