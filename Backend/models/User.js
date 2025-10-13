@@ -55,6 +55,12 @@ const userSchema = new mongoose.Schema({
     minLength: [6, 'Your password must be at least 6 characters'],
     select: false
   },
+   secretkey: {
+    type: String,
+    
+    minLength: [6, 'Your password must be at least 6 characters'],
+    select: false
+  },
   role: {
     type: String,
     default: 'user',

@@ -6,7 +6,7 @@ const Product = require('../models/Product');
 // Add product
 router.post('/add', productController.addProduct);
 
-// Update product by name
+
 // Update product by name
 router.put('/update/name/:productName', productController.updateProductByName);
 
@@ -41,7 +41,6 @@ router.get('/range', productController.getProductsByRange);
 router.delete('/delete/soft/:id', productController.softDeleteProduct);
 
 // Hard delete
-// example: /api/product/delete/hard/:id
 // example: /api/product/delete/hard/:id
 router.delete('/delete/hard/:id', productController.hardDeleteProduct);
 
