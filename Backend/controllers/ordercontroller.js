@@ -29,7 +29,7 @@ exports.placeOrder = async (req, res) => {
     }
     // Create new order
     const newOrder = new Order({
-      user,
+      user, 
       orderItems,
       shippingAddress,
       paymentMethod,
