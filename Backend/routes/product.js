@@ -42,7 +42,6 @@ router.delete('/delete/soft/:id', productController.softDeleteProduct);
 
 // Hard delete
 // example: /api/product/delete/hard/:id
-// example: /api/product/delete/hard/:id
 router.delete('/delete/hard/:id', productController.hardDeleteProduct);
 
 module.exports = router;
