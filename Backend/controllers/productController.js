@@ -1,44 +1,74 @@
+const multer = require('multer');
 const Product = require('../models/Product');
+const { uploadImagesToCloudinary } = require('./imagecontroller');
 
-// Add a new product
+// ✅ Multer setup
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+exports.uploadMiddleware = upload.array('images', 5); // max 5 images
+
+// ✅ Add Product Controller (fixed)
 exports.addProduct = async (req, res) => {
   try {
-    const { title, description, price, discountPrice, category, images, status, stock, productType, brand, gstRate, lowStockAlert } = req.body;
-    
-    
-    // Validate required fields
-    if (!title || !description || !price || !images || !Array.isArray(images) || images.length === 0 || !stock || !status || !category) {
-      return res.status(400).json({ message: 'All fields are required and images must be a non-empty array' });
+    const {
+      title,
+      description,
+      price,
+      discountPrice,
+      category,
+      status,
+      stock,
+      productType,
+      brand,
+      gstRate,
+      lowStockAlert
+    } = req.body;
+
+    // ✅ Validate required text fields (not images yet)
+    if (!title || !description || !price || !stock || !status || !category) {
+      return res.status(400).json({
+        message: 'All text fields are required',
+      });
     }
 
+    // ✅ Validate image files
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({
+        message: 'At least one image file is required',
+      });
+    }
+
+    // ✅ Upload images to Cloudinary
+    const imageUrls = await uploadImagesToCloudinary(req.files, 'products');
+
+    // ✅ Create product in MongoDB
     const product = await Product.create({
       title,
       description,
       price,
       discountPrice,
       category,
-      images,
+      images: imageUrls, // Cloudinary URLs
       status,
       stock,
       productType,
       brand,
       gstRate,
       lowStockAlert,
-
-
     });
 
     res.status(201).json({
       success: true,
       message: 'Product added successfully',
-      product
+      product,
     });
 
   } catch (error) {
+    console.error('Error adding product:', error);
     res.status(500).json({
       success: false,
       message: 'Server error while adding product',
-      error: error.message
+      error: error.message,
     });
   }
 };

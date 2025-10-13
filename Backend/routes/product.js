@@ -4,9 +4,12 @@ const productController = require('../controllers/productController');
 const Product = require('../models/Product');
 
 // Add product
-router.post('/add', productController.addProduct);
-
-
+router.post(
+  '/add',
+  productController.uploadMiddleware, // multer middleware
+  productController.addProduct
+);
+// Update product by name
 // Update product by name
 router.put('/update/name/:productName', productController.updateProductByName);
 
