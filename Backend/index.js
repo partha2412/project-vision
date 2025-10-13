@@ -31,7 +31,7 @@ app.use(cookieParser());
 
 
 app.use('/api/auth', authRoutes);
-app.use('/api/auth', authProduct);
+app.use('/api/product', authProduct);
 app.use('/api/order', orderRoutes);
 
 

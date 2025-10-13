@@ -27,7 +27,7 @@ import ReviewPage from './pages/ReviewPage'
 
 const App = () => {
   return (
-    <div className='relative'>
+    <div className='relative h-screen'>
 
       {/* <Navbar2/> */}
       <BrowserRouter>

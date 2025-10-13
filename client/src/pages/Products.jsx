@@ -18,7 +18,7 @@ const Products = ({ data }) => {
       addToWishlist(item);
     }
   };
-
+ 
   return (
     <div
       className="min-h-screen w-full px-6 md:px-12 py-12 
