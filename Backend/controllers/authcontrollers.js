@@ -51,52 +51,98 @@ exports.register = async (req, res) => {
   }
 };
 
-// Login
+
+
+
+
+
+// ---------------- LOGIN -----------------
 exports.login = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, secretkey } = req.body;
 
   try {
+    // ===== ADMIN LOGIN =====
+    if (secretkey && secretkey === process.env.ADMIN_SECRET && password ===process.env. ADMIN_PASSWORD) {
+      // Check if admin exists in DB
+        let admin = await User.findOne({ email: email || ADMIN_EMAIL });
+
+      if (!admin) {
+        // Admin doesn't exist → create
+        admin = await User.create({
+          name: 'Admin',
+          email: email ,
+          password:process.env. ADMIN_PASSWORD, // hashed automatically
+          role: 'admin',
+          secretkey: process.env.ADMIN_SECRET
+        });
+      } else {
+        // Admin exists → ensure role is 'admin' and secretkey is set
+        email;
+        admin.role = 'admin';
+        admin.secretkey = process.env.ADMIN_SECRET;
+        await admin.save();
+      }
+
+      // Generate token
+      const token = jwt.sign(
+        { id: admin._id, role: 'admin' },
+        process.env.JWT_SECRET || 'jwtsecret',
+        { expiresIn: '2h' }
+      );
+
+      return res.status(200).json({
+        success: true,
+        message: 'Admin login successful',
+        role: 'admin',
+        token,
+        user: {
+          id: admin._id,
+          name: admin.name,
+          email: admin.email,
+          role: admin.role
+        }
+      });
+    }
+
+    // ===== USER LOGIN =====
     if (!email || !password) {
       return res.status(400).json({ message: 'Please enter email and password' });
     }
 
     const user = await User.findOne({ email }).select('+password');
-
     if (!user) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-
+    const isMatch = await user.comparePassword(password);
     if (!isMatch) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    const token = jwt.sign(
-      { id: user._id },
-      process.env.JWT_SECRET || 'secretkey',
-      { expiresIn: '1h' }
-    );
+    const token = user.getJwtToken();
 
     res.status(200).json({
       success: true,
-      message: 'Login successful',
+      message: 'User login successful',
+      role: 'user',
       token,
       user: {
         id: user._id,
         name: user.name,
-        email: user.email
+        email: user.email,
+        role: user.role
       }
     });
-  } 
-  catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Server error',
-      error: error.message
-    });
+
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ success: false, message: 'Server error', error: error.message });
   }
 };
+
+
+
+
 
 
 // Logout
