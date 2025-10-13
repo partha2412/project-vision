@@ -6,4 +6,6 @@ const { protect, adminOnly } = require('../middleware/authmiddleware');
 
 router.get('/', protect, adminOnly, orderController.getAllOrders);
 
+router.post('/placeorder', protect, orderController.placeOrder);
+
 module.exports = router;
