@@ -6,7 +6,7 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const app = express();
 const authRoutes = require('./routes/auth');
-
+const orderRoutes = require('./routes/order');
 const authProduct = require('./routes/product');
 
 
@@ -32,6 +32,7 @@ app.use(cookieParser());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/auth', authProduct);
+app.use('/api/order', orderRoutes);
 
 
 
