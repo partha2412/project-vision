@@ -1,0 +1,81 @@
+# -----------------------------
+# Node.js / npm / yarn
+# -----------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+yarn.lock
+
+# -----------------------------
+# Build / Dist files
+# -----------------------------
+dist/
+build/
+.tmp/
+temp/
+logs/
+*.log
+
+# -----------------------------
+# Environment files
+# -----------------------------
+.env
+.env.*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# -----------------------------
+# OS / Editor files
+# -----------------------------
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+*.bak
+*.tmp
+
+# -----------------------------
+# Coverage / Testing
+# -----------------------------
+coverage/
+.nyc_output/
+jest-coverage/
+*.lcov
+
+# -----------------------------
+# Uploads / Generated content
+# -----------------------------
+uploads/
+public/uploads/
+tmp/
+cache/
+*.pid
+
+# -----------------------------
+# Optional: ignore compiled JS if using TypeScript
+# -----------------------------
+*.tsbuildinfo
+*.d.ts
+
+# -----------------------------
+# Docker / Containers
+# -----------------------------
+.dockerignore
+Dockerfile*
+docker-compose*.yml
+
+# -----------------------------
+# Misc
+# -----------------------------
+*.lock
+*.zip
+*.tar
+*.gz
+*.7z
