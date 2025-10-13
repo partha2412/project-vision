@@ -7,9 +7,9 @@ exports.addProduct = async (req, res) => {
     
     
     // Validate required fields
-    // if (!title || !description || !price || !images || !Array.isArray(images) || images.length === 0 || !stock || !status || !category) {
-    //   return res.status(400).json({ message: 'All fields are required and images must be a non-empty array' });
-    // }
+    if (!title || !description || !price || !images || !Array.isArray(images) || images.length === 0 || !stock || !status || !category) {
+      return res.status(400).json({ message: 'All fields are required and images must be a non-empty array' });
+    }
 
     const product = await Product.create({
       title,
