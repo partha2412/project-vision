@@ -8,7 +8,7 @@ import { logoutUser } from '../api/userApi';
 
 const NavBar = () => {
   const { wishlist } = useContext(WishlistContext);
-  const { user, logout } = useContext(AuthContext); // added logout
+  const { user } = useContext(AuthContext); // added logout
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -72,11 +72,11 @@ const NavBar = () => {
               </div>
 
               {open && (
-                <div className="absolute right-0 mt-2 w-44 bg-white shadow-lg rounded-md overflow-hidden z-50">
+                <div className="absolute right-[-66px] mt-6 w-44 bg-gray-200  opacity-90 shadow-lg rounded-md overflow-hidden z-50">
                   {/* Admin Dashboard */}
                   {user.isAdmin && (
                     <button
-                      className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                      className="block w-full text-left px-4 py-2 hover:bg-gray-100 duration-300"
                       onClick={() => { navigate("/admindashboard"); setOpen(false); }}
                     >
                       Admin Dashboard
@@ -84,21 +84,21 @@ const NavBar = () => {
                   )}
 
                   <button
-                    className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-300 duration-300"
                     onClick={() => { navigate("/userdashboard"); setOpen(false); }}
                   >
                     Dashboard
                   </button>
 
                   <button
-                    className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-300 duration-300"
                     onClick={() => { navigate("/orders"); setOpen(false); }}
                   >
                     Orders
                   </button>
 
                   <button
-                    className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                    className="block w-full text-left px-4 py-2 text-red-400 hover:text-red-500 hover:bg-gray-300 duration-300"
                     onClick={() => { logoutUser(); setOpen(false); navigate("/"); }}
                   >
                     Logout
