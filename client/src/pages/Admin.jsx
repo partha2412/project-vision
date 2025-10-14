@@ -3,7 +3,7 @@ import React, { useState } from "react";
 const Admin = () => {
   // State for products
   const [products, setProducts] = useState([]);
-  const [form, setForm] = useState({ name: "", price: "", stock: "" });
+  const [form, setForm] = useState({ name: "", price: "", stock: "", image: "" });
 
   // State for orders
   const [orders, setOrders] = useState([
@@ -15,7 +15,7 @@ const Admin = () => {
   const handleAddProduct = (e) => {
     e.preventDefault();
     setProducts([...products, { ...form, id: Date.now() }]);
-    setForm({ name: "", price: "", stock: "" });
+    setForm({ name: "", price: "", stock: "", image: "" });
   };
 
   // Toggle delivery status
@@ -47,7 +47,7 @@ const Admin = () => {
       {/* Add Product Form */}
       <div className="bg-white p-6 rounded-xl shadow-md mb-8">
         <h2 className="text-xl font-semibold mb-4">Add Product</h2>
-        <form onSubmit={handleAddProduct} className="grid md:grid-cols-3 gap-4">
+        <form onSubmit={handleAddProduct} className="grid md:grid-cols-4 gap-4">
           <input
             type="text"
             placeholder="Product Name"
@@ -72,9 +72,16 @@ const Admin = () => {
             onChange={(e) => setForm({ ...form, stock: e.target.value })}
             required
           />
+          <input
+            type="text"
+            placeholder="Image URL"
+            className="border p-2 rounded"
+            value={form.image}
+            onChange={(e) => setForm({ ...form, image: e.target.value })}
+          />
           <button
             type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded col-span-3 md:col-span-1"
+            className="bg-blue-600 text-white px-4 py-2 rounded col-span-4 md:col-span-1"
           >
             Add Product
           </button>
@@ -87,6 +94,7 @@ const Admin = () => {
         <table className="w-full">
           <thead>
             <tr className="bg-gray-200 text-left">
+              <th className="p-3">Image</th>
               <th className="p-3">Name</th>
               <th className="p-3">Price</th>
               <th className="p-3">Stock</th>
@@ -95,6 +103,13 @@ const Admin = () => {
           <tbody>
             {products.map((p) => (
               <tr key={p.id} className="border-t">
+                <td className="p-3">
+                  {p.image ? (
+                    <img src={p.image} alt={p.name} className="w-16 h-16 object-cover rounded" />
+                  ) : (
+                    <span className="text-gray-400">No Image</span>
+                  )}
+                </td>
                 <td className="p-3">{p.name}</td>
                 <td className="p-3">${p.price}</td>
                 <td className="p-3">{p.stock}</td>
