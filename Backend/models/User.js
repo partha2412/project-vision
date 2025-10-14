@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const validator = require('validator');
 
 const userSchema = new mongoose.Schema({
-      firstname: {
+  firstname: {
     type: String,
     maxLength: [25, 'Your first name cannot exceed 25 characters']
   },
@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Please enter your email'],
     unique: true,
     validate: [validator.isEmail, 'Please enter valid email address']
-  },  phone: {
+  }, phone: {
     type: String,
     maxLength: [15, 'Phone number cannot exceed 15 characters']
   },
@@ -49,9 +49,9 @@ const userSchema = new mongoose.Schema({
     minLength: [6, 'Your password must be at least 6 characters'],
     select: false
   },
-   secretkey: {
+  secretkey: {
     type: String,
-    
+
     minLength: [6, 'Your password must be at least 6 characters'],
     select: false
   },
@@ -78,7 +78,7 @@ const userSchema = new mongoose.Schema({
 
 // Encrypting password before saving user
 
-userSchema.pre('save', async function(next) {
+userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
   this.password = await bcrypt.hash(this.password, 10);
   next();
@@ -86,15 +86,16 @@ userSchema.pre('save', async function(next) {
 
 
 // Compare user password
-userSchema.methods.comparePassword = async function(enteredPassword) {
+userSchema.methods.comparePassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 // Return JWT token
-userSchema.methods.getJwtToken = function() {
+userSchema.methods.getJwtToken = function () {
   return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRE
   });
 };
+
 
 module.exports = mongoose.model('User', userSchema);
 

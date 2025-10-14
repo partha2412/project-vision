@@ -4,49 +4,50 @@ const bcrypt = require('bcryptjs');
 
 // Register 
 exports.register = async (req, res) => {
-  const { firstname,lastname, email, password } = req.body;
-  
+  const { firstname, lastname, email, password } = req.body;
+
 
   try {
-    
+
     const checkEmail = await User.findOne({ email });
     if (checkEmail) {
       return res.status(400).json({ message: 'Email already exists' });
     }
 
-     
-    if (!firstname ||!lastname|| !email || !password) {
-      
+
+    if (!firstname || !lastname || !email || !password) {
+
       return res.status(400).json({ message: 'All fields are required' });
     }
 
-    
+
     //const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await User.create({ firstname,lastname, email, password});
+    const user = await User.create({ firstname, lastname, email, password });
 
-    
+
     const token = jwt.sign(
       { id: user._id },
       process.env.JWT_SECRET || 'secretkey',
       { expiresIn: '1h' }
     );
 
-    
-res.status(201).json({
-  success: true,
-  message: 'User registered successfully',
-  token,
-  user,
-  user: {
-    id: user._id,
-    firstname: firstname,
-    lastname: lastname,
-    email: user.email
-  }
-});
+    //console.log("done");
 
-  } 
+    res.status(201).json({
+      success: true,
+      message: 'User registered successfully',
+      token,
+      user,
+      user: {
+        id: user._id,
+        firstname: user.firstname,
+        lastname: user.lastname,
+        email: user.email
+      }
+    });
+
+  }
   catch (error) {
     res.status(500).json({
       success: false,
@@ -64,19 +65,19 @@ res.status(201).json({
 // ---------------- LOGIN -----------------
 exports.login = async (req, res) => {
   const { email, password, secretkey } = req.body;
-console.log(req.body);
+  //console.log(req.body);
   try {
     // ===== ADMIN LOGIN =====
-    if (secretkey && secretkey === process.env.ADMIN_SECRET && password ===process.env. ADMIN_PASSWORD) {
+    if (secretkey && secretkey === process.env.ADMIN_SECRET && password === process.env.ADMIN_PASSWORD) {
       // Check if admin exists in DB
-        let admin = await User.findOne({ email: email || ADMIN_EMAIL });
+      let admin = await User.findOne({ email: email || ADMIN_EMAIL });
 
       if (!admin) {
         // Admin doesn't exist → create
         admin = await User.create({
           name: 'Admin',
-          email: email ,
-          password:process.env. ADMIN_PASSWORD, // hashed automatically
+          email: email,
+          password: process.env.ADMIN_PASSWORD, // hashed automatically
           role: 'admin',
           secretkey: process.env.ADMIN_SECRET
         });
@@ -102,7 +103,8 @@ console.log(req.body);
         token,
         user: {
           id: admin._id,
-          name: admin.name,
+          firstname: user.firstname,
+          lastname: user.lastname,
           email: admin.email,
           role: admin.role
         }
@@ -115,16 +117,16 @@ console.log(req.body);
     }
 
     const user = await User.findOne({ email }).select('+password');
-    console.log(password);
-    console.log(user);
+    //console.log(password);
+    //console.log(user);
     if (!user) {
-      return res.status(401).json({ message: 'Invalid email or password' });
+      return res.status(404).json({ message: 'Invalid email' });
     }
 
     const isMatch = await user.comparePassword(password);
     console.log(isMatch);
     if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid email or password' });
+      return res.status(401).json({ message: 'Invalid password' });
     }
 
     const token = user.getJwtToken();
@@ -136,7 +138,8 @@ console.log(req.body);
       token,
       user: {
         id: user._id,
-        name: user.name,
+        firstname: user.firstname,
+        lastname: user.lastname,
         email: user.email,
         role: user.role
       }
