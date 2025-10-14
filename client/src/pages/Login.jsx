@@ -44,7 +44,11 @@ const Login = () => {
 
       // Redirect after short delay
       setTimeout(() => {
-        navigate(activeForm === "admin" ? "/admindashboard" : "/");
+        if (activeForm === "admin") {
+          window.location.href = "/admindashboard"; // full reload
+        } else {
+          window.location.href = "/"; // full reload
+        }
       }, 2000);
 
     } catch (err) {
@@ -75,21 +79,19 @@ const Login = () => {
         <div className="flex justify-center gap-6 mb-8">
           <button
             onClick={() => setActiveForm("user")}
-            className={`px-6 py-2 rounded-full font-semibold transition ${
-              activeForm === "user"
+            className={`px-6 py-2 rounded-full font-semibold transition ${activeForm === "user"
                 ? "bg-black text-white shadow-md"
                 : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-            }`}
+              }`}
           >
             User
           </button>
           <button
             onClick={() => setActiveForm("admin")}
-            className={`px-6 py-2 rounded-full font-semibold transition ${
-              activeForm === "admin"
+            className={`px-6 py-2 rounded-full font-semibold transition ${activeForm === "admin"
                 ? "bg-black text-white shadow-md"
                 : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-            }`}
+              }`}
           >
             Admin
           </button>
