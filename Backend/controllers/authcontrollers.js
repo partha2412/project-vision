@@ -4,7 +4,8 @@ const bcrypt = require('bcryptjs');
 
 // Register 
 exports.register = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { firstname,lastname, email, password } = req.body;
+  
 
   try {
     
@@ -13,15 +14,16 @@ exports.register = async (req, res) => {
       return res.status(400).json({ message: 'Email already exists' });
     }
 
-    
-    if (!name || !email || !password) {
+     
+    if (!firstname ||!lastname|| !email || !password) {
+      
       return res.status(400).json({ message: 'All fields are required' });
     }
 
     
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await User.create({ name, email, password: hashedPassword });
+    const user = await User.create({ firstname,lastname, email, password: hashedPassword });
 
     
     const token = jwt.sign(
@@ -32,16 +34,19 @@ exports.register = async (req, res) => {
 
     console.log("done");
     
-    res.status(201).json({
-      success: true,
-      message: 'User registered successfully',
-      token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email
-      }
-    });
+res.status(201).json({
+  success: true,
+  message: 'User registered successfully',
+  token,
+  user,
+  user: {
+    id: user._id,
+    firstname: firstname,
+    lastname: lastname,
+    email: user.email
+  }
+});
+
   } 
   catch (error) {
     res.status(500).json({
