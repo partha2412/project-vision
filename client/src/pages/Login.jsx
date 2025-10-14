@@ -42,7 +42,7 @@ const Login = () => {
 
       // Redirect after short delay
       setTimeout(() => {
-        navigate(activeForm === "admin" ? "/admin-dashboard" : "/dashboard");
+        navigate(activeForm === "admin" ? "/admindashboard" : "/dashboard");
       }, 2000);
 
     } catch (err) {
