@@ -9,3 +9,12 @@ export const signupUser = async (userData) => {
     throw error.response ? error.response.data : { message: "Network error" };
   }
 };
+// Login function
+export const loginUser = async (loginData) => {
+  try {
+    const response = await api.post("/auth/login", loginData);
+    return response.data;
+  } catch (error) {
+    throw error.response ? error.response.data : { message: "Network error" };
+  }
+};

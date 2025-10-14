@@ -77,13 +77,13 @@ const userSchema = new mongoose.Schema({
 
 
 // Encrypting password before saving user
+
 userSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) {
-    next();
-  }
-  
+  if (!this.isModified('password')) return next();
   this.password = await bcrypt.hash(this.password, 10);
+  next();
 });
+
 
 // Compare user password
 userSchema.methods.comparePassword = async function(enteredPassword) {
