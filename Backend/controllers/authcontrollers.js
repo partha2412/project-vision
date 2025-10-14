@@ -32,7 +32,7 @@ exports.register = async (req, res) => {
       { expiresIn: '1h' }
     );
 
-    console.log("done");
+    //console.log("done");
     
 res.status(201).json({
   success: true,
