@@ -4,6 +4,7 @@ import { CiHeart } from "react-icons/ci";
 import { Link, useNavigate } from 'react-router-dom';
 import { WishlistContext } from '../context/WishlistContext';
 import { AuthContext } from '../context/AuthContext';
+import { logoutUser } from '../api/userApi';
 
 const NavBar = () => {
   const { wishlist } = useContext(WishlistContext);
@@ -12,6 +13,7 @@ const NavBar = () => {
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef(null);
 
+  // Get initials
   const getInitials = () => {
     if (!user) return '';
     const firstInitial = user.firstname?.charAt(0).toUpperCase() || '';
@@ -33,6 +35,7 @@ const NavBar = () => {
   return (
     <div>
       <header className="w-full flex items-center p-4 bg-white shadow-md z-50 ">
+        {/* Logo */}
         <div
           className="text-2xl md:text-5xl font-extrabold tracking-widest text-gray-900 uppercase cursor-pointer"
           onClick={() => navigate("/")}
@@ -40,7 +43,9 @@ const NavBar = () => {
           Vision
         </div>
 
+        {/* Navbar */}
         <nav className="flex items-center space-x-2 md:space-x-4 text-black font-medium ml-auto">
+          
           {/* All Products */}
           <Link to="/products" className="relative px-2 py-1 text-sm md:text-base group">
             <span className="relative z-10">All Products</span>
@@ -67,22 +72,34 @@ const NavBar = () => {
               </div>
 
               {open && (
-                <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-md overflow-hidden z-50">
+                <div className="absolute right-0 mt-2 w-44 bg-white shadow-lg rounded-md overflow-hidden z-50">
+                  {/* Admin Dashboard */}
+                  {user.isAdmin && (
+                    <button
+                      className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                      onClick={() => { navigate("/admindashboard"); setOpen(false); }}
+                    >
+                      Admin Dashboard
+                    </button>
+                  )}
+
                   <button
                     className="block w-full text-left px-4 py-2 hover:bg-gray-100"
                     onClick={() => { navigate("/userdashboard"); setOpen(false); }}
                   >
                     Dashboard
                   </button>
+
                   <button
                     className="block w-full text-left px-4 py-2 hover:bg-gray-100"
                     onClick={() => { navigate("/orders"); setOpen(false); }}
                   >
                     Orders
                   </button>
+
                   <button
                     className="block w-full text-left px-4 py-2 hover:bg-gray-100"
-                    onClick={() => { logout(); setOpen(false); navigate("/"); }}
+                    onClick={() => { logoutUser(); setOpen(false); navigate("/"); }}
                   >
                     Logout
                   </button>
