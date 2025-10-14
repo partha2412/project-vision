@@ -65,7 +65,7 @@ res.status(201).json({
 // ---------------- LOGIN -----------------
 exports.login = async (req, res) => {
   const { email, password, secretkey } = req.body;
-
+console.log(req.body);
   try {
     // ===== ADMIN LOGIN =====
     if (secretkey && secretkey === process.env.ADMIN_SECRET && password ===process.env. ADMIN_PASSWORD) {
@@ -116,11 +116,14 @@ exports.login = async (req, res) => {
     }
 
     const user = await User.findOne({ email }).select('+password');
+    console.log(password);
+    console.log(user);
     if (!user) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
     const isMatch = await user.comparePassword(password);
+    console.log(isMatch);
     if (!isMatch) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
