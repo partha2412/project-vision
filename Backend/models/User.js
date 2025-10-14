@@ -5,17 +5,11 @@ const jwt = require('jsonwebtoken');
 const validator = require('validator');
 
 const userSchema = new mongoose.Schema({
-    name:{
-        type:String,
-        required:[true,'please enter yoyr name'],
-        maxLength:[50,'yore name cannot exceed 50 characters']
-
-    },
-      firstName: {
+      firstname: {
     type: String,
     maxLength: [25, 'Your first name cannot exceed 25 characters']
   },
-  lastName: {
+  lastname: {
     type: String,
     maxLength: [25, 'Your last name cannot exceed 25 characters']
   },
