@@ -25,6 +25,7 @@ import Women from "./pages/Women";
 import Kids from "./pages/Kids";
 import ReviewPage from './pages/ReviewPage'
 
+
 const App = () => {
   return (
     <div className='relative h-screen'>
@@ -57,6 +58,8 @@ const App = () => {
           <Route path="/women" element={<Women />} />
           <Route path="/kids" element={<Kids />} />
            <Route path="/review" element={<ReviewPage />} />
+           
+
 
 
 
