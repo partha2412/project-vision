@@ -1,6 +1,6 @@
 // src/context/AuthContext.jsx
 import { createContext, useState, useEffect } from "react";
-import { login, signupUser } from "../api/userApi";
+import { loginUser, signupUser } from "../api/userApi";
 
 export const AuthContext = createContext();
 
@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     return (
-        <AuthContext.Provider value={{ user, loading, login, signupUser, logout }}>
+        <AuthContext.Provider value={{ user, loading, loginUser, signupUser,  }}>
             {children}
         </AuthContext.Provider>
     );
