@@ -110,3 +110,30 @@ exports.updateOrderStatus = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+// Get all orders for a specific user
+exports.getUserOrders = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    if (!userId) {
+      return res.status(400).json({ success: false, message: 'User ID is required' });
+    }
+
+    const orders = await Order.find({ user: userId })
+      .populate('user', 'name email')                   // include user info
+      .populate('orderItems.product', 'title price');   // include product info
+
+    if (!orders || orders.length === 0) {
+      return res.status(404).json({ success: false, message: 'No orders found for this user' });
+    }
+
+    res.status(200).json({
+      success: true,
+      count: orders.length,
+      orders,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
