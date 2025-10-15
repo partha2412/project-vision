@@ -65,7 +65,7 @@ const NavBar = () => {
           {user ? (
             <div className="relative" ref={dropdownRef}>
               <div
-                className="w-10 h-10 rounded-full bg-gray-600 text-white flex items-center justify-center cursor-pointer font-bold"
+                className="w-10 h-10 rounded-full bg-gray-800 text-white flex items-center justify-center cursor-pointer font-bold"
                 onClick={() => setOpen(!open)}
               >
                 {getInitials()}
