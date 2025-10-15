@@ -4,8 +4,8 @@ const Order = require('../models/Order');
 exports.getAllOrders = async (req, res) => {
   try {
     const orders = await Order.find()
-      .populate('user', 'name email')        // include user details
-      .populate('orderItems.product', 'title price'); // include product details
+      .populate('user', 'firstname lastname email _id')
+      .populate('orderItems.product', 'name price');
 
     res.status(200).json({
       success: true,
@@ -16,6 +16,7 @@ exports.getAllOrders = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
 
 
 // placeorder
@@ -37,7 +38,9 @@ exports.placeOrder = async (req, res) => {
       isPaid: false,
       paidAt: null,
       isDelivered: false,
-      deliveredAt: null
+      deliveredAt: null,
+      status: 'Processing',
+      createdAt: Date.now(),
     });
     // Save to database
     const savedOrder = await newOrder.save();
@@ -132,6 +135,29 @@ exports.getUserOrders = async (req, res) => {
       success: true,
       count: orders.length,
       orders,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Delete order by ID (admin only)
+exports.deleteOrder = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+
+    // Find the order
+    const order = await Order.findByIdAndDelete(orderId);
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+    // Remove the order
+    // await order.remove();
+
+    res.status(200).json({
+      success: true,
+      message: 'Order deleted successfully',
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

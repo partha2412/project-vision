@@ -14,12 +14,20 @@ const NavBar = () => {
   const dropdownRef = useRef(null);
 
   // Get initials
+  // Get initials (with fallback for admin users or missing names)
   const getInitials = () => {
     if (!user) return '';
-    const firstInitial = user.firstname?.charAt(0).toUpperCase() || '';
-    const lastInitial = user.lastname?.charAt(0).toUpperCase() || '';
-    return firstInitial + lastInitial;
+    const firstInitial = user.firstname?.[0]?.toUpperCase() || '';
+    const lastInitial = user.lastname?.[0]?.toUpperCase() || '';
+    const initials = (firstInitial + lastInitial).trim();
+
+    // Fallback: use first two letters of email/username if name missing
+    if (initials === '' && user.email) {
+      return user.email[0].toUpperCase();
+    }
+    return initials || '⚠️'; // final fallback
   };
+
 
   // Close dropdown if clicked outside
   useEffect(() => {
@@ -74,7 +82,7 @@ const NavBar = () => {
               {open && (
                 <div className="absolute right-[-66px] mt-6 w-44 bg-gray-200  opacity-90 shadow-lg rounded-md overflow-hidden z-50">
                   {/* Admin Dashboard */}
-                  { isAdmin() ? (
+                  {isAdmin() ? (
                     <button
                       className="block w-full text-left px-4 py-2 hover:bg-gray-100 duration-300"
                       onClick={() => { navigate("/admindashboard"); setOpen(false); }}
