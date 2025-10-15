@@ -15,6 +15,11 @@ router.post('/placeorder', protect, orderController.placeOrder);
 // notes,
 // status,
 // isPaid,
+
+// delete order (admin only)
+router.delete('/deleteorder/:orderId', protect, adminOnly, orderController.deleteOrder);
+
+// update order status (admin only)
 router.put('/status/:orderId', protect, adminOnly, orderController.updateOrderStatus);
 
 // example: /api/order/user/:userId
