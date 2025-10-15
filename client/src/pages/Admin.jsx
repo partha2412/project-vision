@@ -1,27 +1,88 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { addProduct, fetchProducts } from "../api/productApi";
 
 const Admin = () => {
-  // State for products
-  const [products, setProducts] = useState([]);
-  const [form, setForm] = useState({ name: "", price: "", stock: "", image: "" });
+  const initialFormState = {
+    title: "",
+    description: "",
+    price: "",
+    discountPrice: "",
+    stock: "",
+    lowStock: "",
+    gstRate: "",
+    category: "",
+    productType: "",
+    brand: "",
+    images: [],
+  };
 
-  // State for orders
+  const [products, setProducts] = useState([]);
+  const [form, setForm] = useState(initialFormState);
+  const [imagePreviews, setImagePreviews] = useState([]);
+
   const [orders, setOrders] = useState([
     { id: 1, customer: "Alice", total: 300, status: "Pending", payment: "Unpaid" },
     { id: 2, customer: "Bob", total: 500, status: "Delivered", payment: "Paid" },
   ]);
 
+  // Load all products from DB
+  const loadProducts = async () => {
+    try {
+      const data = await fetchProducts();
+      // Assuming your API returns { success, count, products }
+      setProducts(data.products.map(p => ({ ...p, imagePreviews: p.images || [] })));
+    } catch (error) {
+      console.error("Error loading products:", error);
+    }
+  };
+
+  useEffect(() => {
+    loadProducts();
+  }, []);
+
+  // Handle image upload
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    setForm({ ...form, images: files });
+
+    const previews = files.map((file) => URL.createObjectURL(file));
+    setImagePreviews(previews);
+  };
+
   // Add product
-  const handleAddProduct = (e) => {
+  const handleAddProduct = async (e) => {
     e.preventDefault();
-    setProducts([...products, { ...form, id: Date.now() }]);
-    setForm({ name: "", price: "", stock: "", image: "" });
+    try {
+      const formData = new FormData();
+      Object.keys(form).forEach((key) => {
+        if (key === "images") {
+          if (form.images.length > 0) {
+            form.images.forEach(img => formData.append("images", img));
+          }
+        } else {
+          formData.append(key, form[key]);
+        }
+      });
+
+      await addProduct(formData);
+
+      alert("✅ Product added successfully!");
+      // Reload all products from DB after adding
+      await loadProducts();
+
+      // Reset form
+      setForm(initialFormState);
+      setImagePreviews([]);
+    } catch (error) {
+      console.error("Error adding product:", error);
+      alert(error.message || "❌ Failed to add product");
+    }
   };
 
   // Toggle delivery status
   const toggleDelivery = (id) => {
-    setOrders(
-      orders.map((order) =>
+    setOrders(prev =>
+      prev.map(order =>
         order.id === id
           ? { ...order, status: order.status === "Pending" ? "Delivered" : "Pending" }
           : order
@@ -31,8 +92,8 @@ const Admin = () => {
 
   // Toggle payment status
   const togglePayment = (id) => {
-    setOrders(
-      orders.map((order) =>
+    setOrders(prev =>
+      prev.map(order =>
         order.id === id
           ? { ...order, payment: order.payment === "Unpaid" ? "Paid" : "Unpaid" }
           : order
@@ -47,13 +108,20 @@ const Admin = () => {
       {/* Add Product Form */}
       <div className="bg-white p-6 rounded-xl shadow-md mb-8">
         <h2 className="text-xl font-semibold mb-4">Add Product</h2>
-        <form onSubmit={handleAddProduct} className="grid md:grid-cols-4 gap-4">
+        <form onSubmit={handleAddProduct} className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           <input
             type="text"
-            placeholder="Product Name"
+            placeholder="Product Title"
             className="border p-2 rounded"
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            value={form.title}
+            onChange={(e) => setForm({ ...form, title: e.target.value })}
+            required
+          />
+          <textarea
+            placeholder="Description"
+            className="border p-2 rounded md:col-span-2 lg:col-span-3"
+            value={form.description}
+            onChange={(e) => setForm({ ...form, description: e.target.value })}
             required
           />
           <input
@@ -66,6 +134,13 @@ const Admin = () => {
           />
           <input
             type="number"
+            placeholder="Discount Price"
+            className="border p-2 rounded"
+            value={form.discountPrice}
+            onChange={(e) => setForm({ ...form, discountPrice: e.target.value })}
+          />
+          <input
+            type="number"
             placeholder="Stock"
             className="border p-2 rounded"
             value={form.stock}
@@ -73,15 +148,64 @@ const Admin = () => {
             required
           />
           <input
-            type="text"
-            placeholder="Image URL"
+            type="number"
+            placeholder="Low Stock Alert"
             className="border p-2 rounded"
-            value={form.image}
-            onChange={(e) => setForm({ ...form, image: e.target.value })}
+            value={form.lowStock}
+            onChange={(e) => setForm({ ...form, lowStock: e.target.value })}
           />
+          <input
+            type="number"
+            placeholder="GST Rate (%)"
+            className="border p-2 rounded"
+            value={form.gstRate}
+            onChange={(e) => setForm({ ...form, gstRate: e.target.value })}
+          />
+          <input
+            type="text"
+            placeholder="Category"
+            className="border p-2 rounded"
+            value={form.category}
+            onChange={(e) => setForm({ ...form, category: e.target.value })}
+            required
+          />
+          <input
+            type="text"
+            placeholder="Product Type"
+            className="border p-2 rounded"
+            value={form.productType}
+            onChange={(e) => setForm({ ...form, productType: e.target.value })}
+          />
+          <input
+            type="text"
+            placeholder="Brand"
+            className="border p-2 rounded"
+            value={form.brand}
+            onChange={(e) => setForm({ ...form, brand: e.target.value })}
+          />
+
+          {/* Image Upload */}
+          <div className="md:col-span-2 lg:col-span-3">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Product Images</label>
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              className="border p-2 rounded w-full"
+              onChange={handleImageChange}
+            />
+            {imagePreviews.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {imagePreviews.map((src, idx) => (
+                  <img key={idx} src={src} alt="preview" className="w-16 h-16 object-cover rounded" />
+                ))}
+              </div>
+            )}
+          </div>
+
           <button
             type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded col-span-4 md:col-span-1"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded md:col-span-2 lg:col-span-3 transition-all duration-200"
           >
             Add Product
           </button>
@@ -95,81 +219,33 @@ const Admin = () => {
           <thead>
             <tr className="bg-gray-200 text-left">
               <th className="p-3">Image</th>
-              <th className="p-3">Name</th>
+              <th className="p-3">Title</th>
+              <th className="p-3">Category</th>
+              <th className="p-3">Brand</th>
               <th className="p-3">Price</th>
               <th className="p-3">Stock</th>
             </tr>
           </thead>
           <tbody>
             {products.map((p) => (
-              <tr key={p.id} className="border-t">
+              <tr key={p._id || p.id} className="border-t">
                 <td className="p-3">
-                  {p.image ? (
-                    <img src={p.image} alt={p.name} className="w-16 h-16 object-cover rounded" />
+                  {p.imagePreviews?.length > 0 ? (
+                    <img src={p.imagePreviews[0]} alt={p.title} className="w-16 h-16 object-cover rounded" />
                   ) : (
                     <span className="text-gray-400">No Image</span>
                   )}
                 </td>
-                <td className="p-3">{p.name}</td>
-                <td className="p-3">${p.price}</td>
+                <td className="p-3">{p.title}</td>
+                <td className="p-3">{p.category}</td>
+                <td className="p-3">{p.brand}</td>
+                <td className="p-3">₹{p.price}</td>
                 <td className="p-3">{p.stock}</td>
               </tr>
             ))}
           </tbody>
         </table>
-        {products.length === 0 && (
-          <p className="text-gray-500 mt-3">No products added yet.</p>
-        )}
-      </div>
-
-      {/* Orders Section */}
-      <div className="bg-white p-6 rounded-xl shadow-md">
-        <h2 className="text-xl font-semibold mb-4">Orders</h2>
-        <table className="w-full">
-          <thead>
-            <tr className="bg-gray-200 text-left">
-              <th className="p-3">Customer</th>
-              <th className="p-3">Total</th>
-              <th className="p-3">Delivery Status</th>
-              <th className="p-3">Payment</th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders.map((o) => (
-              <tr key={o.id} className="border-t">
-                <td className="p-3">{o.customer}</td>
-                <td className="p-3">${o.total}</td>
-                <td className="p-3">
-                  <button
-                    onClick={() => toggleDelivery(o.id)}
-                    className={`px-3 py-1 rounded text-sm ${
-                      o.status === "Delivered"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-yellow-100 text-yellow-700"
-                    }`}
-                  >
-                    {o.status}
-                  </button>
-                </td>
-                <td className="p-3">
-                  <button
-                    onClick={() => togglePayment(o.id)}
-                    className={`px-3 py-1 rounded text-sm ${
-                      o.payment === "Paid"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
-                    }`}
-                  >
-                    {o.payment}
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        {orders.length === 0 && (
-          <p className="text-gray-500 mt-3">No orders yet.</p>
-        )}
+        {products.length === 0 && <p className="text-gray-500 mt-3">No products added yet.</p>}
       </div>
     </div>
   );
