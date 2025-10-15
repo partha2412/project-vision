@@ -21,8 +21,8 @@ const AdminDashboard = () => {
   // Sidebar buttons with icons
   const menu = [
     { id: "analytics", label: "Analytics", icon: <BarChart2 className="w-5 h-5" /> },
-    { id: "admin", label: "Products & Orders", icon: <ClipboardList className="w-5 h-5" /> },
-    { id: "pending", label: "Pending Orders", icon: <Package className="w-5 h-5" /> },
+    { id: "admin", label: "Products ", icon: <ClipboardList className="w-5 h-5" /> },
+    { id: "pending", label: " Orders", icon: <Package className="w-5 h-5" /> },
     { id: "notifications", label: "Notifications", icon: <Bell className="w-5 h-5" /> },
     { id:  "update profile", label:  "update profile", icon: <FaUserEdit className="w-5 h-5" /> },
 

@@ -1,5 +1,6 @@
 const multer = require('multer');
 const Product = require('../models/Product');
+const Notification = require("../models/Notification");
 const { uploadImagesToCloudinary } = require('./imagecontroller');
 
 // ✅ Multer setup
@@ -7,7 +8,9 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage });
 exports.uploadMiddleware = upload.array('images', 5); // max 5 images
 
-// ✅ Add Product Controller (fixed)
+// ===============================
+// 📦 Add Product Controller
+// ===============================
 exports.addProduct = async (req, res) => {
   try {
     const {
@@ -24,38 +27,45 @@ exports.addProduct = async (req, res) => {
       lowStockAlert
     } = req.body;
 
-    // ✅ Validate required text fields (not images yet)
+    // Validate required text fields
     if (!title || !description || !price || !stock || !category) {
       return res.status(400).json({
         message: 'All text fields are required',
       });
     }
 
-    // ✅ Validate image files
+    // Validate image files
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({
         message: 'At least one image file is required',
       });
     }
 
-    // ✅ Upload images to Cloudinary
+    // Upload images to Cloudinary
     const imageUrls = await uploadImagesToCloudinary(req.files, 'products');
 
-    // ✅ Add product in MongoDB
+    // Add product in MongoDB
     const product = await Product.create({
       title,
       description,
       price,
       discountPrice,
       category,
-      images: imageUrls, // Cloudinary URLs
-      //status,
+      images: imageUrls,
       stock,
       productType,
       brand,
       gstRate,
       lowStockAlert,
     });
+
+    // ⚠️ Create low-stock notification automatically
+    if (product.stock <= (product.lowStockAlert || 5)) {
+      await Notification.create({
+        type: "warning",
+        message: `⚠️ Stock low for '${product.title}' (${product.stock} left)`,
+      });
+    }
 
     res.status(201).json({
       success: true,
@@ -73,14 +83,14 @@ exports.addProduct = async (req, res) => {
   }
 };
 
-
-// Update Product by Name
+// ===============================
+// 🔄 Update Product by Name
+// ===============================
 exports.updateProductByName = async (req, res) => {
   try {
-    const { productName } = req.params; // name from URL
+    const { productName } = req.params;
     const updateData = req.body;
 
-    // Check if product exists by name
     const product = await Product.findOne({ title: productName });
     if (!product) {
       return res.status(404).json({ success: false, message: 'Product not found' });
@@ -99,12 +109,20 @@ exports.updateProductByName = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Images must be a non-empty array' });
     }
 
-    // Update the product
+    // Update product
     const updatedProduct = await Product.findOneAndUpdate(
       { title: productName },
       updateData,
-      { new: true, runValidators: true } // return updated doc and validate
+      { new: true, runValidators: true }
     );
+
+    // ⚠️ Create low-stock notification if stock is low
+    if (updatedProduct.stock <= (updatedProduct.lowStockAlert || 5)) {
+      await Notification.create({
+        type: "warning",
+        message: `⚠️ Stock low for '${updatedProduct.title}' (${updatedProduct.stock} left)`,
+      });
+    }
 
     res.status(200).json({
       success: true,
@@ -121,10 +139,9 @@ exports.updateProductByName = async (req, res) => {
   }
 };
 
-
-// fetch products
-
-// Search products by title or description (case-insensitive)
+// ===============================
+// 🔍 Search Products
+// ===============================
 exports.searchProducts = async (req, res) => {
   try {
     const { query } = req.query;
@@ -155,12 +172,12 @@ exports.searchProducts = async (req, res) => {
   }
 };
 
-
-// Fetch products within a price range
+// ===============================
+// 💰 Get Products by Price Range
+// ===============================
 exports.getProductsByRange = async (req, res) => {
   try {
     const { min, max } = req.query;
-
     const minPrice = Number(min) || 0;
     const maxPrice = Number(max) || Infinity;
 
@@ -183,8 +200,9 @@ exports.getProductsByRange = async (req, res) => {
   }
 };
 
-
-// Soft delete a product by ID
+// ===============================
+// 🗑 Soft Delete Product
+// ===============================
 exports.softDeleteProduct = async (req, res) => {
   try {
     const { id } = req.params;
@@ -194,7 +212,7 @@ exports.softDeleteProduct = async (req, res) => {
       return res.status(404).json({ success: false, message: "Product not found" });
     }
 
-    product.isDeleted = true; // mark as deleted
+    product.isDeleted = true;
     await product.save();
 
     res.status(200).json({ success: true, message: "Product soft-deleted successfully" });
@@ -203,7 +221,9 @@ exports.softDeleteProduct = async (req, res) => {
   }
 };
 
-// Hard delete a product by ID
+// ===============================
+// 🗑 Hard Delete Product
+// ===============================
 exports.hardDeleteProduct = async (req, res) => {
   try {
     const { id } = req.params;
@@ -213,7 +233,7 @@ exports.hardDeleteProduct = async (req, res) => {
       return res.status(404).json({ success: false, message: "Product not found" });
     }
 
-    await Product.findByIdAndDelete(id); // remove from DB
+    await Product.findByIdAndDelete(id);
     res.status(200).json({ success: true, message: "Product permanently deleted" });
   } catch (error) {
     res.status(500).json({ success: false, message: "Server error while deleting product", error: error.message });

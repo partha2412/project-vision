@@ -1,11 +1,30 @@
+import React, { useEffect, useState } from "react";
 import { Bell, Package, AlertTriangle } from "lucide-react"; // icons
 
 const Notifications = () => {
-  const alerts = [
-    { type: "warning", message: "⚠️ Stock low for 'yellow frames'" },
-    { type: "success", message: "🆕 New Order placed:Airflex " },
-    { type: "info", message: "📦 Order #1023 has been shipped" },
-  ];
+  const [alerts, setAlerts] = useState([]); // ✅ state to hold notifications
+
+ useEffect(() => {
+  const fetchNotifications = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch("http://localhost:5000/api/notifications", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data.success) setAlerts(data.notifications);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  fetchNotifications();
+
+  // ⏱ refresh every 30 seconds
+  const interval = setInterval(fetchNotifications, 30000);
+
+  return () => clearInterval(interval);
+}, []);
 
   // Tailwind styles for different alert types
   const styles = {
@@ -14,7 +33,7 @@ const Notifications = () => {
     info: "bg-blue-100 text-blue-700 border-l-4 border-blue-500",
   };
 
-  // Icon for each alert type
+  // Icons for each alert type
   const icons = {
     warning: <AlertTriangle className="w-6 h-6 text-red-600" />,
     success: <Package className="w-6 h-6 text-green-600" />,
