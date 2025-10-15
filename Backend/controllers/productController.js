@@ -25,7 +25,7 @@ exports.addProduct = async (req, res) => {
     } = req.body;
 
     // ✅ Validate required text fields (not images yet)
-    if (!title || !description || !price || !stock || !status || !category) {
+    if (!title || !description || !price || !stock || !category) {
       return res.status(400).json({
         message: 'All text fields are required',
       });
@@ -41,7 +41,7 @@ exports.addProduct = async (req, res) => {
     // ✅ Upload images to Cloudinary
     const imageUrls = await uploadImagesToCloudinary(req.files, 'products');
 
-    // ✅ Create product in MongoDB
+    // ✅ Add product in MongoDB
     const product = await Product.create({
       title,
       description,
@@ -49,7 +49,7 @@ exports.addProduct = async (req, res) => {
       discountPrice,
       category,
       images: imageUrls, // Cloudinary URLs
-      status,
+      //status,
       stock,
       productType,
       brand,

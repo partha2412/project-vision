@@ -8,7 +8,7 @@ import { logoutUser } from '../api/userApi';
 
 const NavBar = () => {
   const { wishlist } = useContext(WishlistContext);
-  const { user } = useContext(AuthContext); // added logout
+  const { user, isAdmin } = useContext(AuthContext); // added logout
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -65,7 +65,7 @@ const NavBar = () => {
           {user ? (
             <div className="relative" ref={dropdownRef}>
               <div
-                className="w-10 h-10 rounded-full bg-gray-600 text-white flex items-center justify-center cursor-pointer font-bold"
+                className="w-10 h-10 rounded-full bg-gray-800 text-white flex items-center justify-center cursor-pointer font-bold"
                 onClick={() => setOpen(!open)}
               >
                 {getInitials()}
@@ -74,7 +74,7 @@ const NavBar = () => {
               {open && (
                 <div className="absolute right-[-66px] mt-6 w-44 bg-gray-200  opacity-90 shadow-lg rounded-md overflow-hidden z-50">
                   {/* Admin Dashboard */}
-                  {user.role == "admin" ? (
+                  { isAdmin() ? (
                     <button
                       className="block w-full text-left px-4 py-2 hover:bg-gray-100 duration-300"
                       onClick={() => { navigate("/admindashboard"); setOpen(false); }}
