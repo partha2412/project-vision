@@ -64,7 +64,7 @@ const App = () => {
           <Route
             path="/admindashboard"
             element={
-              <ProtectedRoute adminOnly={true}>
+              <ProtectedRoute adminOnly>
                 <AdminDashboard />
               </ProtectedRoute>
             }
