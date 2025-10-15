@@ -33,3 +33,25 @@ export const logoutUser = async () => {
     throw error.response ? error.response.data : { message: "Network error" };
   }
 };
+
+//update user profile
+export const updateUser = async (userData, token) => {
+  try {
+    const formData = new FormData();
+    for (const key in userData) {
+      if (userData[key] !== null && userData[key] !== undefined) {
+        formData.append(key, userData[key]);
+      }
+    }
+
+    const response = await api.put("/auth/updateuser", formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response ? error.response.data : { message: "Network error" };
+  }
+};
