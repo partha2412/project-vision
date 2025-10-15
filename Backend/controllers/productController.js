@@ -83,65 +83,58 @@ exports.addProduct = async (req, res) => {
   }
 };
 
-// ===============================
-// 🔄 Update Product by Name
-// ===============================
-exports.updateProductByName = async (req, res) => {
+
+// Update Product by ID
+exports.updateProductById = async (req, res) => {
   try {
-    const { productName } = req.params;
+    const { id } = req.params; // Get product ID from URL
     const updateData = req.body;
 
-    const product = await Product.findOne({ title: productName });
+    // Check if product exists
+    const product = await Product.findById(id);
     if (!product) {
-      return res.status(404).json({ success: false, message: 'Product not found' });
+      return res.status(404).json({ success: false, message: "Product not found" });
     }
 
-    // Validate enum values if provided
-    if (updateData.status && !['Active', 'Draft', 'Out of Stock', 'Low Stock'].includes(updateData.status)) {
-      return res.status(400).json({ success: false, message: 'Invalid status value' });
+    // Validate enum fields if present
+    if (updateData.status && !["Active", "Draft", "Out of Stock", "Low Stock"].includes(updateData.status)) {
+      return res.status(400).json({ success: false, message: "Invalid status value" });
     }
-    if (updateData.category && !['Man', 'Woman', 'Kids'].includes(updateData.category)) {
-      return res.status(400).json({ success: false, message: 'Invalid category value' });
+    if (updateData.category && !["Man", "Woman", "Kids"].includes(updateData.category)) {
+      return res.status(400).json({ success: false, message: "Invalid category value" });
     }
 
     // Ensure images is an array if provided
-    if (updateData.images && (!Array.isArray(updateData.images) || updateData.images.length === 0)) {
-      return res.status(400).json({ success: false, message: 'Images must be a non-empty array' });
+    if (updateData.images && !Array.isArray(updateData.images)) {
+      return res.status(400).json({ success: false, message: "Images must be an array" });
     }
 
-    // Update product
-    const updatedProduct = await Product.findOneAndUpdate(
-      { title: productName },
-      updateData,
-      { new: true, runValidators: true }
-    );
-
-    // ⚠️ Create low-stock notification if stock is low
-    if (updatedProduct.stock <= (updatedProduct.lowStockAlert || 5)) {
-      await Notification.create({
-        type: "warning",
-        message: `⚠️ Stock low for '${updatedProduct.title}' (${updatedProduct.stock} left)`,
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: 'Product updated successfully',
-      product: updatedProduct
+    // Update the product
+    const updatedProduct = await Product.findByIdAndUpdate(id, updateData, {
+      new: true,
+      runValidators: true,
     });
 
+    return res.status(200).json({
+      success: true,
+      message: "✅ Product updated successfully",
+      product: updatedProduct,
+    });
   } catch (error) {
+    console.error("Error updating product:", error);
     res.status(500).json({
       success: false,
-      message: 'Server error while updating product',
-      error: error.message
+      message: "Server error while updating product",
+      error: error.message,
     });
   }
 };
 
-// ===============================
-// 🔍 Search Products
-// ===============================
+
+
+// fetch products
+
+// Search products by title or description (case-insensitive)
 exports.searchProducts = async (req, res) => {
   try {
     const { query } = req.query;
