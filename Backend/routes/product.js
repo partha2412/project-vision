@@ -11,7 +11,7 @@ router.post(
 );
 // Update product by name
 // Update product by name
-router.put('/update/name/:productName', productController.updateProductByName);
+router.put('/update/:id', productController.updateProductById);
 
 // Get all products
 router.get('/', async (req, res) => {
