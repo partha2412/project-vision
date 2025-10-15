@@ -65,7 +65,7 @@ const ProfileSettings = () => {
 
   return (
     <div className={`${darkMode ? 'dark' : ''} min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors`}>
-      <div className="max-w-6xl mx-auto p-6 bg-white dark:bg-gray-800 shadow-md rounded-lg mt-8">
+      <div className="max-w-screen mx-auto p-6 bg-white dark:bg-gray-800 shadow-md rounded-lg mt-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold dark:text-white">Account Settings</h1>
          {/*<button

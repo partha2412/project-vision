@@ -8,13 +8,16 @@ router.get('/', protect, adminOnly, orderController.getAllOrders);
 // example: /api/order/placeorder
 router.post('/placeorder', protect, orderController.placeOrder);
 // example: /api/order/status/:orderId
-    // paidAt,
-    // isDelivered,
-    // deliveredAt,
-    // trackingNumber,
-    // notes,
-    // status,
-    // isPaid,
-    router.put('/status/:orderId', protect, adminOnly, orderController.updateOrderStatus);
+// paidAt,
+// isDelivered,
+// deliveredAt,
+// trackingNumber,
+// notes,
+// status,
+// isPaid,
+router.put('/status/:orderId', protect, adminOnly, orderController.updateOrderStatus);
+
+// example: /api/order/user/:userId
+router.get('/user/:userId', orderController.getUserOrders);  // GET /api/orders/user/:userId
 
 module.exports = router;
