@@ -103,14 +103,12 @@ exports.login = async (req, res) => {
         token,
         user: {
           id: admin._id,
-          firstname: admin.firstname,
-          lastname: admin.lastname,
+          firstname: user.firstname,
+          lastname: user.lastname,
           email: admin.email,
           role: admin.role
         }
       });
-      
-
     }
 
     // ===== USER LOGIN =====
@@ -180,36 +178,25 @@ exports.logout = async (req, res) => {
     });
   }
 };
-
-
 // Update User
 exports.updateUser = async (req, res) => {
-  const { firstName, lastName, email, phone, gender, dob, password, newPassword } = req.body;
+  const { name, email, password } = req.body;
 
   try {
-    const userId = req.user.id; // From middleware
-const user = await User.findById(userId).select('+password');
-console.log(password);
+    const userId = req.user.id; // You must get user from middleware (decoded token)
 
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
 
-   if (firstName) user.firstname = firstName;
-if (lastName) user.lastname = lastName;
-if (email) user.email = email;
-if (phone) user.phone = phone;
-if (gender) user.gender = gender;
-if (dob) user.dob = dob;
+    // Update fields if provided
+    if (name) user.name = name;
+    if (email) user.email = email;
 
-
-    // Update password
-    if (password && newPassword) {
-      const match = await bcrypt.compare(password, user.password);
-          console.log(user.password);
-
-      if (!match) return res.status(400).json({ message: 'Current password is incorrect' });
-
-      const hashed = await bcrypt.hash(newPassword, 10);
-      user.password = hashed;
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      user.password = hashedPassword;
     }
 
     await user.save();
@@ -217,23 +204,20 @@ if (dob) user.dob = dob;
     res.status(200).json({
       success: true,
       message: 'User updated successfully',
-      
       user: {
-        role:user.role,
         id: user._id,
-        firstName: user.firstname,
-        lastName: user.lastname,
-        email: user.email,
-        phone: user.phone,
-        gender: user.gender,
-        dob: user.dob,
-      },
+        name: user.name,
+        email: user.email
+      }
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({
+      success: false,
+      message: 'Server error during update',
+      error: error.message
+    });
   }
 };
-
 
 
 // Delete User
