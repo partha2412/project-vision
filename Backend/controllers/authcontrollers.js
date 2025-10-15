@@ -103,12 +103,14 @@ exports.login = async (req, res) => {
         token,
         user: {
           id: admin._id,
-          firstname: user.firstname,
-          lastname: user.lastname,
+          firstname: admin.firstname,
+          lastname: admin.lastname,
           email: admin.email,
           role: admin.role
         }
       });
+      
+
     }
 
     // ===== USER LOGIN =====
@@ -178,46 +180,60 @@ exports.logout = async (req, res) => {
     });
   }
 };
+
 // Update User
 exports.updateUser = async (req, res) => {
-  const { name, email, password } = req.body;
-
+  const { firstname, lastname, email, phone, gender, dob, password, newPassword } = req.body;
+console.log(req.body)
   try {
-    const userId = req.user.id; // You must get user from middleware (decoded token)
+    const userId = req.user.id; // From middleware
+const user = await User.findById(userId).select('+password');
+console.log(user);
 
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+ if (firstname !== undefined) user.firstname = firstname;
+if (lastname !== undefined) user.lastname = lastname;
+if (email !== undefined) user.email = email;
+if (phone !== undefined) user.phone = phone;
+if (gender !== undefined) user.gender = gender;
+if (dob !== undefined) user.dob = dob;
+;
+
+
+    // Update password
+    if (password && newPassword) {
+      const match = await bcrypt.compare(password, user.password);
+          console.log(match);
+
+      if (!match) return res.status(400).json({ message: 'Current password is incorrect' });
+
+      const hashed = await bcrypt.hash(newPassword, 10);
+      user.password = hashed;
     }
-
-    // Update fields if provided
-    if (name) user.name = name;
-    if (email) user.email = email;
-
-    if (password) {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      user.password = hashedPassword;
-    }
-
+console.log(user);
     await user.save();
 
     res.status(200).json({
       success: true,
       message: 'User updated successfully',
+      
       user: {
+        role:user.role,
         id: user._id,
-        name: user.name,
-        email: user.email
-      }
+        firstName: user.firstname,
+        lastName: user.lastname,
+        email: user.email,
+        phone: user.phone,
+        gender: user.gender,
+        dob: user.dob,
+      },
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Server error during update',
-      error: error.message
-    });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
+
 
 
 // Delete User
@@ -244,5 +260,3 @@ exports.deleteUser = async (req, res) => {
     });
   }
 };
-
-

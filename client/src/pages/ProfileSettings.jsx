@@ -145,16 +145,21 @@ const ProfileSettings = () => {
     if (profile.newPassword) formData.append("newPassword", profile.newPassword);
     if (profile.image) formData.append("image", profile.image);
 
-    // Call backend API
-    const token = localStorage.getItem("token"); // Make sure token is stored after login
-    const response = await fetch("http://localhost:5000/api/auth/updateuser", {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: formData,
-    });
+   const token = localStorage.getItem("token");
+console.log(token);
+const payload = {
+   firstname: profile.firstname,
+  lastname: profile.lastname,
 
+};
+const response = await fetch("http://localhost:5000/api/auth/updateuser", {
+  method: "PUT",
+  headers: {
+    "Content-Type": "application/json", // <-- important
+    Authorization: `Bearer ${token}`,
+  },
+  body: JSON.stringify(payload), // <-- send as JSON
+});
     const data = await response.json();
 
     if (data.success) {
