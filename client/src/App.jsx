@@ -72,6 +72,7 @@ const App = () => {
           {/* <Route path='/ad' element={<AdminSettings />} /> */}
           <Route path="/products" element={<AllProducts />} />
           <Route path="/product/:id" element={<ProductDetail />} />
+          <Route path="/products2" element={<ProductDetail />} />
           <Route path="/men" element={<Men />} />
           <Route path="/women" element={<Women />} />
           <Route path="/kids" element={<Kids />} />
