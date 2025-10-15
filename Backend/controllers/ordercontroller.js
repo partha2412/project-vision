@@ -4,8 +4,8 @@ const Order = require('../models/Order');
 exports.getAllOrders = async (req, res) => {
   try {
     const orders = await Order.find()
-      .populate('user', 'name email')        // include user details
-      .populate('orderItems.product', 'title price'); // include product details
+      .populate('user', 'firstname lastname email _id')
+      .populate('orderItems.product', 'name price');
 
     res.status(200).json({
       success: true,
@@ -16,6 +16,7 @@ exports.getAllOrders = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
 
 
 // placeorder

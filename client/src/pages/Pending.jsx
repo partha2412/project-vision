@@ -12,7 +12,7 @@ const Pending = () => {
       try {
         setLoading(true);
         const data = await fetchAllOrders();
-        setOrders(data.orders || []); // expected backend response: { success, count, orders }
+        setOrders(data.orders || []);
       } catch (err) {
         setError(err.message || "Failed to fetch orders");
       } finally {
@@ -26,7 +26,9 @@ const Pending = () => {
   const filteredOrders =
     filter === "all"
       ? orders
-      : orders.filter((o) => o.status.toLowerCase() === filter.toLowerCase());
+      : orders.filter(
+          (o) => o.status.toLowerCase() === filter.toLowerCase()
+        );
 
   if (loading) return <p>Loading orders...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
@@ -61,24 +63,40 @@ const Pending = () => {
               key={order._id}
               className="border p-4 mb-3 rounded-lg shadow-sm bg-white"
             >
+              {/* Order header */}
               <div className="font-semibold text-lg mb-1">
-                Order #{order._id.slice(-6).toUpperCase()}
+                Order <span className="text-gray-500">#{order._id.slice(-6)}</span>
               </div>
 
-              <div className="text-sm text-gray-600 mb-2">
-                <strong>User:</strong> {order.user?.firstname}{" "}
-                {order.user?.lastname} ({order.user?.email})
+              {/* User info */}
+              <div className="text-sm mb-2">
+                <strong>User:</strong>{" "}
+                {order.user
+                  ? `${order.user.firstname || ""} ${
+                      order.user.lastname || ""
+                    } (${order.user.email || ""})`
+                  : "N/A"}
               </div>
 
+              {/* Order items */}
               <div className="text-sm text-gray-700 mb-2">
                 <strong>Items:</strong>{" "}
-                {order.orderItems
-                  ?.map((item) => `${item.name} × ${item.quantity}`)
-                  .join(", ")}
+                {order.orderItems && order.orderItems.length > 0
+                  ? order.orderItems
+                      .map(
+                        (item) =>
+                          `${item.product?.name || item.name} × ${
+                            item.quantity
+                          } (₹${item.price})`
+                      )
+                      .join(", ")
+                  : "No items"}
               </div>
 
+              {/* Amount and status */}
               <div className="text-sm text-gray-700 mb-1">
-                <strong>Total Amount:</strong> ₹{order.totalAmount.toFixed(2)}
+                <strong>Total Amount:</strong> ₹
+                {order.totalAmount ? order.totalAmount.toFixed(2) : "0.00"}
               </div>
 
               <div className="text-sm text-gray-700 mb-1">
@@ -96,6 +114,7 @@ const Pending = () => {
                 </div>
               )}
 
+              {/* Shipping address */}
               <div className="text-sm text-gray-600 mt-2">
                 <strong>Shipping Address:</strong>{" "}
                 {order.shippingAddress
