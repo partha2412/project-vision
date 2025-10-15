@@ -193,12 +193,17 @@ const ProfileSettings = () => {
   ];
 
   return (
+<<<<<<< HEAD
     <div
       className={`${
         darkMode ? "dark" : ""
       } min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors`}
     >
       <div className="max-w-screen mx-auto p-6 bg-white dark:bg-gray-800 shadow-md rounded-lg mt-8">
+=======
+    <div className={`${darkMode ? 'dark' : ''} min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors`}>
+      <div className="max-w-6xl mx-auto p-6 bg-white dark:bg-gray-800 shadow-md rounded-lg mt-8">
+>>>>>>> parent of 981cde08 (Merge pull request #14 from partha2412/navbar-user-info-edited)
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold dark:text-white">
             Account Settings
