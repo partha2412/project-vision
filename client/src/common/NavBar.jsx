@@ -45,7 +45,7 @@ const NavBar = () => {
 
         {/* Navbar */}
         <nav className="flex items-center space-x-2 md:space-x-4 text-black font-medium ml-auto">
-
+          
           {/* All Products */}
           <Link to="/products" className="relative px-2 py-1 text-sm md:text-base group">
             <span className="relative z-10">All Products</span>
@@ -74,23 +74,21 @@ const NavBar = () => {
               {open && (
                 <div className="absolute right-[-66px] mt-6 w-44 bg-gray-200  opacity-90 shadow-lg rounded-md overflow-hidden z-50">
                   {/* Admin Dashboard */}
-                  {user.role == "admin" ? (
+                  {user.isAdmin && (
                     <button
                       className="block w-full text-left px-4 py-2 hover:bg-gray-100 duration-300"
                       onClick={() => { navigate("/admindashboard"); setOpen(false); }}
                     >
                       Admin Dashboard
                     </button>
-                  ) : (
-                    <button
-                      className="block w-full text-left px-4 py-2 hover:bg-gray-300 duration-300"
-                      onClick={() => { navigate("/userdashboard"); setOpen(false); }}
-                    >
-                      Dashboard
-                    </button>
                   )}
 
-
+                  <button
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-300 duration-300"
+                    onClick={() => { navigate("/userdashboard"); setOpen(false); }}
+                  >
+                    Dashboard
+                  </button>
 
                   <button
                     className="block w-full text-left px-4 py-2 hover:bg-gray-300 duration-300"
