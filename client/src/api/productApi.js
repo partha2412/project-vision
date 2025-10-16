@@ -23,7 +23,7 @@ export const searchProducts = async (query) => {
 // Fetch products within a price range
 export const fetchProductsByRange = async (min, max) => {
   try {
-    const response = await api.get("/product/range", { params: { min, max } }); // ✅ plural
+    const response = await api.get("/product/range", { params: { min, max } });
     return response.data;
   } catch (error) {
     throw error.response ? error.response.data : { message: "Network error" };
@@ -37,7 +37,7 @@ export const fetchProductsByRange = async (min, max) => {
 export const addProduct = async (productData) => {
   try {
     const response = await api.post("/product/add", productData, {
-      headers: { "Content-Type": "multipart/form-data" },
+        headers: { 'Content-Type': 'multipart/form-data' }
     });
     return response.data;
   } catch (error) {
@@ -49,7 +49,7 @@ export const addProduct = async (productData) => {
 export const updateProductByName = async (productId, updateData) => {
   try {
     const response = await api.put(`/product/update/${productId}`, updateData, {
-      headers: { "Content-Type": "multipart/form-data" },
+        headers: { 'Content-Type': 'multipart/form-data' }
     });
     return response.data;
   } catch (error) {
