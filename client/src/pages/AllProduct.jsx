@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import LeftOptions from "../components/LeftOptions";
 import ProductCard from "../components/ProductCard";
-import { fetchProducts } from "../api/productApi"; 
+import { fetchProducts } from "../api/productApi"; // adjust the path
 import { FiSearch } from "react-icons/fi";
 
 export default function AllProducts() {
@@ -10,11 +10,10 @@ export default function AllProducts() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [sortOrder, setSortOrder] = useState("Trending"); // sorting state
+  const [searchTerm, setSearchTerm] = useState(""); // user search input
   const productsPerPage = 9;
 
-  // Fetch products
+  // Fetch products from backend
   useEffect(() => {
     const loadProducts = async () => {
       try {
@@ -30,15 +29,8 @@ export default function AllProducts() {
     loadProducts();
   }, []);
 
-  // Apply sorting
-  const sortedProducts = [...products].sort((a, b) => {
-    if (sortOrder === "High to Low") return b.price - a.price;
-    if (sortOrder === "Low to High") return a.price - b.price;
-    return 0; // Trending, Best Seller, etc. stay as is
-  });
-
-  // Search filter
-  const filteredProducts = sortedProducts.filter((product) =>
+  // Filter products based on search term (case-insensitive)
+  const filteredProducts = products.filter((product) =>
     (product.name || product.title || "")
       .toLowerCase()
       .includes(searchTerm.toLowerCase())
@@ -47,19 +39,15 @@ export default function AllProducts() {
   // Pagination
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-  const currentProducts = filteredProducts.slice(
-    indexOfFirstProduct,
-    indexOfLastProduct
-  );
+  const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
   const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
-
   const goToPage = (page) => {
     if (page < 1 || page > totalPages) return;
     setCurrentPage(page);
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen">
       {/* Sidebar */}
       <div
         className={`transition-all duration-300 ease-in-out bg-white shadow-lg ${
@@ -71,7 +59,7 @@ export default function AllProducts() {
 
       {/* Main Content */}
       <div className="flex-1 p-6 md:p-10 transition-all duration-300">
-        {/* Header */}
+        {/* Header with toggle */}
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={() => setShowOptions(!showOptions)}
@@ -95,9 +83,7 @@ export default function AllProducts() {
               ></span>
             </div>
           </button>
-          <h1 className="text-2xl font-semibold text-gray-800">
-            All Products
-          </h1>
+          <h1 className="text-2xl font-semibold text-gray-800">All Products</h1>
         </div>
 
         {/* Search Bar */}
@@ -108,40 +94,32 @@ export default function AllProducts() {
             placeholder="Search products..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+            className="w-full pl-10 pr-4 py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
 
         {/* Product Grid */}
         {loading ? (
-          <p className="text-center text-gray-500">Loading products...</p>
+          <p>Loading products...</p>
         ) : error ? (
-          <p className="text-center text-red-500">{error}</p>
-        ) : filteredProducts.length === 0 ? (
-          <p className="text-center text-gray-500">No products found.</p>
+          <p className="text-red-500">{error}</p>
         ) : (
           <>
-            <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 max-w-[1200px] mx-auto">
+            <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 max-w-[1200px] mx-auto">
               {currentProducts.map((product) => (
-                <div
-                  key={product._id || product.id}
-                  className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-4"
-                >
-                  <ProductCard product={product} />
-                </div>
+                <ProductCard key={product._id || product.id} product={product} />
               ))}
             </div>
 
             {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="flex justify-center mt-10 space-x-3">
-                <button
-                  onClick={() => goToPage(currentPage - 1)}
-                  disabled={currentPage === 1}
-                  className="px-4 py-2 border rounded-md hover:bg-gray-200 disabled:opacity-50"
-                >
-                  Previous
-                </button>
+            <div className="flex justify-center mt-6 space-x-2">
+              <button
+                onClick={() => goToPage(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="px-3 py-1 border rounded-md hover:bg-gray-200 disabled:opacity-50"
+              >
+                Previous
+              </button>
 
                 {Array.from({ length: totalPages }, (_, i) => (
                   <button
@@ -149,7 +127,7 @@ export default function AllProducts() {
                     onClick={() => goToPage(i + 1)}
                     className={`px-4 py-2 border rounded-md ${
                       currentPage === i + 1
-                        ? "bg-green-500 text-white"
+                        ? "bg-blue-500 text-white"
                         : "hover:bg-gray-200"
                     }`}
                   >
@@ -157,15 +135,14 @@ export default function AllProducts() {
                   </button>
                 ))}
 
-                <button
-                  onClick={() => goToPage(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                  className="px-4 py-2 border rounded-md hover:bg-gray-200 disabled:opacity-50"
-                >
-                  Next
-                </button>
-              </div>
-            )}
+              <button
+                onClick={() => goToPage(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="px-3 py-1 border rounded-md hover:bg-gray-200 disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
           </>
         )}
       </div>

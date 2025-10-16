@@ -2,12 +2,6 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
-
-const { OAuth2Client } = require("google-auth-library");
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);  // ✅ define client here
-
-
-
 // Register 
 exports.register = async (req, res) => {
   const { firstname, lastname, email, password } = req.body;
@@ -62,45 +56,6 @@ exports.register = async (req, res) => {
     });
   }
 };
-
-
-exports.googleAuth = async (req, res) => {
-  try {
-    const { token } = req.body;
-    console.log("Google token received:", token);  // ✅ log token
-    if (!token) return res.status(400).json({ message: "Token missing" });
-
-    const ticket = await client.verifyIdToken({
-      idToken: token,
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
-
-    const payload = ticket.getPayload();
-    console.log("Google payload:", payload); // ✅ log payload
-
-    const { email, given_name: firstname, family_name: lastname } = payload;
-
-    let user = await User.findOne({ email });
-    if (!user) {
-      user = await User.create({ firstname, lastname, email, password: "" });
-    }
-
-    const jwtToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
-
-    res.status(200).json({
-      success: true,
-      token: jwtToken,
-      user: { id: user._id, firstname, lastname, email },
-    });
-  } catch (err) {
-    console.error("Google signup error:", err);
-    res.status(500).json({ success: false, message: "Google signup failed" });
-  }
-};
-
-
 
 
 
