@@ -24,9 +24,7 @@ exports.createNotification = async (req, res) => {
 // Mark notification as read
 exports.markAsRead = async (req, res) => {
   try {
-    const { id } = req.params;
-    console.log(id);
-    
+    const { id } = req.params;    
     const notification = await Notification.findByIdAndUpdate(
       id,
       { read: true },
