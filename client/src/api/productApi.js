@@ -1,43 +1,48 @@
 import api from "./axios";
 
-// Fetch all products
+// =============================
+// 🛍 FETCH ALL PRODUCTS
+// =============================
 export const fetchProducts = async () => {
   try {
-    const response = await api.get("/product/");
+    const response = await api.get("/products/"); // ✅ plural
     return response.data;
-  }
-    catch (error) {
+  } catch (error) {
     throw error.response ? error.response.data : { message: "Network error" };
-    } 
+  }
 };
 
-// Search products by title or description
+// =============================
+// 🔍 SEARCH PRODUCTS
+// =============================
 export const searchProducts = async (query) => {
   try {
-    const response = await api.get("/product/search", { params: { query } });
+    const response = await api.get("/products/search", { params: { query } }); // ✅ plural
     return response.data;
   } catch (error) {
     throw error.response ? error.response.data : { message: "Network error" };
   }
 };
-// Fetch products within a price range
+
+// =============================
+// 💰 FETCH PRODUCTS BY PRICE RANGE
+// =============================
 export const fetchProductsByRange = async (min, max) => {
   try {
-    const response = await api.get("/product/range", { params: { min, max } });
+    const response = await api.get("/products/range", { params: { min, max } }); // ✅ plural
     return response.data;
   } catch (error) {
     throw error.response ? error.response.data : { message: "Network error" };
   }
 };
 
-
-// Admin
-
-// add product
+// =============================
+// ⚙️ ADMIN — ADD PRODUCT
+// =============================
 export const addProduct = async (productData) => {
   try {
-    const response = await api.post("/product/add", productData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+    const response = await api.post("/products/add", productData, {
+      headers: { "Content-Type": "multipart/form-data" },
     });
     return response.data;
   } catch (error) {
@@ -45,11 +50,13 @@ export const addProduct = async (productData) => {
   }
 };
 
-// Update product by name
-export const updateProductByName = async (productId, updateData) => {
+// =============================
+// ✏️ ADMIN — UPDATE PRODUCT
+// =============================
+export const updateProductById = async (productId, updateData) => {
   try {
-    const response = await api.put(`/product/update/${productId}`, updateData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+    const response = await api.put(`/products/update/${productId}`, updateData, {
+      headers: { "Content-Type": "multipart/form-data" },
     });
     return response.data;
   } catch (error) {
