@@ -22,7 +22,7 @@ const Notifications = () => {
   const [loading, setLoading] = useState(true);
   const [newMessage, setNewMessage] = useState("");
   const [newType, setNewType] = useState("info");
-  const didFetch = useRef(false); // prevent double fetch in React 18 StrictMode
+  const didFetch = useRef(false);
 
   // Fetch notifications
   const getNotifications = async () => {
@@ -30,7 +30,6 @@ const Notifications = () => {
       const data = await fetchNotifications();
       if (data.success) setAlerts(data.notifications);
     } catch (error) {
-      console.error("Fetch error:", error);
       toast.error(error.message || "Failed to load notifications");
     } finally {
       setLoading(false);
@@ -80,10 +79,7 @@ const Notifications = () => {
     if (!newMessage.trim()) return toast.error("Message cannot be empty");
 
     try {
-      const data = await createNotification({
-        message: newMessage,
-        type: newType,
-      });
+      const data = await createNotification({ message: newMessage, type: newType });
       if (data.success) {
         setAlerts((prev) => [data.notification, ...prev]);
         setNewMessage("");
@@ -94,7 +90,6 @@ const Notifications = () => {
     }
   };
 
-  // Tailwind styles by type
   const styles = {
     warning: "bg-red-100 text-red-700 border-l-4 border-red-500",
     success: "bg-green-100 text-green-700 border-l-4 border-green-500",
@@ -103,7 +98,6 @@ const Notifications = () => {
       "bg-gradient-to-r from-yellow-100 via-amber-100 to-orange-100 text-yellow-800 border-l-4 border-yellow-500 shadow-sm",
   };
 
-  // Icons by type
   const icons = {
     warning: <AlertTriangle className="w-6 h-6 text-red-600" />,
     success: <Package className="w-6 h-6 text-green-600" />,
@@ -146,7 +140,7 @@ const Notifications = () => {
           <option value="info">Info</option>
           <option value="success">Success</option>
           <option value="warning">Warning</option>
-          <option value="offers">Offers</option> {/* ✅ fixed name */}
+          <option value="offers">Offers</option>
         </select>
         <button
           type="submit"
@@ -171,9 +165,7 @@ const Notifications = () => {
                 {icons[alert.type] || <Bell className="w-6 h-6 text-gray-600" />}
                 <div>
                   <p
-                    className={`font-medium ${
-                      alert.read ? "opacity-70" : "font-semibold"
-                    }`}
+                    className={`font-medium ${alert.read ? "opacity-70" : "font-semibold"}`}
                   >
                     {alert.message}
                   </p>

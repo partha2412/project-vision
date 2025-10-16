@@ -5,35 +5,34 @@ export const fetchProducts = async () => {
   try {
     const response = await api.get("/product/");
     return response.data;
-  }
-    catch (error) {
+  } catch (error) {
     throw error.response ? error.response.data : { message: "Network error" };
-    } 
+  }
 };
 
 // Search products by title or description
-export const searchProducts = async (query) => {
+export const searchProducts = async (order) => {
   try {
-    const response = await api.get("/product/search", { params: { query } });
+    const response = await api.get("/product/search", { params: { o } });
     return response.data;
   } catch (error) {
     throw error.response ? error.response.data : { message: "Network error" };
   }
 };
+
 // Fetch products within a price range
 export const fetchProductsByRange = async (min, max) => {
   try {
-    const response = await api.get("/product/range", { params: { min, max } }); // ✅ plural
+    const response = await api.get("/product/range", { params: { min, max } });
     return response.data;
   } catch (error) {
     throw error.response ? error.response.data : { message: "Network error" };
   }
 };
 
-
 // Admin
 
-// add product
+// Add product
 export const addProduct = async (productData) => {
   try {
     const response = await api.post("/product/add", productData, {
@@ -45,7 +44,7 @@ export const addProduct = async (productData) => {
   }
 };
 
-// Update product by name
+// Update product by ID
 export const updateProductByName = async (productId, updateData) => {
   try {
     const response = await api.put(`/product/update/${productId}`, updateData, {
@@ -57,20 +56,16 @@ export const updateProductByName = async (productId, updateData) => {
   }
 };
 
-
-
 // Sort products by price
-export const sortProducts = async (order) => {
+export const fetchSortedProducts = async (order) => {
   try {
-
-
+    // Make GET request with order param
+    const response = await api.get("/product/sort", { params: { order } });
     return response.data;
   } catch (error) {
     throw error.response ? error.response.data : { message: "Network error" };
   }
 };
-
-
 
 // Hard delete product
 export const hardDeleteProduct = async (productId) => {
@@ -81,4 +76,3 @@ export const hardDeleteProduct = async (productId) => {
     throw error.response ? error.response.data : { message: "Network error" };
   }
 };
-

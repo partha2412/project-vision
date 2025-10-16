@@ -1,18 +1,17 @@
 import React, { useState, useEffect, useCallback } from "react";
 import LeftOptions from "../components/LeftOptions";
 import ProductCard from "../components/ProductCard";
-import { fetchProducts, sortProducts } from "../api/productApi"; // Adjust as needed
+import { fetchProducts, fetchSortedProducts } from "../api/productApi";
 import { FiSearch } from "react-icons/fi";
 
-
 export default function AllProducts() {
-  const [showOptions, setShowOptions] = useState(false);
+  const [showOptions, setShowOptions] = useState(true);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortOrder, setSortOrder] = useState(null); // "asc" / "desc"
+  const [selectedSort, setSelectedSort] = useState(null);
   const productsPerPage = 9;
 
   // Fetch products
@@ -32,21 +31,26 @@ export default function AllProducts() {
     loadProducts();
   }, [loadProducts]);
 
-  // Sorting handler
-  const handleSortChange = async (order) => {
-    try {
-      setSortOrder(order);
-      setLoading(true);
-      const data = await sortProducts(order); // API should support sorting
-      setProducts(data.products || []);
-      setCurrentPage(1);
-    } catch (err) {
-      console.error(err);
-      setError(err.message || "Failed to sort products");
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Handle sort change
+  useEffect(() => {
+    const fetchSorted = async () => {
+      if (!selectedSort) return;
+      try {
+        setLoading(true);
+        const data = await fetchSortedProducts(selectedSort);
+        console.log(data);
+        setProducts(data.products || []);
+        setCurrentPage(1);
+      } catch (err) {
+        console.error(err);
+        setError(err.message || "Failed to sort products");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSorted();
+  }, [selectedSort]);
 
   // Filter products by search
   const filteredProducts = products.filter((product) =>
@@ -55,10 +59,13 @@ export default function AllProducts() {
       .includes(searchTerm.toLowerCase())
   );
 
-  // Pagination logic
+  // Pagination
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-  const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
+  const currentProducts = filteredProducts.slice(
+    indexOfFirstProduct,
+    indexOfLastProduct
+  );
   const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
 
   const goToPage = (page) => {
@@ -74,14 +81,16 @@ export default function AllProducts() {
           showOptions ? "w-72" : "w-0"
         } overflow-hidden`}
       >
-        <LeftOptions onSortChange={handleSortChange} />
+        <LeftOptions
+          selectedOption={selectedSort}
+          setSelectedOption={setSelectedSort}
+        />
       </div>
 
       {/* Main Content */}
       <div className="flex-1 p-6 md:p-10 transition-all duration-300">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          {/* Sidebar Toggle */}
           <button
             onClick={() => setShowOptions(!showOptions)}
             className="relative w-11 h-11 flex items-center justify-center rounded-xl bg-white border border-gray-200 shadow-md hover:shadow-xl transition duration-300"
@@ -108,7 +117,7 @@ export default function AllProducts() {
           <h1 className="text-2xl font-semibold text-gray-800">All Products</h1>
         </div>
 
-        {/* Search Bar */}
+        {/* Search */}
         <div className="mb-8 max-w-3xl mx-auto relative">
           <FiSearch className="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400" />
           <input
@@ -156,7 +165,9 @@ export default function AllProducts() {
                     key={i + 1}
                     onClick={() => goToPage(i + 1)}
                     className={`px-4 py-2 border rounded-md ${
-                      currentPage === i + 1 ? "bg-green-600 text-white" : "hover:bg-gray-200"
+                      currentPage === i + 1
+                        ? "bg-green-600 text-white"
+                        : "hover:bg-gray-200"
                     }`}
                   >
                     {i + 1}

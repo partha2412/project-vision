@@ -1,6 +1,6 @@
 import React from "react";
 
-const LeftOptions = ({ selected = "Trending", setSelected = () => {} }) => {
+const LeftOptions = ({ selectedOption = "Trending", setSelectedOption = () => {} }) => {
   const options = [
     "Trending",
     "Best Rating",
@@ -12,19 +12,18 @@ const LeftOptions = ({ selected = "Trending", setSelected = () => {} }) => {
 
   return (
     <div className="w-full sm:w-72 mt-14 bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-200">
-      {/* Sidebar Title */}
       <div className="bg-gradient-to-r from-green-600 to-teal-600 py-3">
         <h1 className="text-lg font-bold text-white text-center uppercase tracking-wider drop-shadow-md">
           Filter Products
         </h1>
       </div>
 
-      {/* Sorting Options */}
       <div className="p-5">
         <h2 className="text-md font-semibold text-gray-800 mb-3 flex items-center gap-2">
           <span className="w-1.5 h-5 bg-green-600 rounded-full shadow-sm"></span>
           Sort By
         </h2>
+
         <div className="flex flex-col gap-2">
           {options.map((option) => (
             <label
@@ -33,7 +32,7 @@ const LeftOptions = ({ selected = "Trending", setSelected = () => {} }) => {
             >
               <span
                 className={`absolute inset-0 rounded-lg transition-opacity duration-500 ease-in-out ${
-                  selected === option
+                  selectedOption === option
                     ? "bg-gradient-to-r from-green-100 via-green-200 to-green-100 opacity-80"
                     : "opacity-0 group-hover:opacity-20"
                 }`}
@@ -44,13 +43,13 @@ const LeftOptions = ({ selected = "Trending", setSelected = () => {} }) => {
                   type="radio"
                   name="sortOption"
                   value={option}
-                  checked={selected === option}
-                  onChange={() => setSelected(option)}
+                  checked={selectedOption === option}
+                  onChange={() => setSelectedOption(option)}
                   className="text-green-600 focus:ring-green-500"
                 />
                 <span
                   className={`transition-colors duration-300 ${
-                    selected === option
+                    selectedOption === option
                       ? "text-green-700 font-semibold"
                       : "text-gray-700"
                   }`}
