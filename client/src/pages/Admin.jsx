@@ -39,18 +39,22 @@ const Admin = () => {
         }))
       );
 
-      // ✅ Low stock warning
+      // ✅ Low stock warning (only once)
       const lowStockItems = data.products.filter(
         (p) => p.stock <= p.lowStockAlert
       );
       if (lowStockItems.length > 0) {
-        toast.warning(`⚠️ ${lowStockItems.length} product(s) are low on stock!`);
+        toast.warning(
+          `⚠️ ${lowStockItems.length} product(s) are low on stock!`,
+          { toastId: "low-stock-warning", position: "top-right", autoClose: 2000 } // prevents duplicates
+        );
       }
     } catch (error) {
       console.error("Error loading products:", error);
       toast.error("❌ Failed to load products");
     }
   };
+
 
   useEffect(() => {
     loadProducts();
