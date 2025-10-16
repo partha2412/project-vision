@@ -38,7 +38,7 @@ export default function AllProducts() {
       try {
         setLoading(true);
         const data = await fetchSortedProducts(selectedSort);
-        console.log(data);
+        //console.log(data);
         setProducts(data.products || []);
         setCurrentPage(1);
       } catch (err) {

@@ -240,42 +240,44 @@ exports.getSortedProducts = async (req, res) => {
   try {
     const { order } = req.query;
 
-    // Normalize order values
+    // Normalize order query parameter to decide ascending/descending sort
     const o = (order || "asc").toString().toLowerCase().trim();
     const descValues = new Set([
       "desc", "descending", "high", "high-to-low", "high to low", "high_to_low",
       "highto low", "highto_low"
     ]);
-    const sortOrder = descValues.has(o) ? -1 : 1; // -1 => descending, 1 => ascending
+    const sortOrder = descValues.has(o) ? -1 : 1; // -1 = descending, 1 = ascending
 
-    // Aggregation: extract numeric part from price string and convert to double
-    // This handles values like "₹1,200", "$12.50", "1200", "12.50 USD", etc.
+    // Aggregation pipeline
     const products = await Product.aggregate([
+      // Only get products that are not deleted
       { $match: { isDeleted: false } },
+
+      // Extract numeric part from price using regex
       {
         $addFields: {
-          // regexFind returns { match: "<digits>" } or null
           _priceMatch: {
             $regexFind: {
-              input: { $ifNull: ["$price", ""] },
-              // regex to match first number with optional decimal
-              regex: /[0-9]+(?:[.,][0-9]+)?/
+              // FIX: Cast price to string to prevent $regexFind error
+              input: { $toString: { $ifNull: ["$discountPrice", ""] } },
+              regex: /[0-9]+(?:[.,][0-9]+)?/ // match integers or decimals
             }
           }
         }
       },
+
+      // Convert extracted number string to a proper numeric value
       {
         $addFields: {
-          // replace comma with dot if present, then convert to double; fallback to 0
           priceNum: {
             $let: {
-              vars: {
-                m: "$_priceMatch.match"
-              },
+              vars: { m: "$_priceMatch.match" }, // extracted number string
               in: {
                 $cond: [
+                  // If regex found nothing, default to 0
                   { $or: [{ $eq: ["$$m", null] }, { $eq: ["$$m", ""] }] },
                   0,
+                  // Replace comma with dot and convert to double
                   {
                     $toDouble: {
                       $replaceOne: {
@@ -291,17 +293,21 @@ exports.getSortedProducts = async (req, res) => {
           }
         }
       },
-      // sort using the numeric field
+
+      // Sort products numerically by price
       { $sort: { priceNum: sortOrder } },
-      // remove helper fields before returning
+
+      // Remove helper fields before sending response
       { $project: { _priceMatch: 0, priceNum: 0 } }
     ]);
 
+    // Return sorted products
     return res.status(200).json({
       success: true,
       count: products.length,
       products
     });
+
   } catch (error) {
     console.error("Error in getSortedProducts:", error);
     return res.status(500).json({
@@ -311,6 +317,7 @@ exports.getSortedProducts = async (req, res) => {
     });
   }
 };
+
 
 
 
