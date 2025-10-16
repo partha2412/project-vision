@@ -232,3 +232,150 @@ exports.hardDeleteProduct = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error while deleting product", error: error.message });
   }
 };
+
+
+// Get products sorted by price (ascending or descending)
+// Endpoint: GET /api/products/sort?order=asc
+exports.getSortedProducts = async (req, res) => {
+  try {
+    const { order } = req.query;
+
+    // Normalize order values
+    const o = (order || "asc").toString().toLowerCase().trim();
+    const descValues = new Set([
+      "desc", "descending", "high", "high-to-low", "high to low", "high_to_low",
+      "highto low", "highto_low"
+    ]);
+    const sortOrder = descValues.has(o) ? -1 : 1; // -1 => descending, 1 => ascending
+
+    // Aggregation: extract numeric part from price string and convert to double
+    // This handles values like "₹1,200", "$12.50", "1200", "12.50 USD", etc.
+    const products = await Product.aggregate([
+      { $match: { isDeleted: false } },
+      {
+        $addFields: {
+          // regexFind returns { match: "<digits>" } or null
+          _priceMatch: {
+            $regexFind: {
+              input: { $ifNull: ["$price", ""] },
+              // regex to match first number with optional decimal
+              regex: /[0-9]+(?:[.,][0-9]+)?/
+            }
+          }
+        }
+      },
+      {
+        $addFields: {
+          // replace comma with dot if present, then convert to double; fallback to 0
+          priceNum: {
+            $let: {
+              vars: {
+                m: "$_priceMatch.match"
+              },
+              in: {
+                $cond: [
+                  { $or: [{ $eq: ["$$m", null] }, { $eq: ["$$m", ""] }] },
+                  0,
+                  {
+                    $toDouble: {
+                      $replaceOne: {
+                        input: "$$m",
+                        find: ",",
+                        replacement: "."
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      // sort using the numeric field
+      { $sort: { priceNum: sortOrder } },
+      // remove helper fields before returning
+      { $project: { _priceMatch: 0, priceNum: 0 } }
+    ]);
+
+    return res.status(200).json({
+      success: true,
+      count: products.length,
+      products
+    });
+  } catch (error) {
+    console.error("Error in getSortedProducts:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error while sorting products",
+      error: error.message
+    });
+  }
+};
+
+
+
+
+// ===============================
+// Trending Products - newest first
+// ===============================
+exports.getTrendingProducts = async (req, res) => {
+  try {
+    const products = await Product.find({ isDeleted: false })
+      .sort({ createdAt: -1 })
+      .limit(20);
+
+    res.status(200).json({ success: true, count: products.length, products });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server error", error: error.message });
+  }
+};
+
+// ===============================
+// Best Rating Products
+// ===============================
+exports.getBestRatingProducts = async (req, res) => {
+  try {
+    const products = await Product.find({ isDeleted: false })
+      .sort({ rating: -1 })
+      .limit(20);
+
+    res.status(200).json({ success: true, count: products.length, products });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server error", error: error.message });
+  }
+};
+
+// ===============================
+// Best Seller Products
+// (Based on numOfReviews or you can track soldCount)
+// ===============================
+exports.getBestSellerProducts = async (req, res) => {
+  try {
+    const products = await Product.find({ isDeleted: false })
+      .sort({ numOfReviews: -1 }) // assuming reviews count = popularity
+      .limit(20);
+
+    res.status(200).json({ success: true, count: products.length, products });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server error", error: error.message });
+  }
+};
+
+// ===============================
+// Discount Products
+// Products with discountPrice > 0 and < price
+// ===============================
+exports.getDiscountProducts = async (req, res) => {
+  try {
+    const products = await Product.find({
+      isDeleted: false,
+      $expr: { $lt: ["$discountPrice", "$price"] },
+      discountPrice: { $gt: 0 }
+    });
+
+    res.status(200).json({ success: true, count: products.length, products });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server error", error: error.message });
+  }
+};
+
