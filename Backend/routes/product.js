@@ -47,4 +47,23 @@ router.delete('/delete/soft/:id', productController.softDeleteProduct);
 // example: /api/product/delete/hard/:id
 router.delete('/delete/hard/:id', productController.hardDeleteProduct);
 
+// Sort products by price
+// example: /api/product/sort?order=asc or /api/product/sort?order=desc
+router.get('/sort', productController.getSortedProducts);
+
+
+
+// Trending products
+router.get('/trending', productController.getTrendingProducts);
+
+// Best Rating products
+router.get('/best-rating', productController.getBestRatingProducts);
+
+// Best Seller products
+router.get('/best-seller', productController.getBestSellerProducts);
+
+// Discount products
+router.get('/discount', productController.getDiscountProducts);
+
+
 module.exports = router;

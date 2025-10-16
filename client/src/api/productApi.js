@@ -61,15 +61,20 @@ export const updateProductByName = async (productId, updateData) => {
   }
 };
 
-// Soft delete product
-export const softDeleteProduct = async (productId) => {
+
+
+// Sort products by price
+export const sortProducts = async (order) => {
   try {
-    const response = await api.delete(`/product/delete/soft/${productId}`);
+
+
     return response.data;
   } catch (error) {
     throw error.response ? error.response.data : { message: "Network error" };
   }
 };
+
+
 
 // Hard delete product
 export const hardDeleteProduct = async (productId) => {
@@ -80,3 +85,4 @@ export const hardDeleteProduct = async (productId) => {
     throw error.response ? error.response.data : { message: "Network error" };
   }
 };
+
