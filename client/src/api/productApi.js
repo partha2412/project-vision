@@ -63,3 +63,14 @@ export const updateProductById = async (productId, updateData) => {
     throw error.response ? error.response.data : { message: "Network error" };
   }
 };
+
+
+// Sort products by price
+export const sortProducts = async (order) => {
+  try {
+    const response = await api.get("/product/sort", { params: { order } });
+    return response.data;
+  } catch (error) {
+    throw error.response ? error.response.data : { message: "Network error" };
+  }
+};

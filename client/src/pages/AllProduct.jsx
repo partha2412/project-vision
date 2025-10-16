@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import LeftOptions from "../components/LeftOptions";
 import ProductCard from "../components/ProductCard";
-import { fetchProducts } from "../api/productApi"; // adjust the path
+import { fetchProducts } from "../api/productApi"; 
 import { FiSearch } from "react-icons/fi";
 
 export default function AllProducts() {
@@ -10,10 +10,11 @@ export default function AllProducts() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState(""); // user search input
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortOrder, setSortOrder] = useState("Trending"); // sorting state
   const productsPerPage = 9;
 
-  // Fetch products from backend
+  // Fetch products
   useEffect(() => {
     const loadProducts = async () => {
       try {
@@ -29,18 +30,29 @@ export default function AllProducts() {
     loadProducts();
   }, []);
 
-  // Filter products based on search term (case-insensitive)
-  const filteredProducts = products.filter((product) =>
+  // Apply sorting
+  const sortedProducts = [...products].sort((a, b) => {
+    if (sortOrder === "High to Low") return b.price - a.price;
+    if (sortOrder === "Low to High") return a.price - b.price;
+    return 0; // Trending, Best Seller, etc. stay as is
+  });
+
+  // Search filter
+  const filteredProducts = sortedProducts.filter((product) =>
     (product.name || product.title || "")
       .toLowerCase()
       .includes(searchTerm.toLowerCase())
   );
 
-  // Pagination logic
+  // Pagination
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-  const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
+  const currentProducts = filteredProducts.slice(
+    indexOfFirstProduct,
+    indexOfLastProduct
+  );
   const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+
   const goToPage = (page) => {
     if (page < 1 || page > totalPages) return;
     setCurrentPage(page);
@@ -54,12 +66,12 @@ export default function AllProducts() {
           showOptions ? "w-72" : "w-0"
         } overflow-hidden`}
       >
-        <LeftOptions />
+        <LeftOptions selected={sortOrder} setSelected={setSortOrder} />
       </div>
 
       {/* Main Content */}
       <div className="flex-1 p-6 md:p-10 transition-all duration-300">
-        {/* Header with toggle */}
+        {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={() => setShowOptions(!showOptions)}
@@ -83,7 +95,9 @@ export default function AllProducts() {
               ></span>
             </div>
           </button>
-          <h1 className="text-2xl font-semibold text-gray-800">All Products</h1>
+          <h1 className="text-2xl font-semibold text-gray-800">
+            All Products
+          </h1>
         </div>
 
         {/* Search Bar */}
@@ -94,11 +108,11 @@ export default function AllProducts() {
             placeholder="Search products..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full pl-10 pr-4 py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
           />
         </div>
 
-        {/* Products Grid */}
+        {/* Product Grid */}
         {loading ? (
           <p className="text-center text-gray-500">Loading products...</p>
         ) : error ? (
@@ -135,7 +149,7 @@ export default function AllProducts() {
                     onClick={() => goToPage(i + 1)}
                     className={`px-4 py-2 border rounded-md ${
                       currentPage === i + 1
-                        ? "bg-blue-500 text-white"
+                        ? "bg-green-500 text-white"
                         : "hover:bg-gray-200"
                     }`}
                   >
