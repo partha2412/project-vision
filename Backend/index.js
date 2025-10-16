@@ -12,21 +12,24 @@ const cartRoutes = require('./routes/cart');
 const notificationRoutes = require("./routes/notification");
 
 
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5174'
+];
+
 app.use(cors({
-  origin: (origin, callback) => {
-    const allowedOrigins = ['https://sastakart.vercel.app', 'http://localhost:5173', 'http://localhost:3000'];
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true); // allow non-browser requests
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error(`Origin ${origin} not allowed by CORS`));
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Cookie', 'stripe-signature'],
   exposedHeaders: ['set-cookie'],
-  maxAge: 86400 // Cache preflight requests for 24 hours
+  maxAge: 86400
 }));
+
 
 app.use(express.json());     
 app.use(cookieParser());
