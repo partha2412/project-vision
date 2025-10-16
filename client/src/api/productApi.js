@@ -1,32 +1,26 @@
 import api from "./axios";
 
-// =============================
-// 🛍 FETCH ALL PRODUCTS
-// =============================
+// Fetch all products
 export const fetchProducts = async () => {
   try {
-    const response = await api.get("/product/"); // 
+    const response = await api.get("/product/");
     return response.data;
-  } catch (error) {
-    throw error.response ? error.response.data : { message: "Network error" };
   }
+    catch (error) {
+    throw error.response ? error.response.data : { message: "Network error" };
+    } 
 };
 
-// =============================
-// 🔍 SEARCH PRODUCTS
-// =============================
+// Search products by title or description
 export const searchProducts = async (query) => {
   try {
-    const response = await api.get("/products/search", { params: { query } }); // ✅ plural
+    const response = await api.get("/product/search", { params: { query } });
     return response.data;
   } catch (error) {
     throw error.response ? error.response.data : { message: "Network error" };
   }
 };
-
-// =============================
-// 💰 FETCH PRODUCTS BY PRICE RANGE
-// =============================
+// Fetch products within a price range
 export const fetchProductsByRange = async (min, max) => {
   try {
     const response = await api.get("/product/range", { params: { min, max } }); // ✅ plural
@@ -36,9 +30,10 @@ export const fetchProductsByRange = async (min, max) => {
   }
 };
 
-// =============================
-// ⚙️ ADMIN — ADD PRODUCT
-// =============================
+
+// Admin
+
+// add product
 export const addProduct = async (productData) => {
   try {
     const response = await api.post("/product/add", productData, {
@@ -50,14 +45,32 @@ export const addProduct = async (productData) => {
   }
 };
 
-// =============================
-// ✏️ ADMIN — UPDATE PRODUCT
-// =============================
-export const updateProductById = async (productId, updateData) => {
+// Update product by name
+export const updateProductByName = async (productId, updateData) => {
   try {
     const response = await api.put(`/product/update/${productId}`, updateData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
+    return response.data;
+  } catch (error) {
+    throw error.response ? error.response.data : { message: "Network error" };
+  }
+};
+
+// Soft delete product
+export const softDeleteProduct = async (productId) => {
+  try {
+    const response = await api.delete(`/product/delete/soft/${productId}`);
+    return response.data;
+  } catch (error) {
+    throw error.response ? error.response.data : { message: "Network error" };
+  }
+};
+
+// Hard delete product
+export const hardDeleteProduct = async (productId) => {
+  try {
+    const response = await api.delete(`/product/delete/hard/${productId}`);
     return response.data;
   } catch (error) {
     throw error.response ? error.response.data : { message: "Network error" };

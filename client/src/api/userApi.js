@@ -1,4 +1,4 @@
-import api from "./axios"; // your configured Axios instance
+import api from "./axios";
 
 // Signup function
 export const signupUser = async (userData) => {
@@ -9,21 +9,6 @@ export const signupUser = async (userData) => {
     throw error.response ? error.response.data : { message: "Network error" };
   }
 };
-
-// Google signup function (corrected)
-export const googleSignup = async (token) => {
-  try {
-    const res = await api.post("/auth/google", { token }); 
-    localStorage.setItem("user", JSON.stringify(res.data.user));
-    localStorage.setItem("token", res.data.token);
-    return res.data;
-  } catch (error) {
-    throw new Error(error.response?.data?.message || "Google signup failed");
-  }
-};
-
-
-
 // Login function
 export const loginUser = async (loginData) => {
   try {
@@ -34,7 +19,7 @@ export const loginUser = async (loginData) => {
   }
 };
 
-// Logout function
+//Logout function
 export const logoutUser = async () => {
   try {
     const response = await api.get("/auth/logout");

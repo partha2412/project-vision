@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { addProduct, fetchProducts } from "../api/productApi";
+import { addProduct, fetchProducts, hardDeleteProduct } from "../api/productApi";
 import api from "../api/axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -11,7 +11,7 @@ const Admin = () => {
     price: "",
     discountPrice: "",
     stock: "",
-    lowStock: "",
+    lowStockAlert: "",
     gstRate: "",
     category: "",
     productType: "",
@@ -25,6 +25,8 @@ const Admin = () => {
   const [editingId, setEditingId] = useState(null);
   const [editableValues, setEditableValues] = useState({});
   const [isAdding, setIsAdding] = useState(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+
 
   // Load all products
   const loadProducts = async () => {
@@ -36,11 +38,23 @@ const Admin = () => {
           imagePreviews: p.images || [],
         }))
       );
+
+      // ✅ Low stock warning (only once)
+      const lowStockItems = data.products.filter(
+        (p) => p.stock <= p.lowStockAlert
+      );
+      if (lowStockItems.length > 0) {
+        toast.warning(
+          ` ${lowStockItems.length} product(s) are low on stock!`,
+          { toastId: "low-stock-warning", position: "top-right", autoClose: 2000 } // prevents duplicates
+        );
+      }
     } catch (error) {
       console.error("Error loading products:", error);
-      toast.error("❌ Failed to load products");
+      toast.error("Failed to load products");
     }
   };
+
 
   useEffect(() => {
     loadProducts();
@@ -94,7 +108,7 @@ const Admin = () => {
       price: product.price,
       discountPrice: product.discountPrice,
       stock: product.stock,
-      lowStock: product.lowStock,
+      lowStockAlert: product.lowStockAlert,
       gstRate: product.gstRate,
       productType: product.productType,
     });
@@ -104,14 +118,29 @@ const Admin = () => {
   const saveChanges = async (id) => {
     try {
       await api.put(`/product/update/${id}`, editableValues);
-      toast.success("✅ Product updated successfully!");
+      toast.success("Product updated successfully!");
       setEditingId(null);
       await loadProducts();
     } catch (error) {
       console.error("Error updating product:", error);
-      toast.error("❌ Failed to update product");
+      toast.error("Failed to update product");
     }
   };
+
+  // Delete product
+  const handleDelete = async (id) => {
+    try {
+      //await api.delete(`/product/delete/${id}`);
+      await hardDeleteProduct(id);
+      toast.success("Product deleted successfully!");
+      setDeleteConfirmId(null);
+      await loadProducts();
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      toast.error("Failed to delete product");
+    }
+  };
+
 
   // Cancel edit
   const cancelEdit = () => {
@@ -122,7 +151,7 @@ const Admin = () => {
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       {/* Toast Container */}
-      <ToastContainer position="top-right" autoClose={3000} theme="colored" />
+      <ToastContainer position="top-right" autoClose={3000}  />
 
       <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
 
@@ -177,8 +206,10 @@ const Admin = () => {
             type="number"
             placeholder="Low Stock Alert"
             className="border p-2 rounded"
-            value={form.lowStock}
-            onChange={(e) => setForm({ ...form, lowStock: e.target.value })}
+            value={form.lowStockAlert}
+            onChange={(e) =>
+              setForm({ ...form, lowStockAlert: e.target.value })
+            }
           />
           <input
             type="number"
@@ -242,11 +273,10 @@ const Admin = () => {
           <button
             type="submit"
             disabled={isAdding}
-            className={`flex items-center justify-center gap-2 font-semibold px-4 py-2 rounded md:col-span-2 lg:col-span-3 transition-all duration-200 ${
-              isAdding
-                ? "bg-blue-400 text-white cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700 text-white"
-            }`}
+            className={`flex items-center justify-center gap-2 font-semibold px-4 py-2 rounded md:col-span-2 lg:col-span-3 transition-all duration-200 ${isAdding
+              ? "bg-blue-400 text-white cursor-not-allowed"
+              : "bg-blue-600 hover:bg-blue-700 text-white"
+              }`}
           >
             {isAdding ? (
               <>
@@ -271,7 +301,8 @@ const Admin = () => {
               <th className="p-3">Brand</th>
               <th className="p-3">Category</th>
               <th className="p-3">Price / Discount</th>
-              <th className="p-3">Stock / Low Stock</th>
+              <th className="p-3">Stock</th>
+              <th className="p-3">Low Stock Alert</th>
               <th className="p-3">GST</th>
               <th className="p-3">Type</th>
               <th className="p-3">Actions</th>
@@ -280,7 +311,11 @@ const Admin = () => {
           <tbody>
             {products.map((p) => (
               <tr key={p._id} className="border-t">
+                {/* Image */}
                 <td className="p-3">
+                  <span className=" font-semibold text-gray-600 text-[14px]">
+                    ID <span className="text-gray-400">#{p._id.toString().slice(-6)} </span>
+                  </span>
                   {p.imagePreviews?.length > 0 ? (
                     <img
                       src={p.imagePreviews[0]}
@@ -292,7 +327,7 @@ const Admin = () => {
                   )}
                 </td>
 
-                {/* Editable fields */}
+                {/* Title */}
                 <td className="p-3">
                   {editingId === p._id ? (
                     <input
@@ -310,6 +345,7 @@ const Admin = () => {
                   )}
                 </td>
 
+                {/* Brand */}
                 <td className="p-3">
                   {editingId === p._id ? (
                     <input
@@ -327,6 +363,7 @@ const Admin = () => {
                   )}
                 </td>
 
+                {/* Category */}
                 <td className="p-3">
                   {editingId === p._id ? (
                     <select
@@ -348,6 +385,7 @@ const Admin = () => {
                   )}
                 </td>
 
+                {/* Price / Discount */}
                 <td className="p-3">
                   {editingId === p._id ? (
                     <div className="flex flex-col gap-1">
@@ -387,46 +425,56 @@ const Admin = () => {
                   )}
                 </td>
 
+                {/* Stock */}
                 <td className="p-3">
                   {editingId === p._id ? (
-                    <div className="flex flex-col gap-1">
-                      <input
-                        type="number"
-                        placeholder="Stock"
-                        value={editableValues.stock}
-                        onChange={(e) =>
-                          setEditableValues({
-                            ...editableValues,
-                            stock: e.target.value,
-                          })
-                        }
-                        className="border p-1 rounded"
-                      />
-                      <input
-                        type="number"
-                        placeholder="Low Stock"
-                        value={editableValues.lowStock}
-                        onChange={(e) =>
-                          setEditableValues({
-                            ...editableValues,
-                            lowStock: e.target.value,
-                          })
-                        }
-                        className="border p-1 rounded"
-                      />
-                    </div>
+                    <input
+                      type="number"
+                      placeholder="Stock"
+                      value={editableValues.stock}
+                      onChange={(e) =>
+                        setEditableValues({
+                          ...editableValues,
+                          stock: e.target.value,
+                        })
+                      }
+                      className="border p-1 rounded w-full"
+                    />
                   ) : (
-                    <>
-                      {p.stock}{" "}
-                      {p.lowStock && (
-                        <span className="text-sm text-gray-500">
-                          (Low: {p.lowStock})
-                        </span>
-                      )}
-                    </>
+                    <span
+                      className={`font-semibold ${p.stock <= p.lowStockAlert
+                        ? "text-red-500"
+                        : "text-green-600"
+                        }`}
+                    >
+                      {p.stock}
+                    </span>
                   )}
                 </td>
 
+                {/* Low Stock Alert */}
+                <td className="relative pl-8">
+                  {editingId === p._id ? (
+                    <input
+                      type="number"
+                      placeholder="Low Stock Alert"
+                      value={editableValues.lowStockAlert}
+                      onChange={(e) =>
+                        setEditableValues({
+                          ...editableValues,
+                          lowStockAlert: e.target.value,
+                        })
+                      }
+                      className="absolute border top-13 right-0 p-1 rounded w-full"
+                    />
+                  ) : (
+                    <span className="text-gray-600">
+                      {p.lowStockAlert || "—"}
+                    </span>
+                  )}
+                </td>
+
+                {/* GST */}
                 <td className="p-3">
                   {editingId === p._id ? (
                     <input
@@ -446,6 +494,7 @@ const Admin = () => {
                   )}
                 </td>
 
+                {/* Type */}
                 <td className="p-3">
                   {editingId === p._id ? (
                     <input
@@ -464,9 +513,10 @@ const Admin = () => {
                   )}
                 </td>
 
-                <td className="p-3">
+                {/* Actions */}
+                <td className="p-3 flex flex-col gap-2">
                   {editingId === p._id ? (
-                    <div className="flex flex-col gap-2">
+                    <>
                       <button
                         onClick={() => saveChanges(p._id)}
                         className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded"
@@ -479,14 +529,40 @@ const Admin = () => {
                       >
                         Cancel
                       </button>
-                    </div>
+                    </>
                   ) : (
-                    <button
-                      onClick={() => startEditing(p)}
-                      className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
-                    >
-                      Edit
-                    </button>
+                    <div className="flex flex-col gap-2">
+                      <button
+                        onClick={() => startEditing(p)}
+                        className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
+                      >
+                        Edit
+                      </button>
+                      {deleteConfirmId === p._id ? (
+                        <div className="flex flex-col gap-2">
+                          <button
+                            onClick={() => handleDelete(p._id)}
+                            className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
+                          >
+                            Confirm Delete
+                          </button>
+                          <button
+                            onClick={() => setDeleteConfirmId(null)}
+                            className="bg-gray-400 hover:bg-gray-500 text-white px-3 py-1 rounded"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => setDeleteConfirmId(p._id)}
+                          className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
+                        >
+                          Delete
+                        </button>
+                      )}
+
+                    </div>
                   )}
                 </td>
               </tr>
