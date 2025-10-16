@@ -9,7 +9,7 @@ const {
 const { protect, adminOnly } = require("../middleware/authmiddleware");
 
 // Get all notifications (for admins)
-router.get("/", protect, getNotifications);
+router.get("/", getNotifications);
 
 // Create a new notification
 router.post("/create", protect, adminOnly, createNotification);
