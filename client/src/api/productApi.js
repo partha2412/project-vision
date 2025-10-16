@@ -5,7 +5,7 @@ import api from "./axios";
 // =============================
 export const fetchProducts = async () => {
   try {
-    const response = await api.get("/products/"); // ✅ plural
+    const response = await api.get("/product/"); // 
     return response.data;
   } catch (error) {
     throw error.response ? error.response.data : { message: "Network error" };
@@ -29,7 +29,7 @@ export const searchProducts = async (query) => {
 // =============================
 export const fetchProductsByRange = async (min, max) => {
   try {
-    const response = await api.get("/products/range", { params: { min, max } }); // ✅ plural
+    const response = await api.get("/product/range", { params: { min, max } }); // ✅ plural
     return response.data;
   } catch (error) {
     throw error.response ? error.response.data : { message: "Network error" };
@@ -41,7 +41,7 @@ export const fetchProductsByRange = async (min, max) => {
 // =============================
 export const addProduct = async (productData) => {
   try {
-    const response = await api.post("/products/add", productData, {
+    const response = await api.post("/product/add", productData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
     return response.data;
@@ -55,7 +55,7 @@ export const addProduct = async (productData) => {
 // =============================
 export const updateProductById = async (productId, updateData) => {
   try {
-    const response = await api.put(`/products/update/${productId}`, updateData, {
+    const response = await api.put(`/product/update/${productId}`, updateData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
     return response.data;
