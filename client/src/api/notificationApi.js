@@ -9,9 +9,7 @@ const getAuthHeader = () => {
 // Get all notifications (protected)
 export const fetchNotifications = async () => {
   try {
-    const response = await api.get("/notifications/", {
-      headers: getAuthHeader(),
-    });
+    const response = await api.get("/notifications/");
     return response.data;
   } catch (error) {
     throw error.response ? error.response.data : { message: "Network error" };
