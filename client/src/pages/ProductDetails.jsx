@@ -117,9 +117,8 @@ export default function ProductDetail() {
               <button
                 key={i}
                 onClick={() => setCurrentIndex(i)}
-                className={`border rounded overflow-hidden cursor-pointer transition-transform duration-300 ${
-                  currentIndex === i ? "ring-2 ring-blue-500 scale-105 shadow-md" : "border-gray-300"
-                }`}
+                className={`border rounded overflow-hidden cursor-pointer transition-transform duration-300 ${currentIndex === i ? "ring-2 ring-blue-500 scale-105 shadow-md" : "border-gray-300"
+                  }`}
               >
                 <img src={src} alt={`${product.title}-${i}`} className="w-20 h-20 object-contain" />
               </button>
@@ -134,9 +133,18 @@ export default function ProductDetail() {
 
           {/* Rating */}
           <div className="flex items-center gap-1 mt-2">
-            {renderStars(product.rating)}
-            <span className="text-sm text-gray-500 ml-2">{product.rating.toFixed(1)} / 5</span>
+            {renderStars(
+              product.reviews && product.reviews.length > 0
+                ? product.reviews.reduce((acc, r) => acc + r.rating, 0) / product.reviews.length
+                : 0
+            )}
+            <span className="text-sm text-gray-500 ml-2">
+              {product.reviews && product.reviews.length > 0
+                ? (product.reviews.reduce((acc, r) => acc + r.rating, 0) / product.reviews.length).toFixed(1)
+                : "0.0"} / 5
+            </span>
           </div>
+
 
           {/* Price */}
           <div className="mt-4">
@@ -159,9 +167,8 @@ export default function ProductDetail() {
                 <button
                   key={color}
                   onClick={() => setSelectedColor(color)}
-                  className={`px-3 py-1 border rounded ${
-                    selectedColor === color ? "bg-teal-500 text-white" : ""
-                  }`}
+                  className={`px-3 py-1 border rounded ${selectedColor === color ? "bg-teal-500 text-white" : ""
+                    }`}
                 >
                   {color}
                 </button>
@@ -173,9 +180,8 @@ export default function ProductDetail() {
                 <button
                   key={size}
                   onClick={() => setSelectedSize(size)}
-                  className={`px-3 py-1 border rounded ${
-                    selectedSize === size ? "bg-teal-500 text-white" : ""
-                  }`}
+                  className={`px-3 py-1 border rounded ${selectedSize === size ? "bg-teal-500 text-white" : ""
+                    }`}
                 >
                   {size}
                 </button>
@@ -225,17 +231,15 @@ export default function ProductDetail() {
           <div className="mt-6 flex gap-3">
             <button
               disabled={!inStock}
-              className={`px-4 py-2 rounded font-medium transition-colors duration-300 ${
-                inStock ? "bg-teal-400 text-blue-950 hover:bg-teal-700" : "bg-gray-400 text-gray-700 cursor-not-allowed"
-              }`}
+              className={`px-4 py-2 rounded font-medium transition-colors duration-300 ${inStock ? "bg-teal-400 text-blue-950 hover:bg-teal-700" : "bg-gray-400 text-gray-700 cursor-not-allowed"
+                }`}
             >
               Add to Cart
             </button>
             <button
               disabled={!inStock}
-              className={`px-4 py-2 rounded font-medium transition-colors duration-300 ${
-                inStock ? "bg-red-500 text-white hover:bg-red-700" : "bg-gray-400 text-gray-700 cursor-not-allowed"
-              }`}
+              className={`px-4 py-2 rounded font-medium transition-colors duration-300 ${inStock ? "bg-red-500 text-white hover:bg-red-700" : "bg-gray-400 text-gray-700 cursor-not-allowed"
+                }`}
             >
               Buy Now
             </button>

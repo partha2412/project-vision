@@ -44,14 +44,18 @@ const productSchema = new mongoose.Schema({
     type: Number,
     default: 10
   },
-  rating: {
-    type: Number,
-    default: 0
-  },
-  numOfReviews: {
-    type: Number,
-    default: 0
-  },
+  reviews: [
+    {
+      user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+      },
+      rating: { type: Number, required: true },
+      comment: { type: String, required: true },
+      createdAt: { type: Date, default: Date.now }
+    }
+  ],
   gstRate: {
     type: Number,
     default: 12,

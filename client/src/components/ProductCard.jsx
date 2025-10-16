@@ -22,13 +22,13 @@ export default function ProductCard({ product }) {
   const toggleCart = (e) => {
     e.preventDefault();
     e.stopPropagation(); // Prevent card click
-    const exists = cart.some((c) => c._id === product._id);
+    const exists = cart?.items?.some((i) => i.product?._id === product._id);
     if (exists) removeFromCart(product._id);
-    else addToCart({ ...product, quantity: 1 });
+    else addToCart(product._id, 1);
   };
 
   const inWishlist = wishlist.some((w) => w._id === product._id);
-  const inCart = cart.some((c) => c._id === product._id);
+  const inCart = cart?.items?.some((i) => i.product?._id === product._id);
 
   const renderStars = (rating = 0) =>
     Array.from({ length: 5 }, (_, i) => {
