@@ -10,13 +10,14 @@ export default function ProductCard({ product }) {
 
   // Toggle wishlist (add or remove)
   const toggleWish = (item) => {
-    const exists = wishlist.some((w) => w.id === item.id);
+    const exists = wishlist.some((w) => w._id === item._id);
     if (exists) {
-      removeFromWishlist(item.id);
+      removeFromWishlist(item._id);
     } else {
       addToWishlist(item);
     }
   };
+
 
   const renderStars = (rating) => {
     return Array.from({ length: 5 }, (_, i) => {
@@ -28,7 +29,7 @@ export default function ProductCard({ product }) {
 
   return (
     <Link
-      to={`/product/${product.id}`}
+      to={`/product/${product._id}`}
       className="block bg-white rounded-xl shadow-md overflow-hidden 
                  transform transition-all duration-300
                  hover:-translate-y-2 hover:scale-105 hover:shadow-2xl 
@@ -48,7 +49,7 @@ export default function ProductCard({ product }) {
             toggleWish(product);
           }}
         >
-          {wishlist.find((w) => w.id === product.id) ? (
+          {wishlist.find((w) => w._id === product._id) ? (
             // Filled Heart (if in wishlist)
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -89,7 +90,7 @@ export default function ProductCard({ product }) {
 
       {/* Product Info */}
       <div className="p-4">
-        <h3 className="text-lg font-semibold">{product.name}</h3>
+        <h3 className="text-lg font-semibold">{product.title}</h3>
         <p className="text-gray-600">{product.brand}</p>
 
         {/* ⭐ Rating */}
@@ -102,9 +103,9 @@ export default function ProductCard({ product }) {
 
         {/* Price */}
         <p className="mt-1">
-          <span className="font-bold">₹{product.price}</span>{" "}
+          <span className="font-bold">₹{product.discountPrice}</span>{" "}
           <span className="line-through text-sm text-gray-500">
-            ₹{product.oldPrice}
+            ₹{product.price}
           </span>
         </p>
 

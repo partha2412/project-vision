@@ -181,37 +181,37 @@ exports.logout = async (req, res) => {
   }
 };
 
-
 // Update User
 exports.updateUser = async (req, res) => {
-  const { firstName, lastName, email, phone, gender, dob, password, newPassword } = req.body;
-
+  const { firstname, lastname, email, phone, gender, dob, password, newPassword } = req.body;
+console.log(req.body)
   try {
     const userId = req.user.id; // From middleware
 const user = await User.findById(userId).select('+password');
-console.log(password);
+console.log(user);
 
     if (!user) return res.status(404).json({ message: 'User not found' });
 
-   if (firstName) user.firstname = firstName;
-if (lastName) user.lastname = lastName;
-if (email) user.email = email;
-if (phone) user.phone = phone;
-if (gender) user.gender = gender;
-if (dob) user.dob = dob;
+ if (firstname !== undefined) user.firstname = firstname;
+if (lastname !== undefined) user.lastname = lastname;
+if (email !== undefined) user.email = email;
+if (phone !== undefined) user.phone = phone;
+if (gender !== undefined) user.gender = gender;
+if (dob !== undefined) user.dob = dob;
+;
 
 
     // Update password
     if (password && newPassword) {
       const match = await bcrypt.compare(password, user.password);
-          console.log(user.password);
+          console.log(match);
 
       if (!match) return res.status(400).json({ message: 'Current password is incorrect' });
 
       const hashed = await bcrypt.hash(newPassword, 10);
       user.password = hashed;
     }
-
+console.log(user);
     await user.save();
 
     res.status(200).json({
@@ -260,5 +260,3 @@ exports.deleteUser = async (req, res) => {
     });
   }
 };
-
-

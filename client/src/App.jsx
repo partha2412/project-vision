@@ -11,6 +11,7 @@ import Signup from './pages/Signup'
 import WishlistPage from './pages/WishlistPage'
 import ProfileSettings from './pages/ProfileSettings'
 import SignupPage from './pages/SignupPage'
+import ProtectedRoute from './context/ProtectedRoute'
 import Admin from './pages/Admin'
 import Pending from './pages/Pending'
 import Notifications from './pages/Notifications'
@@ -42,7 +43,16 @@ const App = () => {
           <Route path='/wishlist' element={<WishlistPage />} />
           <Route path='/cart' element={<CartPage />} />
 
-          <Route path='/userdashboard' element={<ProfileSettings />} />
+          {/* Protected routes for logged-in users */}
+          <Route
+            path="/userdashboard"
+            element={
+              <ProtectedRoute>
+                <ProfileSettings />
+              </ProtectedRoute>
+            }
+          />
+          {/* <Route path='/userdashboard' element={<ProfileSettings />} /> */}
 
           <Route path='/checkout' element={<Checkout />} />
           <Route path='/vto' element={<VTO />} />
@@ -50,15 +60,24 @@ const App = () => {
           <Route path='/p' element={<Pending />} />
           <Route path='/notification' element={<Notifications />} />
           <Route path='/ana' element={<Analytics />} /> */}
-          <Route path='/admindashboard' element={<AdminDashboard />} />
+          {/* Protected routes for admin only */}
+          <Route
+            path="/admindashboard"
+            element={
+              <ProtectedRoute adminOnly>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
           {/* <Route path='/ad' element={<AdminSettings />} /> */}
           <Route path="/products" element={<AllProducts />} />
           <Route path="/product/:id" element={<ProductDetail />} />
+          <Route path="/products2" element={<ProductDetail />} />
           <Route path="/men" element={<Men />} />
           <Route path="/women" element={<Women />} />
           <Route path="/kids" element={<Kids />} />
-           <Route path="/review" element={<ReviewPage />} />
-           
+          <Route path="/review" element={<ReviewPage />} />
+
 
 
 

@@ -1,59 +1,151 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { addProduct, fetchProducts } from "../api/productApi";
+import api from "../api/axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Admin = () => {
-  // State for products
+  const initialFormState = {
+    title: "",
+    description: "",
+    price: "",
+    discountPrice: "",
+    stock: "",
+    lowStock: "",
+    gstRate: "",
+    category: "",
+    productType: "",
+    brand: "",
+    images: [],
+  };
+
   const [products, setProducts] = useState([]);
-  const [form, setForm] = useState({ name: "", price: "", stock: "", image: "" });
+  const [form, setForm] = useState(initialFormState);
+  const [imagePreviews, setImagePreviews] = useState([]);
+  const [editingId, setEditingId] = useState(null);
+  const [editableValues, setEditableValues] = useState({});
+  const [isAdding, setIsAdding] = useState(false);
 
-  // State for orders
-  const [orders, setOrders] = useState([
-    { id: 1, customer: "Alice", total: 300, status: "Pending", payment: "Unpaid" },
-    { id: 2, customer: "Bob", total: 500, status: "Delivered", payment: "Paid" },
-  ]);
+  // Load all products
+  const loadProducts = async () => {
+    try {
+      const data = await fetchProducts();
+      setProducts(
+        data.products.map((p) => ({
+          ...p,
+          imagePreviews: p.images || [],
+        }))
+      );
+    } catch (error) {
+      console.error("Error loading products:", error);
+      toast.error("❌ Failed to load products");
+    }
+  };
 
-  // Add product
-  const handleAddProduct = (e) => {
+  useEffect(() => {
+    loadProducts();
+  }, []);
+
+  // Handle image upload
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    setForm({ ...form, images: files });
+    const previews = files.map((file) => URL.createObjectURL(file));
+    setImagePreviews(previews);
+  };
+
+  // Add new product
+  const handleAddProduct = async (e) => {
     e.preventDefault();
-    setProducts([...products, { ...form, id: Date.now() }]);
-    setForm({ name: "", price: "", stock: "", image: "" });
+    if (isAdding) return;
+
+    try {
+      setIsAdding(true);
+
+      const formData = new FormData();
+      Object.keys(form).forEach((key) => {
+        if (key === "images") {
+          form.images.forEach((img) => formData.append("images", img));
+        } else {
+          formData.append(key, form[key]);
+        }
+      });
+
+      await addProduct(formData);
+      toast.success("✅ Product added successfully!");
+      await loadProducts();
+      setForm(initialFormState);
+      setImagePreviews([]);
+    } catch (error) {
+      console.error("Error adding product:", error);
+      toast.error("❌ Failed to add product");
+    } finally {
+      setIsAdding(false);
+    }
   };
 
-  // Toggle delivery status
-  const toggleDelivery = (id) => {
-    setOrders(
-      orders.map((order) =>
-        order.id === id
-          ? { ...order, status: order.status === "Pending" ? "Delivered" : "Pending" }
-          : order
-      )
-    );
+  // Start editing a product
+  const startEditing = (product) => {
+    setEditingId(product._id);
+    setEditableValues({
+      title: product.title,
+      brand: product.brand,
+      category: product.category,
+      price: product.price,
+      discountPrice: product.discountPrice,
+      stock: product.stock,
+      lowStock: product.lowStock,
+      gstRate: product.gstRate,
+      productType: product.productType,
+    });
   };
 
-  // Toggle payment status
-  const togglePayment = (id) => {
-    setOrders(
-      orders.map((order) =>
-        order.id === id
-          ? { ...order, payment: order.payment === "Unpaid" ? "Paid" : "Unpaid" }
-          : order
-      )
-    );
+  // Confirm edit
+  const saveChanges = async (id) => {
+    try {
+      await api.put(`/product/update/${id}`, editableValues);
+      toast.success("✅ Product updated successfully!");
+      setEditingId(null);
+      await loadProducts();
+    } catch (error) {
+      console.error("Error updating product:", error);
+      toast.error("❌ Failed to update product");
+    }
+  };
+
+  // Cancel edit
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditableValues({});
   };
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
+      {/* Toast Container */}
+      <ToastContainer position="top-right" autoClose={3000} theme="colored" />
+
       <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
 
-      {/* Add Product Form */}
+      {/* Add Product Section */}
       <div className="bg-white p-6 rounded-xl shadow-md mb-8">
         <h2 className="text-xl font-semibold mb-4">Add Product</h2>
-        <form onSubmit={handleAddProduct} className="grid md:grid-cols-4 gap-4">
+        <form
+          onSubmit={handleAddProduct}
+          className="grid md:grid-cols-2 lg:grid-cols-3 gap-4"
+        >
           <input
             type="text"
-            placeholder="Product Name"
+            placeholder="Product Title"
             className="border p-2 rounded"
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            value={form.title}
+            onChange={(e) => setForm({ ...form, title: e.target.value })}
+            required
+          />
+          <textarea
+            placeholder="Description"
+            className="border p-2 rounded md:col-span-2 lg:col-span-3"
+            value={form.description}
+            onChange={(e) => setForm({ ...form, description: e.target.value })}
             required
           />
           <input
@@ -66,6 +158,15 @@ const Admin = () => {
           />
           <input
             type="number"
+            placeholder="Discount Price"
+            className="border p-2 rounded"
+            value={form.discountPrice}
+            onChange={(e) =>
+              setForm({ ...form, discountPrice: e.target.value })
+            }
+          />
+          <input
+            type="number"
             placeholder="Stock"
             className="border p-2 rounded"
             value={form.stock}
@@ -73,102 +174,328 @@ const Admin = () => {
             required
           />
           <input
-            type="text"
-            placeholder="Image URL"
+            type="number"
+            placeholder="Low Stock Alert"
             className="border p-2 rounded"
-            value={form.image}
-            onChange={(e) => setForm({ ...form, image: e.target.value })}
+            value={form.lowStock}
+            onChange={(e) => setForm({ ...form, lowStock: e.target.value })}
           />
+          <input
+            type="number"
+            placeholder="GST Rate (%)"
+            className="border p-2 rounded"
+            value={form.gstRate}
+            onChange={(e) => setForm({ ...form, gstRate: e.target.value })}
+          />
+          <input
+            type="text"
+            placeholder="Category"
+            className="border p-2 rounded"
+            value={form.category}
+            onChange={(e) => setForm({ ...form, category: e.target.value })}
+            required
+          />
+          <input
+            type="text"
+            placeholder="Product Type"
+            className="border p-2 rounded"
+            value={form.productType}
+            onChange={(e) =>
+              setForm({ ...form, productType: e.target.value })
+            }
+          />
+          <input
+            type="text"
+            placeholder="Brand"
+            className="border p-2 rounded"
+            value={form.brand}
+            onChange={(e) => setForm({ ...form, brand: e.target.value })}
+          />
+
+          {/* Image Upload */}
+          <div className="md:col-span-2 lg:col-span-3">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Product Images
+            </label>
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              className="border p-2 rounded w-full"
+              onChange={handleImageChange}
+            />
+            {imagePreviews.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {imagePreviews.map((src, idx) => (
+                  <img
+                    key={idx}
+                    src={src}
+                    alt="preview"
+                    className="w-16 h-16 object-cover rounded"
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Add Product Button */}
           <button
             type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded col-span-4 md:col-span-1"
+            disabled={isAdding}
+            className={`flex items-center justify-center gap-2 font-semibold px-4 py-2 rounded md:col-span-2 lg:col-span-3 transition-all duration-200 ${
+              isAdding
+                ? "bg-blue-400 text-white cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700 text-white"
+            }`}
           >
-            Add Product
+            {isAdding ? (
+              <>
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <span>Adding...</span>
+              </>
+            ) : (
+              "Add Product"
+            )}
           </button>
         </form>
       </div>
 
-      {/* Products Section */}
-      <div className="bg-white p-6 rounded-xl shadow-md mb-8">
+      {/* Product Table */}
+      <div className="bg-white p-6 rounded-xl shadow-md mb-8 overflow-x-auto">
         <h2 className="text-xl font-semibold mb-4">Products & Stock</h2>
         <table className="w-full">
           <thead>
             <tr className="bg-gray-200 text-left">
               <th className="p-3">Image</th>
-              <th className="p-3">Name</th>
-              <th className="p-3">Price</th>
-              <th className="p-3">Stock</th>
+              <th className="p-3">Title</th>
+              <th className="p-3">Brand</th>
+              <th className="p-3">Category</th>
+              <th className="p-3">Price / Discount</th>
+              <th className="p-3">Stock / Low Stock</th>
+              <th className="p-3">GST</th>
+              <th className="p-3">Type</th>
+              <th className="p-3">Actions</th>
             </tr>
           </thead>
           <tbody>
             {products.map((p) => (
-              <tr key={p.id} className="border-t">
+              <tr key={p._id} className="border-t">
                 <td className="p-3">
-                  {p.image ? (
-                    <img src={p.image} alt={p.name} className="w-16 h-16 object-cover rounded" />
+                  {p.imagePreviews?.length > 0 ? (
+                    <img
+                      src={p.imagePreviews[0]}
+                      alt={p.title}
+                      className="w-16 h-16 object-cover rounded"
+                    />
                   ) : (
                     <span className="text-gray-400">No Image</span>
                   )}
                 </td>
-                <td className="p-3">{p.name}</td>
-                <td className="p-3">${p.price}</td>
-                <td className="p-3">{p.stock}</td>
+
+                {/* Editable fields */}
+                <td className="p-3">
+                  {editingId === p._id ? (
+                    <input
+                      value={editableValues.title}
+                      onChange={(e) =>
+                        setEditableValues({
+                          ...editableValues,
+                          title: e.target.value,
+                        })
+                      }
+                      className="border p-1 rounded w-full"
+                    />
+                  ) : (
+                    p.title
+                  )}
+                </td>
+
+                <td className="p-3">
+                  {editingId === p._id ? (
+                    <input
+                      value={editableValues.brand}
+                      onChange={(e) =>
+                        setEditableValues({
+                          ...editableValues,
+                          brand: e.target.value,
+                        })
+                      }
+                      className="border p-1 rounded w-full"
+                    />
+                  ) : (
+                    p.brand
+                  )}
+                </td>
+
+                <td className="p-3">
+                  {editingId === p._id ? (
+                    <select
+                      value={editableValues.category}
+                      onChange={(e) =>
+                        setEditableValues({
+                          ...editableValues,
+                          category: e.target.value,
+                        })
+                      }
+                      className="border p-1 rounded w-full"
+                    >
+                      <option value="Man">Man</option>
+                      <option value="Woman">Woman</option>
+                      <option value="Kids">Kids</option>
+                    </select>
+                  ) : (
+                    p.category
+                  )}
+                </td>
+
+                <td className="p-3">
+                  {editingId === p._id ? (
+                    <div className="flex flex-col gap-1">
+                      <input
+                        type="number"
+                        value={editableValues.price}
+                        onChange={(e) =>
+                          setEditableValues({
+                            ...editableValues,
+                            price: e.target.value,
+                          })
+                        }
+                        className="border p-1 rounded"
+                      />
+                      <input
+                        type="number"
+                        placeholder="Discount"
+                        value={editableValues.discountPrice}
+                        onChange={(e) =>
+                          setEditableValues({
+                            ...editableValues,
+                            discountPrice: e.target.value,
+                          })
+                        }
+                        className="border p-1 rounded"
+                      />
+                    </div>
+                  ) : (
+                    <>
+                      ₹{p.price}{" "}
+                      {p.discountPrice > 0 && (
+                        <span className="line-through text-gray-400 text-sm ml-1">
+                          ₹{p.discountPrice}
+                        </span>
+                      )}
+                    </>
+                  )}
+                </td>
+
+                <td className="p-3">
+                  {editingId === p._id ? (
+                    <div className="flex flex-col gap-1">
+                      <input
+                        type="number"
+                        placeholder="Stock"
+                        value={editableValues.stock}
+                        onChange={(e) =>
+                          setEditableValues({
+                            ...editableValues,
+                            stock: e.target.value,
+                          })
+                        }
+                        className="border p-1 rounded"
+                      />
+                      <input
+                        type="number"
+                        placeholder="Low Stock"
+                        value={editableValues.lowStock}
+                        onChange={(e) =>
+                          setEditableValues({
+                            ...editableValues,
+                            lowStock: e.target.value,
+                          })
+                        }
+                        className="border p-1 rounded"
+                      />
+                    </div>
+                  ) : (
+                    <>
+                      {p.stock}{" "}
+                      {p.lowStock && (
+                        <span className="text-sm text-gray-500">
+                          (Low: {p.lowStock})
+                        </span>
+                      )}
+                    </>
+                  )}
+                </td>
+
+                <td className="p-3">
+                  {editingId === p._id ? (
+                    <input
+                      type="number"
+                      placeholder="GST %"
+                      value={editableValues.gstRate}
+                      onChange={(e) =>
+                        setEditableValues({
+                          ...editableValues,
+                          gstRate: e.target.value,
+                        })
+                      }
+                      className="border p-1 rounded w-20"
+                    />
+                  ) : (
+                    `${p.gstRate || 0}%`
+                  )}
+                </td>
+
+                <td className="p-3">
+                  {editingId === p._id ? (
+                    <input
+                      placeholder="Type"
+                      value={editableValues.productType}
+                      onChange={(e) =>
+                        setEditableValues({
+                          ...editableValues,
+                          productType: e.target.value,
+                        })
+                      }
+                      className="border p-1 rounded w-full"
+                    />
+                  ) : (
+                    p.productType
+                  )}
+                </td>
+
+                <td className="p-3">
+                  {editingId === p._id ? (
+                    <div className="flex flex-col gap-2">
+                      <button
+                        onClick={() => saveChanges(p._id)}
+                        className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded"
+                      >
+                        Confirm
+                      </button>
+                      <button
+                        onClick={cancelEdit}
+                        className="bg-gray-400 hover:bg-gray-500 text-white px-3 py-1 rounded"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => startEditing(p)}
+                      className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
+                    >
+                      Edit
+                    </button>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
+
         {products.length === 0 && (
           <p className="text-gray-500 mt-3">No products added yet.</p>
-        )}
-      </div>
-
-      {/* Orders Section */}
-      <div className="bg-white p-6 rounded-xl shadow-md">
-        <h2 className="text-xl font-semibold mb-4">Orders</h2>
-        <table className="w-full">
-          <thead>
-            <tr className="bg-gray-200 text-left">
-              <th className="p-3">Customer</th>
-              <th className="p-3">Total</th>
-              <th className="p-3">Delivery Status</th>
-              <th className="p-3">Payment</th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders.map((o) => (
-              <tr key={o.id} className="border-t">
-                <td className="p-3">{o.customer}</td>
-                <td className="p-3">${o.total}</td>
-                <td className="p-3">
-                  <button
-                    onClick={() => toggleDelivery(o.id)}
-                    className={`px-3 py-1 rounded text-sm ${
-                      o.status === "Delivered"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-yellow-100 text-yellow-700"
-                    }`}
-                  >
-                    {o.status}
-                  </button>
-                </td>
-                <td className="p-3">
-                  <button
-                    onClick={() => togglePayment(o.id)}
-                    className={`px-3 py-1 rounded text-sm ${
-                      o.payment === "Paid"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
-                    }`}
-                  >
-                    {o.payment}
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        {orders.length === 0 && (
-          <p className="text-gray-500 mt-3">No orders yet.</p>
         )}
       </div>
     </div>
