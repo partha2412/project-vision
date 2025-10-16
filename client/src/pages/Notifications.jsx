@@ -1,62 +1,189 @@
 import React, { useEffect, useState } from "react";
-import { Bell, Package, AlertTriangle } from "lucide-react"; // icons
+import { Bell, Package, AlertTriangle, Trash2, CheckCircle, PlusCircle } from "lucide-react";
+import {
+  fetchNotifications,
+  markNotificationAsRead,
+  deleteNotification,
+  createNotification, // new API
+} from "../api/notificationApi"; 
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Notifications = () => {
-  const [alerts, setAlerts] = useState([]); // ✅ state to hold notifications
+  const [alerts, setAlerts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [newMessage, setNewMessage] = useState("");
+  const [newType, setNewType] = useState("info"); // default type
 
- useEffect(() => {
-  const fetchNotifications = async () => {
+  // Fetch notifications
+  const getNotifications = async () => {
     try {
-      const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/api/notifications", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
+      const data = await fetchNotifications();
       if (data.success) setAlerts(data.notifications);
     } catch (error) {
-      console.error(error);
+      console.error("Fetch error:", error);
+      toast.error(error.message || "Failed to load notifications");
+    } finally {
+      setLoading(false);
     }
   };
 
-  fetchNotifications();
+  useEffect(() => {
+    getNotifications();
+    const interval = setInterval(getNotifications, 30000); 
+    return () => clearInterval(interval);
+  }, []);
 
-  // ⏱ refresh every 30 seconds
-  const interval = setInterval(fetchNotifications, 30000);
+  // Mark as read
+  const handleMarkRead = async (id) => {
+    try {
+      const data = await markNotificationAsRead(id);
+      if (data.success) {
+        setAlerts((prev) =>
+          prev.map((a) => (a._id === id ? { ...a, read: true } : a))
+        );
+        toast.success("Notification marked as read");
+      }
+    } catch (error) {
+      toast.error(error.message || "Failed to mark as read");
+    }
+  };
 
-  return () => clearInterval(interval);
-}, []);
+  // Delete notification
+  const handleDelete = async (id) => {
+    try {
+      const data = await deleteNotification(id);
+      if (data.success) {
+        setAlerts((prev) => prev.filter((a) => a._id !== id));
+        toast.success("Notification deleted");
+      }
+    } catch (error) {
+      toast.error(error.message || "Failed to delete notification");
+    }
+  };
 
-  // Tailwind styles for different alert types
+  // Create notification
+  const handleCreate = async (e) => {
+    e.preventDefault();
+    if (!newMessage.trim()) return toast.error("Message cannot be empty");
+
+    try {
+      const data = await createNotification({ message: newMessage, type: newType });
+      if (data.success) {
+        setAlerts((prev) => [data.notification, ...prev]); // prepend new notification
+        setNewMessage("");
+        toast.success("Notification created");
+      }
+    } catch (error) {
+      toast.error(error.message || "Failed to create notification");
+    }
+  };
+
+  // Tailwind styles by type
   const styles = {
     warning: "bg-red-100 text-red-700 border-l-4 border-red-500",
     success: "bg-green-100 text-green-700 border-l-4 border-green-500",
     info: "bg-blue-100 text-blue-700 border-l-4 border-blue-500",
   };
 
-  // Icons for each alert type
+  // Icons by type
   const icons = {
     warning: <AlertTriangle className="w-6 h-6 text-red-600" />,
     success: <Package className="w-6 h-6 text-green-600" />,
     info: <Bell className="w-6 h-6 text-blue-600" />,
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex justify-center items-center text-gray-600">
+        Loading notifications...
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
+      <ToastContainer />
       <h1 className="text-3xl font-extrabold mb-6 flex items-center gap-2">
         <Bell className="w-8 h-8 text-blue-600" /> Notifications
       </h1>
 
-      <ul className="space-y-4">
-        {alerts.map((alert, i) => (
-          <li
-            key={i}
-            className={`p-4 rounded-xl shadow-md flex items-center gap-4 transform transition-all hover:scale-[1.02] ${styles[alert.type]}`}
-          >
-            {icons[alert.type]}
-            <span className="font-medium">{alert.message}</span>
-          </li>
-        ))}
-      </ul>
+      {/* New Notification Form */}
+      <form
+        onSubmit={handleCreate}
+        className="mb-6 flex flex-col md:flex-row gap-3 items-center"
+      >
+        <input
+          type="text"
+          value={newMessage}
+          onChange={(e) => setNewMessage(e.target.value)}
+          placeholder="Enter notification message"
+          className="flex-1 p-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        />
+        <select
+          value={newType}
+          onChange={(e) => setNewType(e.target.value)}
+          className="p-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        >
+          <option value="info">Info</option>
+          <option value="success">Success</option>
+          <option value="warning">Warning</option>
+        </select>
+        <button
+          type="submit"
+          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        >
+          <PlusCircle className="w-5 h-5" /> Add
+        </button>
+      </form>
+
+      {alerts.length === 0 ? (
+        <p className="text-gray-500 text-lg">No notifications found.</p>
+      ) : (
+        <ul className="space-y-4">
+          {alerts.map((alert) => (
+            <li
+              key={alert._id}
+              className={`p-4 rounded-xl shadow-md flex items-center justify-between gap-4 transition-all hover:scale-[1.02] ${styles[alert.type]}`}
+            >
+              <div className="flex items-center gap-4">
+                {icons[alert.type]}
+                <div>
+                  <p
+                    className={`font-medium ${
+                      alert.read ? "opacity-70" : "font-semibold"
+                    }`}
+                  >
+                    {alert.message}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    {new Date(alert.createdAt).toLocaleString()}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                {!alert.read && (
+                  <button
+                    onClick={() => handleMarkRead(alert._id)}
+                    className="text-green-600 hover:text-green-800"
+                    title="Mark as read"
+                  >
+                    <CheckCircle className="w-6 h-6" />
+                  </button>
+                )}
+                <button
+                  onClick={() => handleDelete(alert._id)}
+                  className="text-red-600 hover:text-red-800"
+                  title="Delete notification"
+                >
+                  <Trash2 className="w-6 h-6" />
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };
