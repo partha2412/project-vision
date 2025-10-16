@@ -36,8 +36,8 @@ export const fetchProductsByRange = async (min, max) => {
 // add product
 export const addProduct = async (productData) => {
   try {
-    const response = await api.post("/product/add", productData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+    const response = await api.post("/products/add", productData, {
+      headers: { "Content-Type": "multipart/form-data" },
     });
     return response.data;
   } catch (error) {
