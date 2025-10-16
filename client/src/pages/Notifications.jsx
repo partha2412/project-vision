@@ -1,11 +1,19 @@
-import React, { useEffect, useState } from "react";
-import { Bell, Package, AlertTriangle, Trash2, CheckCircle, PlusCircle } from "lucide-react";
+import React, { useEffect, useState, useRef } from "react";
+import {
+  Bell,
+  Package,
+  AlertTriangle,
+  Trash2,
+  CheckCircle,
+  PlusCircle,
+  Gift,
+} from "lucide-react";
 import {
   fetchNotifications,
   markNotificationAsRead,
   deleteNotification,
-  createNotification, // new API
-} from "../api/notificationApi"; 
+  createNotification,
+} from "../api/notificationApi";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -13,7 +21,8 @@ const Notifications = () => {
   const [alerts, setAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [newMessage, setNewMessage] = useState("");
-  const [newType, setNewType] = useState("info"); // default type
+  const [newType, setNewType] = useState("info");
+  const didFetch = useRef(false); // prevent double fetch in React 18 StrictMode
 
   // Fetch notifications
   const getNotifications = async () => {
@@ -29,8 +38,11 @@ const Notifications = () => {
   };
 
   useEffect(() => {
+    if (didFetch.current) return;
+    didFetch.current = true;
+
     getNotifications();
-    const interval = setInterval(getNotifications, 30000); 
+    const interval = setInterval(getNotifications, 30000); // refresh every 30s
     return () => clearInterval(interval);
   }, []);
 
@@ -68,9 +80,12 @@ const Notifications = () => {
     if (!newMessage.trim()) return toast.error("Message cannot be empty");
 
     try {
-      const data = await createNotification({ message: newMessage, type: newType });
+      const data = await createNotification({
+        message: newMessage,
+        type: newType,
+      });
       if (data.success) {
-        setAlerts((prev) => [data.notification, ...prev]); // prepend new notification
+        setAlerts((prev) => [data.notification, ...prev]);
         setNewMessage("");
         toast.success("Notification created");
       }
@@ -84,6 +99,8 @@ const Notifications = () => {
     warning: "bg-red-100 text-red-700 border-l-4 border-red-500",
     success: "bg-green-100 text-green-700 border-l-4 border-green-500",
     info: "bg-blue-100 text-blue-700 border-l-4 border-blue-500",
+    offers:
+      "bg-gradient-to-r from-yellow-100 via-amber-100 to-orange-100 text-yellow-800 border-l-4 border-yellow-500 shadow-sm",
   };
 
   // Icons by type
@@ -91,6 +108,7 @@ const Notifications = () => {
     warning: <AlertTriangle className="w-6 h-6 text-red-600" />,
     success: <Package className="w-6 h-6 text-green-600" />,
     info: <Bell className="w-6 h-6 text-blue-600" />,
+    offers: <Gift className="w-6 h-6 text-yellow-600" />,
   };
 
   if (loading) {
@@ -128,6 +146,7 @@ const Notifications = () => {
           <option value="info">Info</option>
           <option value="success">Success</option>
           <option value="warning">Warning</option>
+          <option value="offers">Offers</option> {/* ✅ fixed name */}
         </select>
         <button
           type="submit"
@@ -144,10 +163,12 @@ const Notifications = () => {
           {alerts.map((alert) => (
             <li
               key={alert._id}
-              className={`p-4 rounded-xl shadow-md flex items-center justify-between gap-4 transition-all hover:scale-[1.02] ${styles[alert.type]}`}
+              className={`p-4 rounded-xl shadow-md flex items-center justify-between gap-4 transition-all hover:scale-[1.02] ${
+                styles[alert.type] || "bg-gray-100 text-gray-700"
+              }`}
             >
               <div className="flex items-center gap-4">
-                {icons[alert.type]}
+                {icons[alert.type] || <Bell className="w-6 h-6 text-gray-600" />}
                 <div>
                   <p
                     className={`font-medium ${

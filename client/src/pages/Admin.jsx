@@ -45,13 +45,13 @@ const Admin = () => {
       );
       if (lowStockItems.length > 0) {
         toast.warning(
-          `⚠️ ${lowStockItems.length} product(s) are low on stock!`,
+          ` ${lowStockItems.length} product(s) are low on stock!`,
           { toastId: "low-stock-warning", position: "top-right", autoClose: 2000 } // prevents duplicates
         );
       }
     } catch (error) {
       console.error("Error loading products:", error);
-      toast.error("❌ Failed to load products");
+      toast.error("Failed to load products");
     }
   };
 
@@ -118,12 +118,12 @@ const Admin = () => {
   const saveChanges = async (id) => {
     try {
       await api.put(`/product/update/${id}`, editableValues);
-      toast.success("✅ Product updated successfully!");
+      toast.success("Product updated successfully!");
       setEditingId(null);
       await loadProducts();
     } catch (error) {
       console.error("Error updating product:", error);
-      toast.error("❌ Failed to update product");
+      toast.error("Failed to update product");
     }
   };
 
@@ -132,12 +132,12 @@ const Admin = () => {
     try {
       //await api.delete(`/product/delete/${id}`);
       await hardDeleteProduct(id);
-      toast.success("🗑️ Product deleted successfully!");
+      toast.success("Product deleted successfully!");
       setDeleteConfirmId(null);
       await loadProducts();
     } catch (error) {
       console.error("Error deleting product:", error);
-      toast.error("❌ Failed to delete product");
+      toast.error("Failed to delete product");
     }
   };
 
@@ -151,7 +151,7 @@ const Admin = () => {
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       {/* Toast Container */}
-      <ToastContainer position="top-right" autoClose={3000} theme="colored" />
+      <ToastContainer position="top-right" autoClose={3000}  />
 
       <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
 

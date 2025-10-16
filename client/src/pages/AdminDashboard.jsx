@@ -30,13 +30,13 @@ const AdminDashboard = () => {
 
       if (lowStockItems.length > 0) {
         toast.warning(
-          `⚠️ ${lowStockItems.length} product(s) are low on stock!`,
+          ` ${lowStockItems.length} product(s) are low on stock!`,
           { toastId: "low-stock-warning", position: "top-right", autoClose: 2000 } // prevents duplicates
         );
       }
     } catch (error) {
       console.error("Error loading products:", error);
-      toast.error("❌ Failed to load products");
+      toast.error("Failed to load products");
     }
   };
   useEffect(() => {
