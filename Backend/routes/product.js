@@ -52,6 +52,9 @@ router.delete('/delete/hard/:id', productController.hardDeleteProduct);
 router.get('/sort', productController.getSortedProducts);
 
 
+// Get product by ID
+router.get('/:id', productController.getProductById);
+
 
 // Trending products
 router.get('/trending', productController.getTrendingProducts);

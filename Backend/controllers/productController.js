@@ -2,6 +2,7 @@ const multer = require('multer');
 const Product = require('../models/Product');
 const Notification = require("../models/Notification");
 const { uploadImagesToCloudinary } = require('./imagecontroller');
+const mongoose = require("mongoose");
 
 // ✅ Multer setup
 const storage = multer.memoryStorage();
@@ -132,7 +133,37 @@ exports.updateProductById = async (req, res) => {
 
 
 
-// fetch products
+// fetch products by ID
+exports.getProductById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Check if id is a valid Mongo ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ success: false, message: "Invalid product ID" });
+    }
+
+    const product = await Product.findById(id);
+
+    if (!product || product.isDeleted) {
+      return res.status(404).json({ success: false, message: "Product not found" });
+    }
+
+    res.status(200).json({ success: true, product });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server error while fetching product",
+      error: error.message,
+    });
+  }
+};
+
+
+
+// ===============================
+// 🔍 Search Products Controller
+// ===============================
 
 // Search products by title or description (case-insensitive)
 exports.searchProducts = async (req, res) => {

@@ -9,6 +9,15 @@ export const fetchProducts = async () => {
     throw error.response ? error.response.data : { message: "Network error" };
   }
 };
+// Fetch product by ID
+export const fetchProductById = async (productId) => {
+  try {
+    const response = await api.get(`/product/${productId}`);
+    return response.data;
+  } catch (error) {
+    throw error.response ? error.response.data : { message: "Network error" };
+  }
+};
 
 // Search products by title or description
 export const searchProducts = async (order) => {
