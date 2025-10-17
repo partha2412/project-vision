@@ -1,29 +1,46 @@
 import React, { useState, useEffect, useContext } from "react";
-import { useParams, Link, useNavigate, Navigate } from "react-router-dom";
-import products from "../datas/product";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
 import { WishlistContext } from "../context/WishlistContext";
 import Slide1 from "./product_details_Bottom_Slides/Slide1";
 import ReviewPage from "./ReviewPage";
+import { fetchProductById } from "../api/productApi";
 
 export default function ProductDetail() {
   const navigate = useNavigate();
   const { id } = useParams();
-  const product = products.find((p) => p.id === id);
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [pincode, setPincode] = useState("");
   const [deliveryMsg, setDeliveryMsg] = useState("");
   const [selectedColor, setSelectedColor] = useState("Black");
   const [selectedSize, setSelectedSize] = useState("Medium");
 
-  const { wishlist, addToWishlist, removeFromWishlist } =
-    useContext(WishlistContext);
+  const { wishlist, addToWishlist, removeFromWishlist } = useContext(WishlistContext);
 
   const toggleWish = (item) => {
-    const exists = wishlist.some((w) => w.id === item.id);
-    exists ? removeFromWishlist(item.id) : addToWishlist(item);
+    const exists = wishlist.some((w) => w._id === item._id);
+    exists ? removeFromWishlist(item._id) : addToWishlist(item);
   };
 
+  // Fetch product from backend
+  useEffect(() => {
+    const getProduct = async () => {
+      try {
+        const productData = await fetchProductById(id);
+        setProduct(productData.product);
+      } catch (error) {
+        console.error("Error fetching product:", error);
+        setProduct(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    getProduct();
+  }, [id]);
+
+  // Image slider
   useEffect(() => {
     if (!product) return;
     const interval = setInterval(() => {
@@ -32,30 +49,27 @@ export default function ProductDetail() {
     return () => clearInterval(interval);
   }, [product]);
 
+  if (loading) return <div className="p-6">Loading...</div>;
   if (!product) return <div className="p-6">Product not found</div>;
 
-  const discount = Math.round(
-    ((product.oldPrice - product.price) / product.oldPrice) * 100
-  );
+  const discount = product.discountPrice
+    ? Math.round(((product.price - product.discountPrice) / product.price) * 100)
+    : 0;
 
-  const renderStars = (rating) => {
-    return Array.from({ length: 5 }, (_, i) => {
-      if (i + 1 <= Math.floor(rating))
-        return <FaStar key={i} className="text-yellow-500" />;
+  const renderStars = (rating) =>
+    Array.from({ length: 5 }, (_, i) => {
+      if (i + 1 <= Math.floor(rating)) return <FaStar key={i} className="text-yellow-500" />;
       if (i < rating) return <FaStarHalfAlt key={i} className="text-yellow-500" />;
       return <FaRegStar key={i} className="text-yellow-500" />;
     });
-  };
 
   const checkDelivery = () => {
-    if (!pincode) {
-      setDeliveryMsg("Please enter a valid pincode.");
-    } else if (pincode.startsWith("7")) {
-      setDeliveryMsg("Delivery available within 3-5 days ✅");
-    } else {
-      setDeliveryMsg("Delivery not available in this area ❌");
-    }
+    if (!pincode) setDeliveryMsg("Please enter a valid pincode.");
+    else if (pincode.startsWith("7")) setDeliveryMsg("Delivery available within 3-5 days ✅");
+    else setDeliveryMsg("Delivery not available in this area ❌");
   };
+
+  const inStock = product.status !== "Out of Stock" && product.stock > 0;
 
   return (
     <div className="p-6">
@@ -78,7 +92,7 @@ export default function ProductDetail() {
                 <img
                   key={i}
                   src={src}
-                  alt={`${product.name} ${i}`}
+                  alt={`${product.title} ${i}`}
                   className="w-full h-full object-contain flex-shrink-0"
                 />
               ))}
@@ -89,7 +103,7 @@ export default function ProductDetail() {
               className="absolute top-4 right-4 bg-white/90 w-10 h-10 rounded-full flex justify-center items-center shadow-md hover:scale-110 transition"
               onClick={() => toggleWish(product)}
             >
-              {wishlist.find((w) => w.id === product.id) ? (
+              {wishlist.find((w) => w._id === product._id) ? (
                 <span className="text-red-600 text-2xl">♥</span>
               ) : (
                 <span className="text-gray-600 text-2xl">♡</span>
@@ -103,17 +117,10 @@ export default function ProductDetail() {
               <button
                 key={i}
                 onClick={() => setCurrentIndex(i)}
-                className={`border rounded overflow-hidden cursor-pointer transition-transform duration-300 ${
-                  currentIndex === i
-                    ? "ring-2 ring-blue-500 scale-105 shadow-md"
-                    : "border-gray-300"
-                }`}
+                className={`border rounded overflow-hidden cursor-pointer transition-transform duration-300 ${currentIndex === i ? "ring-2 ring-blue-500 scale-105 shadow-md" : "border-gray-300"
+                  }`}
               >
-                <img
-                  src={src}
-                  alt={`${product.name}-${i}`}
-                  className="w-20 h-20 object-contain"
-                />
+                <img src={src} alt={`${product.title}-${i}`} className="w-20 h-20 object-contain" />
               </button>
             ))}
           </div>
@@ -121,24 +128,35 @@ export default function ProductDetail() {
 
         {/* Right: Product Details */}
         <div className="md:w-1/2">
-          <h2 className="text-3xl font-bold">{product.name}</h2>
+          <h2 className="text-3xl font-bold">{product.title}</h2>
           <p className="text-gray-600 font-bold">{product.brand}</p>
 
           {/* Rating */}
           <div className="flex items-center gap-1 mt-2">
-            {renderStars(product.rating)}
+            {renderStars(
+              product.reviews && product.reviews.length > 0
+                ? product.reviews.reduce((acc, r) => acc + r.rating, 0) / product.reviews.length
+                : 0
+            )}
             <span className="text-sm text-gray-500 ml-2">
-              {product.rating.toFixed(1)} / 5
+              {product.reviews && product.reviews.length > 0
+                ? (product.reviews.reduce((acc, r) => acc + r.rating, 0) / product.reviews.length).toFixed(1)
+                : "0.0"} / 5
             </span>
           </div>
 
+
           {/* Price */}
           <div className="mt-4">
-            <span className="text-4xl font-semibold">₹{product.price}</span>
-            <span className="line-through text-gray-500 ml-3">
-              ₹{product.oldPrice}
+            <span className="text-4xl font-semibold">
+              ₹{product.discountPrice || product.price}
             </span>
-            <span className="ml-3 text-green-600 font-bold">{discount}% OFF</span>
+            {product.discountPrice && (
+              <span className="line-through text-gray-500 ml-3">₹{product.price}</span>
+            )}
+            {discount > 0 && (
+              <span className="ml-3 text-green-600 font-bold">{discount}% OFF</span>
+            )}
           </div>
 
           {/* Variants */}
@@ -149,9 +167,8 @@ export default function ProductDetail() {
                 <button
                   key={color}
                   onClick={() => setSelectedColor(color)}
-                  className={`px-3 py-1 border rounded ${
-                    selectedColor === color ? "bg-teal-500 text-white" : ""
-                  }`}
+                  className={`px-3 py-1 border rounded ${selectedColor === color ? "bg-teal-500 text-white" : ""
+                    }`}
                 >
                   {color}
                 </button>
@@ -163,9 +180,8 @@ export default function ProductDetail() {
                 <button
                   key={size}
                   onClick={() => setSelectedSize(size)}
-                  className={`px-3 py-1 border rounded ${
-                    selectedSize === size ? "bg-teal-500 text-white" : ""
-                  }`}
+                  className={`px-3 py-1 border rounded ${selectedSize === size ? "bg-teal-500 text-white" : ""
+                    }`}
                 >
                   {size}
                 </button>
@@ -174,14 +190,16 @@ export default function ProductDetail() {
           </div>
 
           {/* Stock Info */}
-          <p className="mt-3 text-green-600 font-bold">In Stock ✅</p>
-          <p className="text-sm text-red-500">Only 3 left – order soon!</p>
+          <p className={`mt-3 font-bold ${inStock ? "text-green-600" : "text-red-600"}`}>
+            {inStock ? "In Stock ✅" : "Out of Stock ❌"}
+          </p>
+          {inStock && product.stock <= product.lowStockAlert && (
+            <p className="text-sm text-red-500">Only {product.stock} left – order soon!</p>
+          )}
 
           {/* Delivery Check */}
           <div className="mt-6">
-            <label className="block text-gray-700 font-semibold mb-1">
-              Check Delivery
-            </label>
+            <label className="block text-gray-700 font-semibold mb-1">Check Delivery</label>
             <div className="flex gap-2">
               <input
                 type="text"
@@ -211,13 +229,24 @@ export default function ProductDetail() {
 
           {/* Action Buttons */}
           <div className="mt-6 flex gap-3">
-            <button className="bg-teal-400 text-blue-950 px-4 py-2 rounded hover:bg-teal-700 transition-colors duration-300 font-medium">
+            <button
+              disabled={!inStock}
+              className={`px-4 py-2 rounded font-medium transition-colors duration-300 ${inStock ? "bg-teal-400 text-blue-950 hover:bg-teal-700" : "bg-gray-400 text-gray-700 cursor-not-allowed"
+                }`}
+            >
               Add to Cart
             </button>
-            <button className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-700 transition-colors duration-300 font-medium">
+            <button
+              disabled={!inStock}
+              className={`px-4 py-2 rounded font-medium transition-colors duration-300 ${inStock ? "bg-red-500 text-white hover:bg-red-700" : "bg-gray-400 text-gray-700 cursor-not-allowed"
+                }`}
+            >
               Buy Now
             </button>
-            <button onClick={()=>navigate('/vto')} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700 transition-colors duration-300 font-medium">
+            <button
+              onClick={() => navigate("/vto")}
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700 transition-colors duration-300 font-medium"
+            >
               Try Now
             </button>
           </div>

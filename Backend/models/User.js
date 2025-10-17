@@ -67,15 +67,6 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: 'default-avatar.jpg'
   },
-  googleId: {
-  type: String,
-  default: null
-},
-profilePic: {
-  type: String,
-  default: ""
-},
-
   createdAt: {
     type: Date,
     default: Date.now

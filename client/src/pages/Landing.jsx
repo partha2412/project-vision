@@ -2,6 +2,7 @@ import Carousel from '../components/Carousl'
 import BuyOneGetOne from './slides/BuyOneGetOne'
 import Slide2 from './slides/Slide2'
 import CategorySection from "../components/CategorySection";
+import SubNavBar from '../common/SubNavBar';
 
 const Landing = () => {
     const images = [
@@ -12,6 +13,7 @@ const Landing = () => {
     ]
     return (
         <div>
+            <SubNavBar/>
             <div className='flex flex-col h-full'>
 
 

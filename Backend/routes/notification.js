@@ -9,15 +9,15 @@ const {
 const { protect, adminOnly } = require("../middleware/authmiddleware");
 
 // Get all notifications (for admins)
-router.get("/", protect, adminOnly, getNotifications);
+router.get("/", getNotifications);
 
 // Create a new notification
-router.post("/", protect, adminOnly, createNotification);
+router.post("/create", protect, adminOnly, createNotification);
 
 // Mark as read
-router.put("/:id/read", protect, markAsRead);
+router.put("/read/:id", protect, markAsRead);
 
 // Delete a notification
-router.delete("/:id", protect, adminOnly, deleteNotification);
+router.delete("/delete/:id", protect, adminOnly, deleteNotification);
 
 module.exports = router;
