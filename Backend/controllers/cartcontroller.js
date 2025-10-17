@@ -1,7 +1,7 @@
 import Cart from "../models/Cart.js";
 import Product from "../models/Product.js";
 
-// Helper function to calculate totalPrice including GST
+// Calculate totalPrice with discount & GST
 const calculateTotalPrice = (price, discountPrice, gstRate, quantity) => {
   const effectivePrice = discountPrice || price;
   const gstMultiplier = 1 + (gstRate || 0) / 100;
@@ -12,7 +12,7 @@ const calculateTotalPrice = (price, discountPrice, gstRate, quantity) => {
 export const addToCart = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { productId, quantity } = req.body;
+    const { productId, quantity = 1 } = req.body;
 
     if (!productId) return res.status(400).json({ message: "Product ID required" });
 
@@ -21,27 +21,23 @@ export const addToCart = async (req, res) => {
 
     let cart = await Cart.findOne({ user: userId });
 
-   const itemData = {
-  product: productId,
-  quantity: quantity || 1,
-  price: product.price,
-  discountPrice: product.discountPrice || 0,
-  gstRate: product.gstRate || 0,
-  totalPrice: calculateTotalPrice(product.price, product.discountPrice, product.gstRate, quantity || 1),
-  image: product.images[0] || "", // ✅ Add product image
-};
-
+    const itemData = {
+      product: productId,
+      quantity,
+      price: product.price,
+      discountPrice: product.discountPrice || 0,
+      gstRate: product.gstRate || 0,
+      totalPrice: calculateTotalPrice(product.price, product.discountPrice, product.gstRate, quantity),
+      image: product.images[0] || "",
+    };
 
     if (!cart) {
-      cart = await Cart.create({
-        user: userId,
-        items: [itemData],
-      });
+      cart = await Cart.create({ user: userId, items: [itemData] });
     } else {
-      const index = cart.items.findIndex(item => item.product.toString() === productId);
+      const index = cart.items.findIndex((item) => item.product.toString() === productId);
       if (index > -1) {
         const item = cart.items[index];
-        item.quantity += quantity || 1;
+        item.quantity += quantity;
         item.totalPrice = calculateTotalPrice(item.price, item.discountPrice, item.gstRate, item.quantity);
       } else {
         cart.items.push(itemData);
@@ -52,9 +48,10 @@ export const addToCart = async (req, res) => {
     cart.totalAmount = cart.items.reduce((acc, item) => acc + item.totalPrice, 0);
 
     await cart.save();
-    cart = await cart.populate("items.product"); // populate product details
+    cart = await cart.populate("items.product");
     res.json(cart);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -67,6 +64,7 @@ export const getCart = async (req, res) => {
     if (!cart) return res.json({ items: [], totalAmount: 0, totalItems: 0 });
     res.json(cart);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -79,24 +77,27 @@ export const updateCartItem = async (req, res) => {
 
     if (!productId) return res.status(400).json({ message: "Product ID required" });
 
-    const cart = await Cart.findOne({ user: userId });
+    let cart = await Cart.findOne({ user: userId });
     if (!cart) return res.status(404).json({ message: "Cart not found" });
 
-    const index = cart.items.findIndex(item => item.product.toString() === productId);
-    if (index > -1) {
-      const item = cart.items[index];
-      item.quantity = quantity;
-      item.totalPrice = calculateTotalPrice(item.price, item.discountPrice, item.gstRate, item.quantity);
+    const index = cart.items.findIndex((item) => item.product.toString() === productId);
+    if (index === -1) return res.status(404).json({ message: "Product not in cart" });
 
-      cart.totalItems = cart.items.reduce((acc, item) => acc + item.quantity, 0);
-      cart.totalAmount = cart.items.reduce((acc, item) => acc + item.totalPrice, 0);
+    cart.items[index].quantity = quantity;
+    cart.items[index].totalPrice = calculateTotalPrice(
+      cart.items[index].price,
+      cart.items[index].discountPrice,
+      cart.items[index].gstRate,
+      quantity
+    );
 
-      await cart.save();
-      return res.json(await cart.populate("items.product"));
-    }
+    cart.totalItems = cart.items.reduce((acc, item) => acc + item.quantity, 0);
+    cart.totalAmount = cart.items.reduce((acc, item) => acc + item.totalPrice, 0);
 
-    res.status(404).json({ message: "Product not in cart" });
+    await cart.save();
+    res.json(await cart.populate("items.product"));
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -105,29 +106,28 @@ export const updateCartItem = async (req, res) => {
 export const removeCartItem = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { productId } = req.body;
+    const { productId } = req.params;
 
-    if (!productId) return res.status(400).json({ message: "Product ID required" });
-
-    const cart = await Cart.findOne({ user: userId });
+    let cart = await Cart.findOne({ user: userId });
     if (!cart) return res.status(404).json({ message: "Cart not found" });
 
-    cart.items = cart.items.filter(item => item.product.toString() !== productId);
+    cart.items = cart.items.filter((item) => item.product.toString() !== productId);
     cart.totalItems = cart.items.reduce((acc, item) => acc + item.quantity, 0);
     cart.totalAmount = cart.items.reduce((acc, item) => acc + item.totalPrice, 0);
 
     await cart.save();
     res.json(await cart.populate("items.product"));
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: error.message });
   }
 };
 
-// Clear entire cart
+// Clear cart
 export const clearCart = async (req, res) => {
   try {
     const userId = req.user.id;
-    const cart = await Cart.findOne({ user: userId });
+    let cart = await Cart.findOne({ user: userId });
     if (!cart) return res.status(404).json({ message: "Cart not found" });
 
     cart.items = [];
@@ -137,29 +137,32 @@ export const clearCart = async (req, res) => {
     await cart.save();
     res.json(cart);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: error.message });
   }
 };
 
-// Increment / Decrement item quantity
+// Increment / Decrement quantity
 export const changeCartItemQuantity = async (req, res) => {
   try {
     const userId = req.user.id;
     const { productId, increment } = req.body;
 
-    if (!productId) return res.status(400).json({ message: "Product ID required" });
-
-    const cart = await Cart.findOne({ user: userId });
+    let cart = await Cart.findOne({ user: userId });
     if (!cart) return res.status(404).json({ message: "Cart not found" });
 
-    const index = cart.items.findIndex(item => item.product.toString() === productId);
+    const index = cart.items.findIndex((item) => item.product.toString() === productId);
     if (index === -1) return res.status(404).json({ message: "Product not in cart" });
 
-    const item = cart.items[index];
-    if (increment) item.quantity += 1;
-    else item.quantity = Math.max(1, item.quantity - 1);
+    if (increment) cart.items[index].quantity += 1;
+    else cart.items[index].quantity = Math.max(1, cart.items[index].quantity - 1);
 
-    item.totalPrice = calculateTotalPrice(item.price, item.discountPrice, item.gstRate, item.quantity);
+    cart.items[index].totalPrice = calculateTotalPrice(
+      cart.items[index].price,
+      cart.items[index].discountPrice,
+      cart.items[index].gstRate,
+      cart.items[index].quantity
+    );
 
     cart.totalItems = cart.items.reduce((acc, item) => acc + item.quantity, 0);
     cart.totalAmount = cart.items.reduce((acc, item) => acc + item.totalPrice, 0);
@@ -167,6 +170,7 @@ export const changeCartItemQuantity = async (req, res) => {
     await cart.save();
     res.json(await cart.populate("items.product"));
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: error.message });
   }
 };

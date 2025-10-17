@@ -76,10 +76,10 @@ export const CartProvider = ({ children }) => {
 
   const removeFromCart = async (productId) => {
     try {
-      const { data } = await axios.delete(
-        "http://localhost:5000/api/cart/remove",
-        { headers: getAuthHeaders(), data: { productId } }
-      );
+      await axios.delete(`http://localhost:5000/api/cart/remove/${productId}`, {
+  headers: getAuthHeaders()
+});
+
       setCart(data);
     } catch (err) {
       console.error("Error removing from cart:", err);

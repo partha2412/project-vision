@@ -1,6 +1,32 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 const Checkout = () => {
+  // Dummy cart items
+  const [cartItems, setCartItems] = useState([
+    { id: 1, name: "Product 1", price: 20, quantity: 1 },
+    { id: 2, name: "Product 2", price: 15, quantity: 2 },
+  ]);
+
+  const [paymentMethod, setPaymentMethod] = useState("online"); // default online
+  const [showOnlineOptions, setShowOnlineOptions] = useState(true);
+
+  // Calculate total
+  const totalAmount = cartItems.reduce(
+    (total, item) => total + item.price * item.quantity,
+    0
+  );
+
+  // Handle invoice generation (dummy)
+  const handleGenerateInvoice = () => {
+    alert("Invoice generated! Total amount: $" + totalAmount);
+  };
+
+  // Handle payment method change
+  const handlePaymentChange = (method) => {
+    setPaymentMethod(method);
+    setShowOnlineOptions(method === "online");
+  };
+
   return (
     <div className="bg-gray-100 min-h-screen flex justify-center items-center p-4">
       <div className="w-full max-w-5xl bg-white shadow-lg rounded-lg grid grid-cols-1 md:grid-cols-2 overflow-hidden">
@@ -62,28 +88,53 @@ const Checkout = () => {
                 <input
                   type="radio"
                   name="payment"
-                  defaultChecked
+                  checked={paymentMethod === "online"}
+                  onChange={() => handlePaymentChange("online")}
                   className="text-blue-600 focus:ring-blue-500"
                 />
                 <span className="text-gray-700">
-                  Razorpay Secure (UPI, Cards, Wallets, NetBanking)
+                  Online Payment (UPI, Cards, Wallets)
                 </span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer border rounded-md p-4 hover:bg-gray-50">
                 <input
                   type="radio"
                   name="payment"
+                  checked={paymentMethod === "cod"}
+                  onChange={() => handlePaymentChange("cod")}
                   className="text-blue-600 focus:ring-blue-500"
                 />
                 <span className="text-gray-700">Cash on Delivery</span>
               </label>
             </div>
+
+            {/* Online Payment Options */}
+            {showOnlineOptions && (
+              <div className="mt-4 space-y-2">
+                <h3 className="font-medium text-gray-700">Select Payment Option:</h3>
+                <label className="flex items-center gap-2 cursor-pointer border rounded-md p-2 hover:bg-gray-50">
+                  <input type="radio" name="onlineOption" className="text-blue-600" />
+                  <span>PhonePe</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer border rounded-md p-2 hover:bg-gray-50">
+                  <input type="radio" name="onlineOption" className="text-blue-600" />
+                  <span>Google Pay</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer border rounded-md p-2 hover:bg-gray-50">
+                  <input type="radio" name="onlineOption" className="text-blue-600" />
+                  <span>Paytm</span>
+                </label>
+              </div>
+            )}
           </div>
 
           {/* Confirm Button */}
           <div className="pt-6">
-            <button className="w-full py-3 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700 transition duration-200">
-              Place Order
+            <button
+              onClick={handleGenerateInvoice}
+              className="w-full py-3 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700 transition duration-200"
+            >
+              Place Order & Generate Invoice
             </button>
           </div>
         </div>
@@ -94,25 +145,28 @@ const Checkout = () => {
             Order Summary
           </h2>
 
-          <div className="space-y-4">
-            <div className="flex justify-between text-gray-700">
-              <span>Product 1</span>
-              <span>$20.00</span>
-            </div>
-            <div className="flex justify-between text-gray-700">
-              <span>Product 2</span>
-              <span>$15.00</span>
-            </div>
-            <div className="flex justify-between text-gray-700">
-              <span>Shipping</span>
-              <span>$5.00</span>
-            </div>
-          </div>
+          {cartItems.length === 0 ? (
+            <p className="text-gray-500">Your cart is empty</p>
+          ) : (
+            <div className="space-y-4">
+              {cartItems.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex justify-between text-gray-700"
+                >
+                  <span>
+                    {item.name} x {item.quantity}
+                  </span>
+                  <span>${item.price * item.quantity}</span>
+                </div>
+              ))}
 
-          <div className="border-t pt-4 flex justify-between font-semibold text-gray-900">
-            <span>Total</span>
-            <span>$40.00</span>
-          </div>
+              <div className="border-t pt-4 flex justify-between font-semibold text-gray-900">
+                <span>Total</span>
+                <span>${totalAmount}</span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
