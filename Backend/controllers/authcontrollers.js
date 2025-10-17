@@ -2,6 +2,9 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
+const { OAuth2Client } = require("google-auth-library");
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);  // ✅ define client here
+
 // Register 
 exports.register = async (req, res) => {
   const { firstname, lastname, email, password } = req.body;
@@ -258,5 +261,47 @@ exports.deleteUser = async (req, res) => {
       message: 'Server error during deletion',
       error: error.message
     });
+  }
+};
+exports.googleSignup = async (req, res) => {
+  try {
+    const { firstname, lastname, email } = req.body;
+    if (!firstname || !lastname || !email) {
+      return res.status(400).json({ message: "All fields are required for Google signup" });
+    }
+
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      const randomPassword = Math.random().toString(36).slice(-8);
+      const hashedPassword = await bcrypt.hash(randomPassword, 10);
+
+      user = await User.create({
+        firstname,
+        lastname,
+        email,
+        password: hashedPassword,
+      });
+    }
+
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || "secretkey", {
+      expiresIn: "7d",
+    });
+
+    // Return exact structure
+    res.status(200).json({
+      success: true,
+      message: "Google signup/login successful",
+      token,
+      user: {
+        id: user._id,
+        firstname: user.firstname,
+        lastname: user.lastname,
+        email: user.email,
+      },
+    });
+  } catch (error) {
+    console.error("Google signup error:", error);
+    res.status(500).json({ success: false, message: "Google signup failed", error: error.message });
   }
 };

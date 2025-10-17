@@ -1,11 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { signupUser } from "../api/userApi";
+import { signupUser, googleSignup } from "../api/userApi"; // API calls
 import { ToastContainer, toast } from "react-toastify";
+import { GoogleLogin } from "@react-oauth/google";
+import jwt_decode from "jwt-decode";
+import { AuthContext } from "../context/AuthContext"; // ✅ import AuthContext
 import "react-toastify/dist/ReactToastify.css";
 
 const SignupPage = () => {
   const navigate = useNavigate();
+  const { setUser } = useContext(AuthContext); // ✅ get setUser from context
+
   const [formData, setFormData] = useState({
     firstname: "",
     lastname: "",
@@ -19,6 +24,7 @@ const SignupPage = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // 🟢 Normal Signup
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -26,28 +32,55 @@ const SignupPage = () => {
 
     try {
       const data = await signupUser(formData);
-      localStorage.setItem("user", JSON.stringify(data.user));
 
-      // Show success toast
+      setUser(data.user); // ✅ update context
+      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("token", data.token);
+
       toast.success("Account created successfully!", {
         position: "top-right",
         autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
       });
 
-      // Redirect after a short delay
-      setTimeout(() => {
-        navigate("/");
-      }, 3000);
+      setTimeout(() => navigate("/"), 3000);
     } catch (err) {
       setError(err.message || "Signup failed. Try again.");
     } finally {
       setLoading(false);
     }
+  };
+
+  // 🟠 Google Signup
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      const decoded = jwt_decode(credentialResponse.credential);
+
+      const googleUser = {
+        firstname: decoded.given_name,
+        lastname: decoded.family_name,
+        email: decoded.email,
+      };
+
+      const data = await googleSignup(googleUser);
+
+      if (!data.user) {
+        throw new Error("Google signup failed: user not returned");
+      }
+
+      setUser(data.user); // ✅ update context
+      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("token", data.token);
+
+      toast.success("Signed up with Google!", { position: "top-right" });
+      setTimeout(() => navigate("/"), 2000);
+    } catch (error) {
+      console.error("Google signup failed:", error);
+      toast.error("Google signup failed!");
+    }
+  };
+
+  const handleGoogleError = () => {
+    toast.error("Google sign-in failed!");
   };
 
   return (
@@ -90,6 +123,26 @@ const SignupPage = () => {
               {loading ? "Signing up..." : "Sign Up"}
             </button>
           </form>
+
+          {/* Divider */}
+          <div className="flex items-center my-6">
+            <div className="flex-grow border-t border-gray-300"></div>
+            <span className="px-3 text-gray-500 text-sm">or</span>
+            <div className="flex-grow border-t border-gray-300"></div>
+          </div>
+
+          {/* Google Signup Button */}
+          <div className="flex justify-center">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={handleGoogleError}
+              type="standard"
+              theme="filled_blue"
+              shape="rectangular"
+              text="signup_with"
+              size="large"
+            />
+          </div>
 
           <p className="text-gray-700 text-sm mt-6 text-center">
             Already have an account?{" "}

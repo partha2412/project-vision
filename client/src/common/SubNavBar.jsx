@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { fetchNotifications } from "../api/notificationApi";
+import { Megaphone } from "lucide-react";
 
 const SubNavBar = () => {
   const [offers, setOffers] = useState([]);
+  const [index, setIndex] = useState(0);
 
   const getNotifications = async () => {
     try {
@@ -22,57 +24,54 @@ const SubNavBar = () => {
     return () => clearInterval(refresh);
   }, []);
 
+  // Rotate messages one by one every 4 seconds
+  useEffect(() => {
+    if (offers.length > 1) {
+      const interval = setInterval(() => {
+        setIndex((prev) => (prev + 1) % offers.length);
+      }, 4000);
+      return () => clearInterval(interval);
+    }
+  }, [offers]);
+
   if (offers.length === 0) return null;
 
-  // Duplicate offers for seamless infinite loop
-  const scrollingOffers = [...offers, ...offers];
-
   return (
-    <div className="relative overflow-hidden bg-blue-100 text-blue-800 py-2">
-      <div className="scroll-wrapper">
-        <div className="scroll-content">
-          {scrollingOffers.map((notif, index) => (
-            <span key={index} className="mx-8 font-medium">
-              {notif.message}
-            </span>
-          ))}
+    <div className="bg-gray-100 border-b border-gray-300 text-gray-800 text-sm md:text-base">
+      <div className="flex items-center justify-center gap-2 py-2 px-4">
+        <Megaphone size={18} className="text-gray-600" />
+        <div className="relative h-5 overflow-hidden w-[90%] text-center">
+          <div
+            key={offers[index].message}
+            className="absolute w-full animate-fade"
+          >
+            {offers[index].message}
+          </div>
         </div>
       </div>
 
       <style>{`
-        .scroll-wrapper {
-          display: flex;
-          overflow: hidden;
-          white-space: nowrap;
-          position: relative;
-        }
-
-        .scroll-content {
-          display: inline-flex;
-          will-change: transform;
-          animation: scroll 6s linear infinite;
-        }
-
-        @keyframes scroll {
+        @keyframes fadeSlide {
           0% {
-            transform: translateX(0);
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          10% {
+            opacity: 1;
+            transform: translateY(0);
+          }
+          90% {
+            opacity: 1;
+            transform: translateY(0);
           }
           100% {
-            transform: translateX(-50%);
+            opacity: 0;
+            transform: translateY(-10px);
           }
         }
 
-        .scroll-wrapper:hover .scroll-content {
-          animation-play-state: paused;
-        }
-
-        /* Make animation extremely smooth */
-        @media (prefers-reduced-motion: no-preference) {
-          .scroll-content {
-            animation-timing-function: linear;
-            backface-visibility: hidden;
-            transform: translate3d(0, 0, 0);
-          }
+        .animate-fade {
+          animation: fadeSlide 4s ease-in-out forwards;
         }
       `}</style>
     </div>

@@ -1,47 +1,75 @@
 import { createContext, useState, useEffect } from "react";
-import { loginUser as apiLoginUser, signupUser as apiSignupUser, logoutUser as apiLogoutUser } from "../api/userApi";
+import {
+  loginUser as apiLoginUser,
+  signupUser as apiSignupUser,
+  logoutUser as apiLogoutUser,
+} from "../api/userApi";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    // Safely parse localStorage user
+    const storedUser = localStorage.getItem("user");
+    try {
+      return storedUser ? JSON.parse(storedUser) : null;
+    } catch (error) {
+      console.error("Failed to parse stored user:", error);
+      return null;
+    }
+  });
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
     setLoading(false);
   }, []);
 
-  // Wrapped login to update context
+  // Login wrapper
   const loginUser = async (credentials) => {
-    const data = await apiLoginUser(credentials);
-    setUser(data.user);
-    localStorage.setItem("user", JSON.stringify(data.user));
-    return data;
+    try {
+      const data = await apiLoginUser(credentials);
+      setUser(data.user);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("token", data.token); // save JWT
+      return data;
+    } catch (error) {
+      throw error;
+    }
   };
 
-  // Wrapped signup (optional, can also update context)
+  // Signup wrapper
   const signupUser = async (data) => {
-    const result = await apiSignupUser(data);
-    setUser(result.user);
-    localStorage.setItem("user", JSON.stringify(result.user));
-    return result;
+    try {
+      const result = await apiSignupUser(data);
+      setUser(result.user);
+      localStorage.setItem("user", JSON.stringify(result.user));
+      localStorage.setItem("token", result.token); // save JWT
+      return result;
+    } catch (error) {
+      throw error;
+    }
   };
 
-  // Wrapped logout to clear context
+  // Logout wrapper
   const logoutUser = () => {
-    apiLogoutUser();
+    try {
+      apiLogoutUser(); // optional API call
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
     setUser(null);
     localStorage.removeItem("user");
+    localStorage.removeItem("token");
   };
 
+  // Check admin
   const isAdmin = () => user?.role === "admin";
 
   return (
-    <AuthContext.Provider value={{ user, setUser, loading, loginUser, signupUser, logoutUser, isAdmin }}>
+    <AuthContext.Provider
+      value={{ user, setUser, loading, loginUser, signupUser, logoutUser, isAdmin }}
+    >
       {children}
     </AuthContext.Provider>
   );
