@@ -1,82 +1,99 @@
 import React, { createContext, useState, useEffect } from "react";
-import {
-  addToCart as addToCartApi,
-  getCart as getCartApi,
-  updateCartItem as updateCartItemApi,
-  changeCartItemQuantity as changeCartItemQuantityApi,
-  removeCartItem as removeCartItemApi,
-  clearCart as clearCartApi,
-} from "../api/cartApi";
+import axios from "axios";
 
 export const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
-  const [cart, setCart] = useState(null);
+  const [cart, setCart] = useState({
+    items: [],
+    totalAmount: 0,
+    totalItems: 0,
+  });
   const [loading, setLoading] = useState(false);
 
-  // ✅ Fetch cart on mount
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem("token");
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  };
+
+  // Fetch cart from backend
+  const fetchCart = async () => {
+    setLoading(true);
+    try {
+      const { data } = await axios.get("http://localhost:5000/api/cart", {
+        headers: getAuthHeaders(),
+      });
+      setCart(data);
+    } catch (err) {
+      console.error("Error fetching cart:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchCart = async () => {
-      try {
-        setLoading(true);
-        const data = await getCartApi();
-        setCart(data);
-      } catch (error) {
-        console.error("Error fetching cart:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchCart();
   }, []);
 
-  // ✅ Add item to cart
   const addToCart = async (productId, quantity = 1) => {
     try {
-      const data = await addToCartApi(productId, quantity);
+      const { data } = await axios.post(
+        "http://localhost:5000/api/cart/add",
+        { productId, quantity },
+        { headers: getAuthHeaders() }
+      );
       setCart(data);
-    } catch (error) {
-      console.error("Error adding to cart:", error);
+    } catch (err) {
+      console.error("Error adding to cart:", err);
     }
   };
 
-  // ✅ Update quantity directly
   const updateCartItem = async (productId, quantity) => {
     try {
-      const data = await updateCartItemApi(productId, quantity);
+      const { data } = await axios.put(
+        "http://localhost:5000/api/cart/update",
+        { productId, quantity },
+        { headers: getAuthHeaders() }
+      );
       setCart(data);
-    } catch (error) {
-      console.error("Error updating cart item:", error);
+    } catch (err) {
+      console.error("Error updating cart item:", err);
     }
   };
 
-  // ✅ Increment / Decrement quantity
   const changeCartItemQuantity = async (productId, increment = true) => {
     try {
-      const data = await changeCartItemQuantityApi(productId, increment);
+      const { data } = await axios.put(
+        "http://localhost:5000/api/cart/change-quantity",
+        { productId, increment },
+        { headers: getAuthHeaders() }
+      );
       setCart(data);
-    } catch (error) {
-      console.error("Error changing item quantity:", error);
+    } catch (err) {
+      console.error("Error changing cart item quantity:", err);
     }
   };
 
-  // ✅ Remove single product
   const removeFromCart = async (productId) => {
     try {
-      const data = await removeCartItemApi(productId);
+      const { data } = await axios.delete(
+        "http://localhost:5000/api/cart/remove",
+        { headers: getAuthHeaders(), data: { productId } }
+      );
       setCart(data);
-    } catch (error) {
-      console.error("Error removing from cart:", error);
+    } catch (err) {
+      console.error("Error removing from cart:", err);
     }
   };
 
-  // ✅ Clear entire cart
   const clearCart = async () => {
     try {
-      const data = await clearCartApi();
+      const { data } = await axios.delete("http://localhost:5000/api/cart/clear", {
+        headers: getAuthHeaders(),
+      });
       setCart(data);
-    } catch (error) {
-      console.error("Error clearing cart:", error);
+    } catch (err) {
+      console.error("Error clearing cart:", err);
     }
   };
 
@@ -85,6 +102,7 @@ export const CartProvider = ({ children }) => {
       value={{
         cart,
         loading,
+        fetchCart,
         addToCart,
         updateCartItem,
         changeCartItemQuantity,
