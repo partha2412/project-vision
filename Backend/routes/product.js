@@ -2,7 +2,13 @@ const express = require('express');
 const router = express.Router();
 const productController = require('../controllers/productController');
 const Product = require('../models/Product');
+const { filterProductsByPrice } = require("../controllers/productController");
+//short 
+router.get("/filter", filterProductsByPrice);
 
+//all buttons products
+router.get("/all", productController.getAllProducts);
+router.get("/category/:category", productController.getProductsByCategory);
 // Add product
 router.post(
   '/add',
