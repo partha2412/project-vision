@@ -18,19 +18,22 @@ exports.getAllOrders = async (req, res) => {
 };
 
 
-
-// placeorder
 exports.placeOrder = async (req, res) => {
   try {
-    // Get data from request body
-    const { user, orderItems, shippingAddress, paymentMethod, totalAmount } = req.body;
-    // Validate required fields
-    if (!user || !orderItems || orderItems.length === 0 || !shippingAddress || !paymentMethod) {
+    // Make sure user is authenticated
+    const userId = req.user?._id;
+    if (!userId) {
+      return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+
+    const { orderItems, shippingAddress, paymentMethod, totalAmount } = req.body;
+
+    if (!orderItems || orderItems.length === 0 || !shippingAddress || !paymentMethod) {
       return res.status(400).json({ success: false, message: 'All fields are required' });
     }
-    // Create new order
+
     const newOrder = new Order({
-      user, 
+      user: userId, // get user from token
       orderItems,
       shippingAddress,
       paymentMethod,
@@ -42,8 +45,9 @@ exports.placeOrder = async (req, res) => {
       status: 'Processing',
       createdAt: Date.now(),
     });
-    // Save to database
+
     const savedOrder = await newOrder.save();
+
     res.status(201).json({
       success: true,
       message: 'Order placed successfully',
@@ -53,6 +57,7 @@ exports.placeOrder = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
 
 // Update order status (admin only)
 exports.updateOrderStatus = async (req, res) => {
