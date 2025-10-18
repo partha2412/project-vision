@@ -23,7 +23,11 @@ export const CartProvider = ({ children }) => {
     setLoading(true);
     try {
       const data = await getCart();
-      setCart(data);
+      setCart({
+        items: data.items ?? [],
+        totalAmount: data.totalAmount ?? 0,
+        totalItems: data.totalItems ?? 0,
+      });
     } catch (err) {
       console.error("Error fetching cart:", err);
     } finally {
@@ -39,17 +43,45 @@ export const CartProvider = ({ children }) => {
   const handleAddToCart = async (productId, quantity = 1) => {
     try {
       const data = await addToCart(productId, quantity);
-      setCart(data);
+      setCart({
+        items: data.items ?? [],
+        totalAmount: data.totalAmount ?? 0,
+        totalItems: data.totalItems ?? 0,
+      });
     } catch (err) {
       console.error("Error adding to cart:", err);
     }
   };
 
+  // ✅ Remove product from cart
+  const handleRemoveFromCart = async (productId) => {
+    try {
+      const data = await removeCartItem(productId);
+
+      // ✅ Use functional update like handleAddToCart
+      setCart((prev) => ({
+        ...prev,
+        items: data.items ? [...data.items] : prev.items.filter(i => i.product._id !== productId),
+        totalAmount: data.totalAmount ?? prev.totalAmount,
+        totalItems: data.totalItems ?? prev.totalItems,
+      }));
+    } catch (err) {
+      console.error("Error removing from cart:", err);
+    }
+  };
+
+
+
+
   // ✅ Update product quantity directly
   const handleUpdateCartItem = async (productId, quantity) => {
     try {
       const data = await updateCartItem(productId, quantity);
-      setCart(data);
+      setCart({
+        items: data.items ?? [],
+        totalAmount: data.totalAmount ?? 0,
+        totalItems: data.totalItems ?? 0,
+      });
     } catch (err) {
       console.error("Error updating cart item:", err);
     }
@@ -59,19 +91,13 @@ export const CartProvider = ({ children }) => {
   const handleChangeQuantity = async (productId, increment = true) => {
     try {
       const data = await changeCartItemQuantity(productId, increment);
-      setCart(data);
+      setCart({
+        items: data.items ?? [],
+        totalAmount: data.totalAmount ?? 0,
+        totalItems: data.totalItems ?? 0,
+      });
     } catch (err) {
       console.error("Error changing cart item quantity:", err);
-    }
-  };
-
-  // ✅ Remove product from cart
-  const handleRemoveFromCart = async (productId) => {
-    try {
-      const data = await removeCartItem(productId);
-      setCart(data);
-    } catch (err) {
-      console.error("Error removing from cart:", err);
     }
   };
 
@@ -79,7 +105,11 @@ export const CartProvider = ({ children }) => {
   const handleClearCart = async () => {
     try {
       const data = await clearCart();
-      setCart(data);
+      setCart({
+        items: data.items ?? [],
+        totalAmount: data.totalAmount ?? 0,
+        totalItems: data.totalItems ?? 0,
+      });
     } catch (err) {
       console.error("Error clearing cart:", err);
     }

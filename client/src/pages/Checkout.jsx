@@ -1,78 +1,101 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import jwt_decode from "jwt-decode";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Checkout = () => {
   const { state } = useLocation();
   const { totalAmount = 0, items = [] } = state || {};
+  const navigate = useNavigate();
 
   const [paymentMethod, setPaymentMethod] = useState("Online Payment");
+  const [loading, setLoading] = useState(false);
+  const [userId, setUserId] = useState(null);
 
-  const itemsPrice = totalAmount;
-  const taxPrice = itemsPrice * 0.05; // 5% tax
-  const shippingPrice = 5;
-  const grandTotal = itemsPrice + taxPrice + shippingPrice;
+  // Decode userId from token on component mount
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("You must be logged in to place an order");
+      navigate("/login");
+      return;
+    }
+    try {
+      const decoded = jwt_decode(token);
+      setUserId(decoded.id); // Make sure your JWT has id field
+    } catch (err) {
+      console.error("Invalid token", err);
+      alert("❌ Invalid token, please log in again");
+      localStorage.removeItem("token");
+      navigate("/login");
+    }
+  }, [navigate]);
 
   const handlePaymentChange = (method) => setPaymentMethod(method);
 
   const handlePlaceOrder = async () => {
+    if (!userId) return;
+
+    const address = document.querySelector('input[placeholder="Address"]').value;
+    const city = document.querySelector('input[placeholder="City"]').value;
+    const stateVal = document.querySelector('input[placeholder="State"]').value;
+    const postalCode = document.querySelector('input[placeholder="PIN code"]').value;
+    const country = document.querySelector('input[placeholder="Country"]').value;
+
+    if (!address || !city || !stateVal || !postalCode || !country) {
+      return toast.error("❌ Please fill in all shipping fields");
+    }
+
+    if (items.length === 0) {
+      return toast.error("❌ Your cart is empty");
+    }
+
+    const shippingAddress = { address, city, state: stateVal, postalCode, country };
+
+    const orderItems = items.map((item) => ({
+      product: item.productId,
+      name: item.name,
+      image: item.image,
+      price: item.price,
+      quantity: item.quantity,
+    }));
+
+    const token = localStorage.getItem("token");
+    if (!token) return toast.error("❌ You must be logged in to place an order");
+
+    const orderData = { user: userId, orderItems, shippingAddress, paymentMethod, totalAmount };
+
     try {
-      const address = document.querySelector('input[placeholder="Address"]').value;
-      const city = document.querySelector('input[placeholder="City"]').value;
-      const stateVal = document.querySelector('input[placeholder="State"]').value;
-      const postalCode = document.querySelector('input[placeholder="PIN code"]').value;
-      const country = document.querySelector('input[placeholder="Country"]').value;
-
-      const shippingAddress = { address, city, state: stateVal, postalCode, country };
-
-      // Map items to include `product` field as MongoDB ObjectId
-      const checkoutItems = items
-        .filter((item) => item.product?._id) // only include items with valid ObjectId
-        .map((item) => ({
-          product: item.product._id, // backend requires ObjectId
-          name: item.product.title,
-          price: item.product.price,
-          quantity: item.quantity,
-          image: item.product.images?.[0] || "",
-        }));
-
-      if (checkoutItems.length === 0) {
-        alert("❌ No valid items in the cart to place an order.");
-        return;
-      }
-
-      const orderData = {
-        orderItems: checkoutItems,
-        shippingAddress,
-        paymentMethod,
-        itemsPrice,
-        taxPrice,
-        shippingPrice,
-        totalAmount: grandTotal,
-        notes: "Handle with care",
-      };
-
-      const token = localStorage.getItem("token");
-      if (!token) {
-        alert("❌ You must be logged in to place an order.");
-        return;
-      }
+      setLoading(true);
+      const config = { headers: { Authorization: `Bearer ${token}` } };
 
       const response = await axios.post(
         "http://localhost:5000/api/order/create",
         orderData,
-        { headers: { Authorization: `Bearer ${token}` } }
+        config
       );
 
-      alert(`✅ ${response.data.message}\nTotal: ₹${grandTotal.toFixed(2)}`);
+      toast.success(`✅ ${response.data.message}\nTotal: ₹${totalAmount.toFixed(2)}`);
+      // Wait 2 seconds before navigating
+      setTimeout(() => {
+        navigate("/ordersuccess");
+      }, 2000);
     } catch (error) {
-      console.error("Error placing order:", error);
-      alert("❌ Failed to place order: " + (error.response?.data?.message || error.message));
+      toast.error(
+        "❌ Failed to place order: " +
+        (error.response?.data?.message || error.message)
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
+
   return (
     <div className="bg-gray-100 min-h-screen flex justify-center items-center p-4">
+      <ToastContainer />
       <div className="w-full max-w-5xl bg-white shadow-lg rounded-lg grid grid-cols-1 md:grid-cols-2 overflow-hidden">
         {/* LEFT SECTION */}
         <div className="p-8 space-y-8">
@@ -115,9 +138,10 @@ const Checkout = () => {
 
           <button
             onClick={handlePlaceOrder}
-            className="w-full mt-6 py-3 bg-gray-800 text-white rounded-md hover:bg-gray-600 transition duration-200"
+            disabled={loading}
+            className="w-full mt-6 py-3 bg-gray-800 text-white rounded-md font-medium hover:bg-gray-600 transition duration-200 disabled:opacity-50"
           >
-            Place Order
+            {loading ? "Placing Order..." : "Place Order"}
           </button>
         </div>
 
@@ -141,20 +165,8 @@ const Checkout = () => {
               ))}
               <div className="border-t pt-4 space-y-2">
                 <div className="flex justify-between text-gray-500">
-                  <span>Items:</span>
-                  <span>₹{itemsPrice.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-gray-500">
-                  <span>Tax (5%):</span>
-                  <span>₹{taxPrice.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-gray-500">
-                  <span>Shipping:</span>
-                  <span>₹{shippingPrice.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between font-semibold text-gray-800 mt-2">
                   <span>Total:</span>
-                  <span>₹{grandTotal.toFixed(2)}</span>
+                  <span>₹{totalAmount.toFixed(2)}</span>
                 </div>
               </div>
             </div>

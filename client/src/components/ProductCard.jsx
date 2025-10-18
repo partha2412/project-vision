@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import React, { useContext } from "react";
 import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import Carousl_SingleProduct from "../components/Carousl_SingleProduct";
@@ -11,24 +11,24 @@ export default function ProductCard({ product }) {
 
   if (!product?._id) return null;
 
+  const inWishlist = wishlist.some((w) => w._id === product._id);
+
+  // Compute inCart dynamically from cart items
+  const inCart = cart?.items?.some((i) => i.product?._id === product._id);
+
   const toggleWish = (e) => {
     e.preventDefault();
-    e.stopPropagation(); // Prevent card click
-    const exists = wishlist.some((w) => w._id === product._id);
-    if (exists) removeFromWishlist(product._id);
+    e.stopPropagation();
+    if (inWishlist) removeFromWishlist(product._id);
     else addToWishlist(product);
   };
 
   const toggleCart = (e) => {
     e.preventDefault();
-    e.stopPropagation(); // Prevent card click
-    const exists = cart?.items?.some((i) => i.product?._id === product._id);
-    if (exists) removeFromCart(product._id);
+    e.stopPropagation();
+    if (inCart) removeFromCart(product._id);
     else addToCart(product._id, 1);
   };
-
-  const inWishlist = wishlist.some((w) => w._id === product._id);
-  const inCart = cart?.items?.some((i) => i.product?._id === product._id);
 
   const renderStars = (rating = 0) =>
     Array.from({ length: 5 }, (_, i) => {
@@ -43,7 +43,6 @@ export default function ProductCard({ product }) {
         <div className="relative w-full h-56 bg-gray-50">
           <Carousl_SingleProduct images={product.images || []} />
 
-          {/* Wishlist Heart */}
           <button
             className="absolute top-4 right-12 bg-white/90 backdrop-blur-sm w-10 h-10 rounded-full flex justify-center items-center shadow-md hover:scale-110 transition"
             onClick={toggleWish}
@@ -64,7 +63,6 @@ export default function ProductCard({ product }) {
             </svg>
           </button>
 
-          {/* Cart Button */}
           <button
             className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm w-10 h-10 rounded-full flex justify-center items-center shadow-md hover:scale-110 transition"
             onClick={toggleCart}
