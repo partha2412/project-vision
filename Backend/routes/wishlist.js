@@ -4,11 +4,17 @@ const {
   getWishlist,
   addToWishlist,
   removeFromWishlist,
-} = require("../controllers/wishlistcontrollers");
-const { isAuthenticated } = require('../middleware/auth');
+} = require("../controllers/wishlistcontroller"); // ✅ Make sure the filename matches exactly
+const { isAuthenticated } = require("../middleware/auth");
 
+// ✅ Get the user's wishlist
 router.get("/", isAuthenticated, getWishlist);
+
+// ✅ Add a product to the wishlist
 router.post("/add", isAuthenticated, addToWishlist);
-router.post("/remove", isAuthenticated, removeFromWishlist);
+
+// ✅ Remove a product from the wishlist
+router.delete("/remove/:productId", isAuthenticated, removeFromWishlist);
+// 🔹 Use DELETE and productId in params for cleaner REST API design
 
 module.exports = router;

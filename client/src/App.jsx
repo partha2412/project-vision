@@ -27,7 +27,7 @@ const App = () => {
   return (
     <div className='relative h-screen'>
       <BrowserRouter>
-        <WishlistProvider> {/* ✅ Wrap everything needing wishlist */}
+        <> {/* ✅ Wrap everything needing wishlist */}
           <NavBar />
           <Routes>
             <Route path='/' element={<Landing />} />
@@ -65,7 +65,7 @@ const App = () => {
             <Route path="/kids" element={<Kids />} />
             {/* <Route path="/review" element={<ReviewPage />} /> */}
           </Routes>
-        </WishlistProvider>
+        </>
       </BrowserRouter>
       <Footer />
     </div>
