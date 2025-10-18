@@ -112,7 +112,7 @@ exports.login = async (req, res) => {
           role: admin.role
         }
       });
-      
+
 
     }
 
@@ -183,82 +183,59 @@ exports.logout = async (req, res) => {
     });
   }
 };
+
 // Update User
 exports.updateUser = async (req, res) => {
+  const { firstname, lastname, email, phone, gender, dob, password, newPassword } = req.body;
   try {
-    const userId = req.user.id; // From auth middleware
-    const {
-      firstname,
-      lastname,
-      email,
-      phone,
-      gender,
-      dob,
-      password,
-      newPassword,
-      image, // this should be the Cloudinary URL from frontend
-    } = req.body;
+    const userId = req.user.id; // From middleware
+    const user = await User.findById(userId).select('+password');
+    //console.log(user);
 
-    console.log("Request Body:", req.body);
+    if (!user) return res.status(404).json({ message: 'User not found' });
 
-    // Find user
-    const user = await User.findById(userId).select("+password");
-    if (!user) return res.status(404).json({ message: "User not found" });
-
-    // Update basic fields if provided
     if (firstname !== undefined) user.firstname = firstname;
     if (lastname !== undefined) user.lastname = lastname;
     if (email !== undefined) user.email = email;
     if (phone !== undefined) user.phone = phone;
     if (gender !== undefined) user.gender = gender;
     if (dob !== undefined) user.dob = dob;
+    ;
 
-    // Update password if provided
+
+    // Update password
     if (password && newPassword) {
       const match = await bcrypt.compare(password, user.password);
-      if (!match)
-        return res.status(400).json({ message: "Current password is incorrect" });
+      //console.log(match);
 
-      const hashed = await bcrypt.hash(newPassword, 10);
-      user.password = hashed;
-    }
+      if (!match) return res.status(400).json({ message: 'Current password is incorrect' });
 
-    // Upload image to Cloudinary if provided (file from frontend)
-    if (req.file) {
-      const result = await cloudinary.uploader.upload(req.file.path, {
-        folder: "profile_images",
-        width: 300,
-        height: 300,
-        crop: "fill",
-      });
-      user.image = result.secure_url;
-    } else if (image) {
-      // If frontend sends URL directly
-      user.image = image;
+      user.password = newPassword;
     }
 
     await user.save();
 
     res.status(200).json({
       success: true,
-      message: "User updated successfully",
+      message: 'User updated successfully',
+
       user: {
         role: user.role,
         id: user._id,
-        firstname: user.firstname,
-        lastname: user.lastname,
+        firstName: user.firstname,
+        lastName: user.lastname,
         email: user.email,
         phone: user.phone,
         gender: user.gender,
         dob: user.dob,
-        image: user.image,
       },
     });
   } catch (error) {
-    console.error("Update User Error:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+
 
 // Delete User
 exports.deleteUser = async (req, res) => {

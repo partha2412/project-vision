@@ -20,28 +20,28 @@ import "react-toastify/dist/ReactToastify.css";
 const AdminDashboard = () => {
   const [activePage, setActivePage] = useState("analytics"); // default page
 
-  const loadProducts = async () => {
-    try {
-      const data = await fetchProducts();
-      // ✅ Low stock warning (only once)
-      const lowStockItems = data.products.filter(
-        (p) => p.stock <= p.lowStockAlert
-      );
+  // const loadProducts = async () => {
+  //   try {
+  //     const data = await fetchProducts();
+  //     // ✅ Low stock warning (only once)
+  //     const lowStockItems = data.products.filter(
+  //       (p) => p.stock <= p.lowStockAlert
+  //     );
 
-      if (lowStockItems.length > 0) {
-        toast.warning(
-          ` ${lowStockItems.length} product(s) are low on stock!`,
-          { toastId: "low-stock-warning", position: "top-right", autoClose: 2000 } // prevents duplicates
-        );
-      }
-    } catch (error) {
-      console.error("Error loading products:", error);
-      toast.error("Failed to load products");
-    }
-  };
-  useEffect(() => {
-    loadProducts();
-  }, []);
+  //     if (lowStockItems.length > 0) {
+  //       toast.warning(
+  //         ` ${lowStockItems.length} product(s) are low on stock!`,
+  //         { toastId: "low-stock-warning", position: "top-right", autoClose: 2000 } // prevents duplicates
+  //       );
+  //     }
+  //   } catch (error) {
+  //     console.error("Error loading products:", error);
+  //     toast.error("Failed to load products");
+  //   }
+  // };
+  // useEffect(() => {
+  //   loadProducts();
+  // }, []);
 
   // Sidebar buttons with icons
   const menu = [
