@@ -19,7 +19,7 @@ router.put('/update', cartController.updateCartItem);
 router.put('/change-quantity', cartController.changeCartItemQuantity);
 
 // Remove product from cart
-router.delete('/remove', cartController.removeCartItem);
+router.delete('/remove/:productId', cartController.removeCartItem);
 
 // Clear entire cart
 router.delete('/clear', cartController.clearCart);

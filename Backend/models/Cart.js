@@ -34,6 +34,11 @@ const cartSchema = new mongoose.Schema({
       totalPrice: {
         type: Number,
         required: true // calculated as (price - discount + GST) * quantity
+      },
+      // Store the main image URL from Cloudinary for quick frontend access
+      image: {
+        type: String,
+        required: true
       }
     }
   ],

@@ -417,3 +417,54 @@ exports.getDiscountProducts = async (req, res) => {
   }
 };
 
+
+
+exports.filterProductsByPrice = async (req, res) => {
+  try {
+    // Convert query params to numbers safely
+    let min = parseFloat(req.query.min);
+    let max = parseFloat(req.query.max);
+
+    if (isNaN(min)) min = 0;
+    if (isNaN(max)) max = Infinity;
+
+    // Fetch products in the range
+    const products = await Product.find({
+      price: { $gte: min, $lte: max },
+    });
+
+    // Return in object format so frontend can do response.data.products
+    res.status(200).json({ products });
+  } catch (error) {
+    console.error("Error filtering products:", error);
+    res.status(500).json({ message: "Server error while filtering products" });
+  }
+};
+
+
+
+
+// Get all products
+exports.getAllProducts = async (req, res) => {
+  try {
+    const products = await Product.find();
+    res.status(200).json({ products });
+  } catch (error) {
+    console.error("Error fetching all products:", error);
+    res.status(500).json({ message: "Server error while fetching all products" });
+  }
+};
+//other buttons category products
+exports.getProductsByCategory = async (req, res) => {
+  try {
+    const category = req.params.category;
+    const products = await Product.find({ category: category });
+    res.json({ products });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch products" });
+  }
+};
+
+
+
+

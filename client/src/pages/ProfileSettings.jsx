@@ -120,8 +120,7 @@ const ProfileSettings = () => {
     const file = e.target.files[0];
     setProfile({ ...profile, image: file });
   };
-
- const handleSaveProfile = async () => {
+const handleSaveProfile = async () => {
   if (!profile.firstname || !profile.email) {
     alert("Please fill in your name and email!");
     return;
@@ -133,42 +132,55 @@ const ProfileSettings = () => {
   }
 
   try {
-    // Prepare form data
-    const formData = new FormData();
-    formData.append("firstName", profile.firstname);
-    formData.append("lastName", profile.lastname);
-    formData.append("email", profile.email);
-    formData.append("phone", profile.phone);
-    formData.append("gender", profile.gender);
-    formData.append("dob", profile.dob);
-    if (profile.password) formData.append("password", profile.password);
-    if (profile.newPassword) formData.append("newPassword", profile.newPassword);
-    if (profile.image) formData.append("image", profile.image);
+    let imageUrl = null;
 
-   const token = localStorage.getItem("token");
-console.log(token);
-const payload = {
-   firstname: profile.firstname,
-  lastname: profile.lastname,
+    // Upload to Cloudinary if image selected
+    if (profile.image) {
+      const formDataCloud = new FormData();
+      formDataCloud.append("file", profile.image);
+      formDataCloud.append("upload_preset", "YOUR_UPLOAD_PRESET"); // get from Cloudinary
+      formDataCloud.append("cloud_name", "YOUR_CLOUD_NAME"); // your Cloudinary cloud name
 
-};
-const response = await fetch("http://localhost:5000/api/auth/updateuser", {
-  method: "PUT",
-  headers: {
-    "Content-Type": "application/json", // <-- important
-    Authorization: `Bearer ${token}`,
-  },
-  body: JSON.stringify(payload), // <-- send as JSON
-});
+      const cloudRes = await axios.post(
+        `https://api.cloudinary.com/v1_1/YOUR_CLOUD_NAME/image/upload`,
+        formDataCloud
+      );
+
+      imageUrl = cloudRes.data.secure_url;
+    }
+
+    // Prepare payload for backend
+    const payload = {
+      firstname: profile.firstname,
+      lastname: profile.lastname,
+      email: profile.email,
+      phone: profile.phone,
+      gender: profile.gender,
+      dob: profile.dob,
+      password: profile.password || undefined,
+      newPassword: profile.newPassword || undefined,
+      image: imageUrl, // send Cloudinary URL
+    };
+
+    const token = localStorage.getItem("token");
+
+    const response = await fetch("http://localhost:5000/api/auth/updateuser", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
     const data = await response.json();
 
     if (data.success) {
       alert("Profile updated successfully!");
-      // Optionally, update local state with returned user
       setProfile({
         ...profile,
-        firstname: data.user.firstName,
-        lastname: data.user.lastName,
+        firstname: data.user.firstname,
+        lastname: data.user.lastname,
         email: data.user.email,
         phone: data.user.phone,
         gender: data.user.gender,
@@ -176,6 +188,7 @@ const response = await fetch("http://localhost:5000/api/auth/updateuser", {
         password: "",
         newPassword: "",
         confirmPassword: "",
+        image: null, // reset file input
       });
     } else {
       alert(data.message || "Update failed!");
@@ -284,26 +297,27 @@ const response = await fetch("http://localhost:5000/api/auth/updateuser", {
 
                   {/* Profile Image */}
                   <div className="flex items-center gap-4">
-                    <div className="w-20 h-20 rounded-full bg-gray-200 overflow-hidden">
-                      {profile.image ? (
-                        <img
-                          src={URL.createObjectURL(profile.image)}
-                          alt="Profile"
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="flex items-center justify-center h-full text-gray-400 text-sm">
-                          No Image
-                        </div>
-                      )}
-                    </div>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageChange}
-                      className="text-sm text-gray-600 dark:text-gray-300"
-                    />
-                  </div>
+  <div className="w-20 h-20 rounded-full bg-gray-200 overflow-hidden">
+    {profile.image ? (
+      <img
+        src={URL.createObjectURL(profile.image)}
+        alt="Profile"
+        className="w-full h-full object-cover"
+      />
+    ) : (
+      <div className="flex items-center justify-center h-full text-gray-400 text-sm">
+        No Image
+      </div>
+    )}
+  </div>
+  <input
+    type="file"
+    accept="image/*"
+    onChange={handleImageChange}
+    className="text-sm text-gray-600 dark:text-gray-300"
+  />
+</div>
+
 
                   <input
                     type="text"
