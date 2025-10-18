@@ -19,7 +19,6 @@ exports.getAllOrders = async (req, res) => {
 };
 
 
-
 // placeorder
 exports.placeOrder = async (req, res) => {
   try {
@@ -54,6 +53,7 @@ exports.placeOrder = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
 
 // Update order status (admin only)
 exports.updateOrderStatus = async (req, res) => {

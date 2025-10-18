@@ -57,7 +57,7 @@ const CartPage = () => {
 
   return (
     <div className="p-6 max-w-4xl mx-auto bg-gray-100 min-h-screen">
-      <h1 className="text-3xl font-bold mb-6 text-gray-800 bg-gradient-to-r from-gray-500 via-gray-700 to-gray-900 bg-clip-text text-transparent">
+      <h1 className="text-3xl font-bold py-2 mb-6 bg-gradient-to-r from-gray-500 via-gray-700 to-gray-900 bg-clip-text text-transparent">
         Shopping Cart
       </h1>
 
