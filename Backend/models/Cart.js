@@ -38,7 +38,7 @@ const cartSchema = new mongoose.Schema({
       // Store the main image URL from Cloudinary for quick frontend access
       image: {
         type: String,
-        required: true
+        required: false
       }
     }
   ],

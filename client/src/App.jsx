@@ -63,7 +63,7 @@ const App = () => {
             <Route path="/men" element={<Men />} />
             <Route path="/women" element={<Women />} />
             <Route path="/kids" element={<Kids />} />
-            <Route path="/review" element={<ReviewPage />} />
+            {/* <Route path="/review" element={<ReviewPage />} /> */}
           </Routes>
         </WishlistProvider>
       </BrowserRouter>
