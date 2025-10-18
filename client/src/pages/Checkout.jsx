@@ -9,47 +9,65 @@ const Checkout = () => {
   const [paymentMethod, setPaymentMethod] = useState("Online Payment");
 
   const itemsPrice = totalAmount;
-  const taxPrice = itemsPrice * 0.05;
+  const taxPrice = itemsPrice * 0.05; // 5% tax
   const shippingPrice = 5;
   const grandTotal = itemsPrice + taxPrice + shippingPrice;
 
-  const handlePaymentChange = (method) => {
-    setPaymentMethod(method);
-  };
+  const handlePaymentChange = (method) => setPaymentMethod(method);
 
   const handlePlaceOrder = async () => {
-    const address = document.querySelector('input[placeholder="Address"]').value;
-    const city = document.querySelector('input[placeholder="City"]').value;
-    const stateVal = document.querySelector('input[placeholder="State"]').value;
-    const postalCode = document.querySelector('input[placeholder="PIN code"]').value;
-    const country = document.querySelector('input[placeholder="Country"]').value;
-
-    const shippingAddress = { address, city, state: stateVal, postalCode, country };
-
-    const orderData = {
-      user: "670123xyz123",
-      orderItems: items,
-      shippingAddress,
-      paymentMethod,
-      itemsPrice,
-      taxPrice,
-      shippingPrice,
-      totalAmount: grandTotal,
-      notes: "Handle with care",
-    };
-
     try {
+      const address = document.querySelector('input[placeholder="Address"]').value;
+      const city = document.querySelector('input[placeholder="City"]').value;
+      const stateVal = document.querySelector('input[placeholder="State"]').value;
+      const postalCode = document.querySelector('input[placeholder="PIN code"]').value;
+      const country = document.querySelector('input[placeholder="Country"]').value;
+
+      const shippingAddress = { address, city, state: stateVal, postalCode, country };
+
+      // Map items to include `product` field as MongoDB ObjectId
+      const checkoutItems = items
+        .filter((item) => item.product?._id) // only include items with valid ObjectId
+        .map((item) => ({
+          product: item.product._id, // backend requires ObjectId
+          name: item.product.title,
+          price: item.product.price,
+          quantity: item.quantity,
+          image: item.product.images?.[0] || "",
+        }));
+
+      if (checkoutItems.length === 0) {
+        alert("❌ No valid items in the cart to place an order.");
+        return;
+      }
+
+      const orderData = {
+        orderItems: checkoutItems,
+        shippingAddress,
+        paymentMethod,
+        itemsPrice,
+        taxPrice,
+        shippingPrice,
+        totalAmount: grandTotal,
+        notes: "Handle with care",
+      };
+
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("❌ You must be logged in to place an order.");
+        return;
+      }
+
       const response = await axios.post(
-        "http://localhost:5000/api/orders/create",
-        orderData
+        "http://localhost:5000/api/order/create",
+        orderData,
+        { headers: { Authorization: `Bearer ${token}` } }
       );
+
       alert(`✅ ${response.data.message}\nTotal: ₹${grandTotal.toFixed(2)}`);
     } catch (error) {
       console.error("Error placing order:", error);
-      alert(
-        "❌ Failed to place order: " +
-          (error.response?.data?.message || error.message)
-      );
+      alert("❌ Failed to place order: " + (error.response?.data?.message || error.message));
     }
   };
 
@@ -59,47 +77,22 @@ const Checkout = () => {
         {/* LEFT SECTION */}
         <div className="p-8 space-y-8">
           <div>
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">
-              Shipping Information
-            </h2>
-            <input
-              type="text"
-              placeholder="Address"
-              className="border rounded-md p-4 w-full text-base focus:ring-2 focus:ring-blue-500 mb-4"
-            />
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Shipping Information</h2>
+            <input type="text" placeholder="Address" className="border rounded-md p-4 w-full mb-4" />
             <div className="grid grid-cols-2 gap-4 mb-4">
-              <input
-                type="text"
-                placeholder="City"
-                className="border rounded-md p-4 w-full text-base focus:ring-2 focus:ring-blue-500"
-              />
-              <input
-                type="text"
-                placeholder="State"
-                className="border rounded-md p-4 w-full text-base focus:ring-2 focus:ring-blue-500"
-              />
+              <input type="text" placeholder="City" className="border rounded-md p-4" />
+              <input type="text" placeholder="State" className="border rounded-md p-4" />
             </div>
             <div className="grid grid-cols-2 gap-4 mb-4">
-              <input
-                type="text"
-                placeholder="PIN code"
-                className="border rounded-md p-4 w-full text-base focus:ring-2 focus:ring-blue-500"
-              />
-              <input
-                type="text"
-                placeholder="Country"
-                className="border rounded-md p-4 w-full text-base focus:ring-2 focus:ring-blue-500"
-              />
+              <input type="text" placeholder="PIN code" className="border rounded-md p-4" />
+              <input type="text" placeholder="Country" className="border rounded-md p-4" />
             </div>
           </div>
 
-          {/* Payment Method */}
           <div>
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">
-              Payment Method
-            </h2>
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Payment Method</h2>
             <div className="space-y-3">
-              <label className="flex items-center gap-2 cursor-pointer border rounded-md p-4 hover:bg-gray-50">
+              <label className="flex items-center gap-2 border rounded-md p-4 cursor-pointer hover:bg-gray-50">
                 <input
                   type="radio"
                   name="payment"
@@ -108,7 +101,7 @@ const Checkout = () => {
                 />
                 <span>Online Payment (UPI, Cards)</span>
               </label>
-              <label className="flex items-center gap-2 cursor-pointer border rounded-md p-4 hover:bg-gray-50">
+              <label className="flex items-center gap-2 border rounded-md p-4 cursor-pointer hover:bg-gray-50">
                 <input
                   type="radio"
                   name="payment"
@@ -122,7 +115,7 @@ const Checkout = () => {
 
           <button
             onClick={handlePlaceOrder}
-            className="w-full mt-6 py-3 bg-gray-800 text-white rounded-md font-medium hover:bg-gray-600 transition duration-200"
+            className="w-full mt-6 py-3 bg-gray-800 text-white rounded-md hover:bg-gray-600 transition duration-200"
           >
             Place Order
           </button>
@@ -130,25 +123,20 @@ const Checkout = () => {
 
         {/* RIGHT SECTION */}
         <div className="bg-gray-50 p-8 border-l space-y-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">
-            Order Summary
-          </h2>
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">Order Summary</h2>
           {items.length === 0 ? (
             <p>Your cart is empty</p>
           ) : (
             <div className="space-y-4">
               {items.map((item, index) => (
-                <div
-                  key={index}
-                  className="flex justify-between items-center text-gray-700"
-                >
+                <div key={index} className="flex justify-between items-center text-gray-700">
                   <img
-                    src={item.image}
-                    alt={item.name}
+                    src={item.product?.images?.[0] || item.image}
+                    alt={item.product?.title || item.name}
                     className="w-16 h-16 object-cover rounded mr-2"
                   />
-                  <span className="flex-1">{item.name} × {item.quantity}</span>
-                  <span>₹{(item.price * item.quantity).toFixed(2)}</span>
+                  <span className="flex-1">{item.product?.title || item.name} × {item.quantity}</span>
+                  <span>₹{((item.product?.price || item.price) * item.quantity).toFixed(2)}</span>
                 </div>
               ))}
               <div className="border-t pt-4 space-y-2">
