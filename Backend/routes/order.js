@@ -6,7 +6,7 @@ const { protect, adminOnly } = require('../middleware/authmiddleware');
 // example: /api/order/
 router.get('/', protect, adminOnly, orderController.getAllOrders);
 // example: /api/order/placeorder
-router.post('/placeorder', protect, orderController.placeOrder);
+router.post('/create', protect, orderController.placeOrder);
 // example: /api/order/status/:orderId
 // paidAt,
 // isDelivered,

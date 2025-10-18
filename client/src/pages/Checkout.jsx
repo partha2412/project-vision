@@ -33,9 +33,7 @@ const Checkout = () => {
     }
   }, [navigate]);
 
-  const handlePaymentChange = (method) => {
-    setPaymentMethod(method);
-  };
+  const handlePaymentChange = (method) => setPaymentMethod(method);
 
   const handlePlaceOrder = async () => {
     if (!userId) return;
@@ -102,47 +100,22 @@ const Checkout = () => {
         {/* LEFT SECTION */}
         <div className="p-8 space-y-8">
           <div>
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">
-              Shipping Information
-            </h2>
-            <input
-              type="text"
-              placeholder="Address"
-              className="border rounded-md p-4 w-full text-base focus:ring-2 focus:ring-blue-500 mb-4"
-            />
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Shipping Information</h2>
+            <input type="text" placeholder="Address" className="border rounded-md p-4 w-full mb-4" />
             <div className="grid grid-cols-2 gap-4 mb-4">
-              <input
-                type="text"
-                placeholder="City"
-                className="border rounded-md p-4 w-full text-base focus:ring-2 focus:ring-blue-500"
-              />
-              <input
-                type="text"
-                placeholder="State"
-                className="border rounded-md p-4 w-full text-base focus:ring-2 focus:ring-blue-500"
-              />
+              <input type="text" placeholder="City" className="border rounded-md p-4" />
+              <input type="text" placeholder="State" className="border rounded-md p-4" />
             </div>
             <div className="grid grid-cols-2 gap-4 mb-4">
-              <input
-                type="text"
-                placeholder="PIN code"
-                className="border rounded-md p-4 w-full text-base focus:ring-2 focus:ring-blue-500"
-              />
-              <input
-                type="text"
-                placeholder="Country"
-                className="border rounded-md p-4 w-full text-base focus:ring-2 focus:ring-blue-500"
-              />
+              <input type="text" placeholder="PIN code" className="border rounded-md p-4" />
+              <input type="text" placeholder="Country" className="border rounded-md p-4" />
             </div>
           </div>
 
-          {/* Payment Method */}
           <div>
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">
-              Payment Method
-            </h2>
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Payment Method</h2>
             <div className="space-y-3">
-              <label className="flex items-center gap-2 cursor-pointer border rounded-md p-4 hover:bg-gray-50">
+              <label className="flex items-center gap-2 border rounded-md p-4 cursor-pointer hover:bg-gray-50">
                 <input
                   type="radio"
                   name="payment"
@@ -151,7 +124,7 @@ const Checkout = () => {
                 />
                 <span>Online Payment (UPI, Cards)</span>
               </label>
-              <label className="flex items-center gap-2 cursor-pointer border rounded-md p-4 hover:bg-gray-50">
+              <label className="flex items-center gap-2 border rounded-md p-4 cursor-pointer hover:bg-gray-50">
                 <input
                   type="radio"
                   name="payment"
@@ -174,25 +147,20 @@ const Checkout = () => {
 
         {/* RIGHT SECTION */}
         <div className="bg-gray-50 p-8 border-l space-y-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">
-            Order Summary
-          </h2>
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">Order Summary</h2>
           {items.length === 0 ? (
             <p>Your cart is empty</p>
           ) : (
             <div className="space-y-4">
               {items.map((item, index) => (
-                <div
-                  key={index}
-                  className="flex justify-between items-center text-gray-700"
-                >
+                <div key={index} className="flex justify-between items-center text-gray-700">
                   <img
-                    src={item.image}
-                    alt={item.name}
+                    src={item.product?.images?.[0] || item.image}
+                    alt={item.product?.title || item.name}
                     className="w-16 h-16 object-cover rounded mr-2"
                   />
-                  <span className="flex-1">{item.name} × {item.quantity}</span>
-                  <span>₹{(item.price * item.quantity).toFixed(2)}</span>
+                  <span className="flex-1">{item.product?.title || item.name} × {item.quantity}</span>
+                  <span>₹{((item.product?.price || item.price) * item.quantity).toFixed(2)}</span>
                 </div>
               ))}
               <div className="border-t pt-4 space-y-2">
