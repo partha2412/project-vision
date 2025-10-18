@@ -72,7 +72,7 @@ const Checkout = () => {
       const config = { headers: { Authorization: `Bearer ${token}` } };
 
       const response = await axios.post(
-        "http://localhost:5000/api/order/placeorder",
+        "http://localhost:5000/api/order/create",
         orderData,
         config
       );
