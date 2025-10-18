@@ -102,7 +102,6 @@ export const updateCartItem = async (req, res) => {
   }
 };
 
-// Remove product from cart
 export const removeCartItem = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -111,18 +110,29 @@ export const removeCartItem = async (req, res) => {
     let cart = await Cart.findOne({ user: userId });
     if (!cart) return res.status(404).json({ message: "Cart not found" });
 
+    const initialCount = cart.items.length;
     cart.items = cart.items.filter((item) => item.product.toString() !== productId);
+
+    if (cart.items.length === initialCount) {
+      return res.status(404).json({ message: "Product not found in cart" });
+    }
+
+    // Recalculate totals
     cart.totalItems = cart.items.reduce((acc, item) => acc + item.quantity, 0);
     cart.totalAmount = cart.items.reduce((acc, item) => acc + item.totalPrice, 0);
 
     await cart.save();
-    res.json(await cart.populate("items.product"));
+    const updatedCart = await cart.populate("items.product");
+
+    res.status(200).json({
+      message: "Item removed successfully",
+      cart: updatedCart,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: error.message });
   }
 };
-
 // Clear cart
 export const clearCart = async (req, res) => {
   try {

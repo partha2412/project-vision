@@ -1,5 +1,12 @@
 import React, { createContext, useState, useEffect } from "react";
-import axios from "axios";
+import {
+  getCart,
+  addToCart,
+  updateCartItem,
+  changeCartItemQuantity,
+  removeCartItem,
+  clearCart,
+} from "../api/cartApi";
 
 export const CartContext = createContext();
 
@@ -11,18 +18,11 @@ export const CartProvider = ({ children }) => {
   });
   const [loading, setLoading] = useState(false);
 
-  const getAuthHeaders = () => {
-    const token = localStorage.getItem("token");
-    return token ? { Authorization: `Bearer ${token}` } : {};
-  };
-
-  // Fetch cart from backend
+  // ✅ Fetch cart from backend
   const fetchCart = async () => {
     setLoading(true);
     try {
-      const { data } = await axios.get("http://localhost:5000/api/cart", {
-        headers: getAuthHeaders(),
-      });
+      const data = await getCart();
       setCart(data);
     } catch (err) {
       console.error("Error fetching cart:", err);
@@ -35,62 +35,50 @@ export const CartProvider = ({ children }) => {
     fetchCart();
   }, []);
 
-  const addToCart = async (productId, quantity = 1) => {
+  // ✅ Add product to cart
+  const handleAddToCart = async (productId, quantity = 1) => {
     try {
-      const { data } = await axios.post(
-        "http://localhost:5000/api/cart/add",
-        { productId, quantity },
-        { headers: getAuthHeaders() }
-      );
+      const data = await addToCart(productId, quantity);
       setCart(data);
     } catch (err) {
       console.error("Error adding to cart:", err);
     }
   };
 
-  const updateCartItem = async (productId, quantity) => {
+  // ✅ Update product quantity directly
+  const handleUpdateCartItem = async (productId, quantity) => {
     try {
-      const { data } = await axios.put(
-        "http://localhost:5000/api/cart/update",
-        { productId, quantity },
-        { headers: getAuthHeaders() }
-      );
+      const data = await updateCartItem(productId, quantity);
       setCart(data);
     } catch (err) {
       console.error("Error updating cart item:", err);
     }
   };
 
-  const changeCartItemQuantity = async (productId, increment = true) => {
+  // ✅ Increment or decrement quantity
+  const handleChangeQuantity = async (productId, increment = true) => {
     try {
-      const { data } = await axios.put(
-        "http://localhost:5000/api/cart/change-quantity",
-        { productId, increment },
-        { headers: getAuthHeaders() }
-      );
+      const data = await changeCartItemQuantity(productId, increment);
       setCart(data);
     } catch (err) {
       console.error("Error changing cart item quantity:", err);
     }
   };
 
-  const removeFromCart = async (productId) => {
+  // ✅ Remove product from cart
+  const handleRemoveFromCart = async (productId) => {
     try {
-      await axios.delete(`http://localhost:5000/api/cart/remove/${productId}`, {
-  headers: getAuthHeaders()
-});
-
+      const data = await removeCartItem(productId);
       setCart(data);
     } catch (err) {
       console.error("Error removing from cart:", err);
     }
   };
 
-  const clearCart = async () => {
+  // ✅ Clear entire cart
+  const handleClearCart = async () => {
     try {
-      const { data } = await axios.delete("http://localhost:5000/api/cart/clear", {
-        headers: getAuthHeaders(),
-      });
+      const data = await clearCart();
       setCart(data);
     } catch (err) {
       console.error("Error clearing cart:", err);
@@ -103,11 +91,11 @@ export const CartProvider = ({ children }) => {
         cart,
         loading,
         fetchCart,
-        addToCart,
-        updateCartItem,
-        changeCartItemQuantity,
-        removeFromCart,
-        clearCart,
+        addToCart: handleAddToCart,
+        updateCartItem: handleUpdateCartItem,
+        changeCartItemQuantity: handleChangeQuantity,
+        removeFromCart: handleRemoveFromCart,
+        clearCart: handleClearCart,
       }}
     >
       {children}
