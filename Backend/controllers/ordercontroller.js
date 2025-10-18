@@ -1,4 +1,5 @@
 const Order = require('../models/Order');
+const User = require('../models/User');
 
 
 exports.getAllOrders = async (req, res) => {
@@ -123,9 +124,15 @@ exports.getUserOrders = async (req, res) => {
       return res.status(400).json({ success: false, message: 'User ID is required' });
     }
 
+    // Ensure the user exists
+    const user = await User.findById(userId).select('firstname lastname email');
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
     const orders = await Order.find({ user: userId })
-      .populate('user', 'name email')                   // include user info
-      .populate('orderItems.product', 'title price');   // include product info
+      .populate('orderItems.product', 'title price') // populate product title and price
+      .sort({ createdAt: -1 }); // latest orders first
 
     if (!orders || orders.length === 0) {
       return res.status(404).json({ success: false, message: 'No orders found for this user' });
@@ -134,12 +141,20 @@ exports.getUserOrders = async (req, res) => {
     res.status(200).json({
       success: true,
       count: orders.length,
+      user: {
+        id: user._id,
+        name: `${user.firstname} ${user.lastname}`,
+        email: user.email,
+      },
       orders,
     });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+
 
 // Delete order by ID (admin only)
 exports.deleteOrder = async (req, res) => {

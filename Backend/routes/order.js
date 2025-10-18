@@ -22,7 +22,7 @@ router.delete('/deleteorder/:orderId', protect, adminOnly, orderController.delet
 // update order status (admin only)
 router.put('/status/:orderId', protect, adminOnly, orderController.updateOrderStatus);
 
-// example: /api/order/user/:userId
-router.get('/user/:userId', orderController.getUserOrders);  // GET /api/orders/user/:userId
+// Get all orders for a specific user (optional: protect so only user or admin can access)
+router.get('/user/:userId', protect, orderController.getUserOrders);
 
 module.exports = router;
