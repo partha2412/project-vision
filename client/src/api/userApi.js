@@ -46,13 +46,13 @@ export const updateUser = async (userData) => {
     let response;
 
     // Prepare data
-    if (userData.file) {
-      // Use FormData if there's a file
+    if (userData.image) {
+      // Use FormData if there's an image
       const formData = new FormData();
       for (const key in userData) {
         if (userData[key] !== undefined && userData[key] !== null && userData[key] !== "") {
-          if (key === "file") {
-            formData.append("file", userData.file); // file must be under 'file' key for backend
+          if (key === "image") {
+            formData.append("image", userData.image); // ✅ must match backend multer field
           } else {
             formData.append(key, userData[key]);
           }
@@ -86,6 +86,9 @@ export const updateUser = async (userData) => {
     throw error.response ? error.response.data : { message: "Network error" };
   }
 };
+
+
+
 export const googleSignup = async (userData) => {
   const response = await fetch("http://localhost:5000/api/auth/google", {
     method: "POST",

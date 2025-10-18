@@ -12,7 +12,7 @@ const UpdateTab = () => {
     password: "",
     newPassword: "",
     confirmPassword: "",
-    image: null,
+    image: null, // store File object
   });
 
   const handleProfileChange = (e) => setProfile({ ...profile, [e.target.name]: e.target.value });
@@ -24,6 +24,7 @@ const UpdateTab = () => {
       return alert("Password confirmation mismatch!");
 
     try {
+      // Prepare payload
       const payload = {
         firstname: profile.firstname,
         lastname: profile.lastname,
@@ -33,8 +34,12 @@ const UpdateTab = () => {
         dob: profile.dob,
         password: profile.password || undefined,
         newPassword: profile.newPassword || undefined,
-        file: profile.image || null,
       };
+
+      // Append image if exists
+      if (profile.image) {
+        payload.image = profile.image; // ✅ matches backend multer field
+      }
 
       const data = await updateUser(payload);
       if (data.success) {
@@ -60,9 +65,15 @@ const UpdateTab = () => {
             <div className="flex items-center justify-center h-full text-gray-400 text-sm">No Image</div>
           )}
         </div>
-        <input type="file" accept="image/*" onChange={handleImageChange} className="text-sm text-gray-600 dark:text-gray-300" />
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleImageChange}
+          className="text-sm text-gray-600 dark:text-gray-300"
+        />
       </div>
 
+      {/* Text Fields */}
       <input type="text" name="firstname" placeholder="First Name" value={profile.firstname} onChange={handleProfileChange} className="block w-full p-2 border rounded dark:bg-gray-700 dark:text-white" />
       <input type="text" name="lastname" placeholder="Last Name" value={profile.lastname} onChange={handleProfileChange} className="block w-full p-2 border rounded dark:bg-gray-700 dark:text-white" />
       <input type="email" name="email" placeholder="Email" value={profile.email} onChange={handleProfileChange} className="block w-full p-2 border rounded dark:bg-gray-700 dark:text-white" />
@@ -75,6 +86,7 @@ const UpdateTab = () => {
       </select>
       <input type="date" name="dob" value={profile.dob} onChange={handleProfileChange} className="block w-full p-2 border rounded dark:bg-gray-700 dark:text-white" />
 
+      {/* Password */}
       <h3 className="font-medium dark:text-white mt-4">Change Password</h3>
       <input type="password" name="password" placeholder="Current Password" value={profile.password} onChange={handleProfileChange} className="block w-full p-2 border rounded dark:bg-gray-700 dark:text-white" />
       <input type="password" name="newPassword" placeholder="New Password" value={profile.newPassword} onChange={handleProfileChange} className="block w-full p-2 border rounded dark:bg-gray-700 dark:text-white" />

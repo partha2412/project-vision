@@ -1,7 +1,7 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-
+const { uploadImagesToCloudinary } = require('./imagecontroller');
 const { OAuth2Client } = require("google-auth-library");
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);  // ✅ define client here
 
@@ -190,27 +190,28 @@ exports.updateUser = async (req, res) => {
   try {
     const userId = req.user.id; // From middleware
     const user = await User.findById(userId).select('+password');
-    //console.log(user);
 
     if (!user) return res.status(404).json({ message: 'User not found' });
 
+    // Update text fields
     if (firstname !== undefined) user.firstname = firstname;
     if (lastname !== undefined) user.lastname = lastname;
     if (email !== undefined) user.email = email;
     if (phone !== undefined) user.phone = phone;
     if (gender !== undefined) user.gender = gender;
     if (dob !== undefined) user.dob = dob;
-    ;
-
 
     // Update password
     if (password && newPassword) {
       const match = await bcrypt.compare(password, user.password);
-      //console.log(match);
-
       if (!match) return res.status(400).json({ message: 'Current password is incorrect' });
+      user.password = newPassword; // Hashing handled by schema pre-save
+    }
 
-      user.password = newPassword;
+    // Update profile image
+    if (req.file) {
+      const imageUrls = await uploadImagesToCloudinary([req.file], 'users');
+      user.avatar = imageUrls[0]; // Save first uploaded image URL
     }
 
     await user.save();
@@ -218,7 +219,6 @@ exports.updateUser = async (req, res) => {
     res.status(200).json({
       success: true,
       message: 'User updated successfully',
-
       user: {
         role: user.role,
         id: user._id,
@@ -228,13 +228,15 @@ exports.updateUser = async (req, res) => {
         phone: user.phone,
         gender: user.gender,
         dob: user.dob,
+        avatar: user.avatar,
       },
     });
+
   } catch (error) {
+    console.error('Update user error:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
-
 
 
 // Delete User
