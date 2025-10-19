@@ -88,8 +88,16 @@ exports.addProduct = async (req, res) => {
 // Update Product by ID
 exports.updateProductById = async (req, res) => {
   try {
-    const { id } = req.params; // Get product ID from URL
-    const updateData = req.body;
+    const { id } = req.params;
+
+    // Copy all text fields from FormData
+    const updateData = { ...req.body };
+
+    // If there are new uploaded images, upload to Cloudinary
+    if (req.files && req.files.length > 0) {
+      const imageUrls = await uploadImagesToCloudinary(req.files, 'products');
+      updateData.images = imageUrls; // replace or append to existing images
+    }
 
     // Check if product exists
     const product = await Product.findById(id);
@@ -103,11 +111,6 @@ exports.updateProductById = async (req, res) => {
     }
     if (updateData.category && !["Man", "Woman", "Kids"].includes(updateData.category)) {
       return res.status(400).json({ success: false, message: "Invalid category value" });
-    }
-
-    // Ensure images is an array if provided
-    if (updateData.images && !Array.isArray(updateData.images)) {
-      return res.status(400).json({ success: false, message: "Images must be an array" });
     }
 
     // Update the product
@@ -130,7 +133,6 @@ exports.updateProductById = async (req, res) => {
     });
   }
 };
-
 
 
 // fetch products by ID

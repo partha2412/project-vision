@@ -54,8 +54,10 @@ export const addProduct = async (productData) => {
 };
 
 // Update product by ID
-export const updateProductByName = async (productId, updateData) => {
+export const updateProductById = async (productId, updateData) => {
   try {
+    //console.log(updateData);
+    
     const response = await api.put(`/product/update/${productId}`, updateData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
