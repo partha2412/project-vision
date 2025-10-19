@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { WishlistContext } from "../context/WishlistContext";
+
 export default function WishlistPage() {
-  
   const { wishlist, removeFromWishlist } = useContext(WishlistContext);
 
   return (
@@ -15,34 +15,47 @@ export default function WishlistPage() {
           Your wishlist is empty!
         </p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 max-w-[1400px] mx-auto">
+        <div className="flex flex-col gap-6">
           {wishlist.map((item, index) => {
-            const product = item.product || item; // ✅ handles both shapes
+            const product = item.product || item;
 
             return (
               <div
                 key={product._id || index}
-                className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col overflow-hidden"
+                className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 flex overflow-hidden w-full"
               >
+                {/* Product Image */}
                 <img
                   src={product.image || product.images?.[0]}
                   alt={product.title || product.name}
-                  className="h-52 w-full object-cover"
+                  className="h-48 w-48 object-cover"
                 />
-                <div className="p-4 flex flex-col flex-1">
+
+                {/* Product Info */}
+                <div className="p-4 flex flex-1 flex-col ml-10">
                   <h2 className="text-lg font-semibold text-gray-800 mb-2">
                     {product.title || product.name}
                   </h2>
                   <p className="text-gray-500 text-sm mb-4 line-clamp-3">
                     {product.description || "No description available."}
                   </p>
+
+                  {/* Price and Remove button horizontal */}
                   <div className="mt-auto flex items-center justify-between">
-                    <span className="text-lg font-bold text-gray-900">
-                      ₹{(product.discountPrice ?? 0).toLocaleString()}
-                    </span>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-lg font-bold text-gray-900">
+                        ₹{(product.discountPrice ?? product.price ?? 0).toLocaleString()}
+                      </span>
+                      {product.price && product.discountPrice && (
+                        <span className="text-sm font-bold text-gray-400 line-through">
+                          ₹{product.price.toLocaleString()}
+                        </span>
+                      )}
+                    </div>
+
                     <button
                       onClick={() => removeFromWishlist(product._id)}
-                      className="bg-red-500 hover:bg-red-600 text-white font-semibold px-3 py-1.5 rounded-full shadow-md transition-all duration-200"
+                      className="bg-gray-700 hover:bg-gray-500 text-white font-semibold px-3 py-1.5 rounded-full shadow-md transition-all duration-200"
                     >
                       Remove
                     </button>
