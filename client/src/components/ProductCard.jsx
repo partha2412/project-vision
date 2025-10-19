@@ -11,18 +11,23 @@ export default function ProductCard({ product }) {
 
   if (!product?._id) return null;
 
-  const inWishlist = wishlist.some((w) => w._id === product._id);
+  // Check if the product is in wishlist (safe)
+  const inWishlist = Array.isArray(wishlist) && wishlist.some(w => w?._id === product?._id);
 
-  // Compute inCart dynamically from cart items
-  const inCart = cart?.items?.some((i) => i.product?._id === product._id);
+  // Check if the product is in cart (safe)
+  const inCart = Array.isArray(cart?.items) && cart.items.some(i => i.product?._id === product?._id);
 
-  const toggleWish = (e) => {
+
+  // Toggle wishlist
+  const toggleWishlist = (e) => {
+   
     e.preventDefault();
     e.stopPropagation();
     if (inWishlist) removeFromWishlist(product._id);
     else addToWishlist(product);
   };
 
+  // Toggle cart
   const toggleCart = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -30,6 +35,7 @@ export default function ProductCard({ product }) {
     else addToCart(product._id, 1);
   };
 
+  // Render stars
   const renderStars = (rating = 0) =>
     Array.from({ length: 5 }, (_, i) => {
       if (i + 1 <= Math.floor(rating)) return <FaStar key={i} />;
@@ -40,12 +46,14 @@ export default function ProductCard({ product }) {
   return (
     <Link to={`/product/${product._id}`} className="block">
       <div className="relative bg-white rounded-xl shadow-md overflow-hidden transform transition-all duration-300 hover:-translate-y-2 hover:scale-105 hover:shadow-2xl">
+        {/* Product images */}
         <div className="relative w-full h-56 bg-gray-50">
           <Carousl_SingleProduct images={product.images || []} />
 
+          {/* Wishlist button */}
           <button
+            onClick={toggleWishlist}
             className="absolute top-4 right-12 bg-white/90 backdrop-blur-sm w-10 h-10 rounded-full flex justify-center items-center shadow-md hover:scale-110 transition"
-            onClick={toggleWish}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -63,9 +71,10 @@ export default function ProductCard({ product }) {
             </svg>
           </button>
 
+          {/* Cart button */}
           <button
-            className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm w-10 h-10 rounded-full flex justify-center items-center shadow-md hover:scale-110 transition"
             onClick={toggleCart}
+            className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm w-10 h-10 rounded-full flex justify-center items-center shadow-md hover:scale-110 transition"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -84,6 +93,7 @@ export default function ProductCard({ product }) {
           </button>
         </div>
 
+        {/* Product info */}
         <div className="p-4">
           <h3 className="text-lg font-semibold">{product.title}</h3>
           <p className="text-gray-600">{product.brand}</p>
@@ -92,8 +102,8 @@ export default function ProductCard({ product }) {
             <span className="ml-2 text-sm text-gray-500">{product.rating?.toFixed(1) || "0.0"}</span>
           </div>
           <p className="mt-1">
-            <span className="font-bold">₹{product.discountPrice}</span>{" "}
-            <span className="line-through text-sm text-gray-500">₹{product.price}</span>
+            <span className="font-bold">₹{product.discountPrice ?? 0}</span>{" "}
+            <span className="line-through text-sm text-gray-500">₹{product.price ?? 0}</span>
           </p>
         </div>
       </div>

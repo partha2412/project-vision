@@ -71,11 +71,30 @@ const NavBar = () => {
           {user ? (
             <div className="relative" ref={dropdownRef}>
               <div
-                className="w-10 h-10 rounded-full bg-gradient-to-r bg-gray-400 text-white flex items-center justify-center cursor-pointer font-bold shadow-lg transform hover:scale-105 transition-transform duration-300"
+                className="relative w-10 h-10 rounded-full overflow-hidden cursor-pointer shadow-md transform hover:scale-105 transition-transform duration-300"
                 onClick={() => setOpen(!open)}
               >
-                {getInitials()}
+                {user?.avatar && user.avatar !== "default-avatar.jpg" ? (
+                  <img
+                    src={
+                      user.avatar.startsWith("http")
+                        ? user.avatar
+                        : `http://localhost:5000/uploads/${user.avatar}`
+                    }
+                    alt="User Avatar"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "/default-avatar.jpg";
+                    }}
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gray-400 text-white flex items-center justify-center font-bold">
+                    {getInitials()}
+                  </div>
+                )}
               </div>
+
 
               {open && (
                 <div className="absolute right-0 mt-3 w-52 bg-white shadow-2xl rounded-2xl overflow-hidden z-50 animate-fadeIn">

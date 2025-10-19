@@ -1,6 +1,5 @@
 import React from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import { WishlistProvider } from './context/WishlistContext'  // ✅ import provider
 import Landing from './pages/Landing'
 import NavBar from './common/NavBar'
 import Checkout from './pages/Checkout'
@@ -18,7 +17,6 @@ import ProductDetail from "./pages/ProductDetails"
 import Men from "./pages/Men"
 import Women from "./pages/Women"
 import Kids from "./pages/Kids"
-import ReviewPage from './pages/ReviewPage'
 import AdminDashboard from './pages/AdminDashboard';
 
 
@@ -27,7 +25,7 @@ const App = () => {
   return (
     <div className='relative h-screen'>
       <BrowserRouter>
-        <WishlistProvider> {/* ✅ Wrap everything needing wishlist */}
+        <> {/* ✅ Wrap everything needing wishlist */}
           <NavBar />
           <Routes>
             <Route path='/' element={<Landing />} />
@@ -65,7 +63,7 @@ const App = () => {
             <Route path="/kids" element={<Kids />} />
             {/* <Route path="/review" element={<ReviewPage />} /> */}
           </Routes>
-        </WishlistProvider>
+        </>
       </BrowserRouter>
       <Footer />
     </div>

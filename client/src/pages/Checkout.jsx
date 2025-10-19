@@ -4,18 +4,23 @@ import { useLocation, useNavigate } from "react-router-dom";
 import jwt_decode from "jwt-decode";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import api from "../api/axios";
+import { clearCart } from "../api/cartApi";
+import { useContext } from "react";
+import { CartContext } from "../context/CartContext";
 
 const Checkout = () => {
   const { state } = useLocation();
   const { totalAmount = 0, items = [] } = state || {};
   const navigate = useNavigate();
-
+  const { fetchCart } = useContext(CartContext)
   const [paymentMethod, setPaymentMethod] = useState("Online Payment");
   const [loading, setLoading] = useState(false);
   const [userId, setUserId] = useState(null);
 
   // Decode userId from token on component mount
   useEffect(() => {
+    fetchCart();
     const token = localStorage.getItem("token");
     if (!token) {
       toast.error("You must be logged in to place an order");
@@ -79,7 +84,8 @@ const Checkout = () => {
 
       toast.success(`✅ ${response.data.message}\nTotal: ₹${totalAmount.toFixed(2)}`);
       // Wait 2 seconds before navigating
-      setTimeout(() => {
+      setTimeout(async () => {
+        await clearCart();  // Refresh cart in context
         navigate("/ordersuccess");
       }, 2000);
     } catch (error) {
