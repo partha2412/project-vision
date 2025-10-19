@@ -109,7 +109,8 @@ exports.login = async (req, res) => {
           firstname: admin.firstname,
           lastname: admin.lastname,
           email: admin.email,
-          role: admin.role
+          role: admin.role,
+          avatar: admin.avatar || "default-avatar.jpg"  // ✅ include avatar
         }
       });
 
@@ -146,7 +147,8 @@ exports.login = async (req, res) => {
         firstname: user.firstname,
         lastname: user.lastname,
         email: user.email,
-        role: user.role
+        role: user.role,
+        avatar: user.avatar || "default-avatar.jpg"  // ✅ include avatar
       }
     });
 
