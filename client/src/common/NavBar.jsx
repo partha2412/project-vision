@@ -166,7 +166,7 @@ const NavBar = () => {
             className="relative py-1 px-2 group"
             onClick={() => navigate("/cart")}
           >
-            <span className="relative z-10 text-[22px] md:text-[28px] text-gray-700 group-hover:text-gray-900 transition-colors duration-300">
+            <span className="relative z-10 text-[22px] md:text-[28px] text-gray-500 group-hover:text-blue-500 transition-colors duration-300">
               <IoCartOutline />
             </span>
             <span className="absolute left-0 bottom-0 h-[2px] w-0 bg-slate-500 transition-all duration-300 group-hover:w-full"></span>
