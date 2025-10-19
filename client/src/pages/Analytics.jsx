@@ -1,44 +1,39 @@
+import { useEffect, useState } from "react";
+import axios from "axios";
 import {
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-  Legend,
-  ResponsiveContainer,
+  LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
+  XAxis, YAxis, Tooltip, CartesianGrid, Legend, ResponsiveContainer,
 } from "recharts";
 
 const Analytics = () => {
   // Example Data
-  const salesData = [
-    { month: "Jan", revenue: 4000 },
-    { month: "Feb", revenue: 3200 },
-    { month: "Mar", revenue: 5000 },
-    { month: "Apr", revenue: 4200 },
-    { month: "May", revenue: 6100 },
-    { month: "Jun", revenue: 7200 },
-  ];
-
-  const revenueByCategory = [
-    { category: "Aviator", revenue: 5000 },
-    { category: "oval Glasses", revenue: 3000 },
-    { category: "Browline Glasses", revenue: 2000 },
-    { category: "Round Glasses", revenue: 1500 },
-  ];
-
-  const ordersData = [
-    { name: "Delivered", value: 60 },
-    { name: "Pending", value: 25 },
-    { name: "Cancelled", value: 15 },
-  ];
+  const [salesData, setSalesData] = useState([]);
+  const [revenueByCategory, setRevenueByCategory] = useState([]);
+  const [ordersData, setOrdersData] = useState([]);
 
   const COLORS = ["#22c55e", "#facc15", "#ef4444"];
+
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const config = { headers: { Authorization: `Bearer ${token}` } };
+
+        const [salesRes, revenueRes, ordersRes] = await Promise.all([
+          axios.get("http://localhost:5000/api/admin/analytics/sales", config),
+          axios.get("http://localhost:5000/api/admin/analytics/revenue-by-category", config),
+          axios.get("http://localhost:5000/api/admin/analytics/orders-status", config),
+        ]);
+
+        setSalesData(salesRes.data);
+        setRevenueByCategory(revenueRes.data);
+        setOrdersData(ordersRes.data);
+      } catch (err) {
+        console.error("Analytics fetch failed:", err);
+      }
+    };
+    fetchAnalytics();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
