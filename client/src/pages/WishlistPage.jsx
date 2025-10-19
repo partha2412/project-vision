@@ -38,7 +38,7 @@ export default function WishlistPage() {
                   </p>
                   <div className="mt-auto flex items-center justify-between">
                     <span className="text-lg font-bold text-gray-900">
-                      ₹{(product.price ?? 0).toLocaleString()}
+                      ₹{(product.discountPrice ?? 0).toLocaleString()}
                     </span>
                     <button
                       onClick={() => removeFromWishlist(product._id)}
