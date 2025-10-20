@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { addProduct, fetchProducts, hardDeleteProduct } from "../api/productApi";
+import { addProduct, fetchProducts, hardDeleteProduct, updateProductById } from "../api/productApi";
 import api from "../api/axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { FaEdit, FaTrash, FaSave, FaTimes } from "react-icons/fa";
 
 const Admin = () => {
   const initialFormState = {
@@ -26,8 +27,8 @@ const Admin = () => {
   const [editableValues, setEditableValues] = useState({});
   const [isAdding, setIsAdding] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
-
-
+  const [editable, setEditable] = useState(false);
+  const [expandedId, setExpandedId] = useState(null);
   // Load all products
   const loadProducts = async () => {
     try {
@@ -39,15 +40,15 @@ const Admin = () => {
         }))
       );
 
-      // ✅ Low stock warning (only once)
       const lowStockItems = data.products.filter(
         (p) => p.stock <= p.lowStockAlert
       );
       if (lowStockItems.length > 0) {
-        toast.warning(
-          ` ${lowStockItems.length} product(s) are low on stock!`,
-          { toastId: "low-stock-warning", position: "top-right", autoClose: 2000 } // prevents duplicates
-        );
+        toast.warning(`${lowStockItems.length} product(s) are low on stock!`, {
+          toastId: "low-stock-warning",
+          position: "top-right",
+          autoClose: 2000,
+        });
       }
     } catch (error) {
       console.error("Error loading products:", error);
@@ -55,18 +56,30 @@ const Admin = () => {
     }
   };
 
-
   useEffect(() => {
     loadProducts();
   }, []);
 
-  // Handle image upload
+  // Handle image upload (for new product)
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
     setForm({ ...form, images: files });
     const previews = files.map((file) => URL.createObjectURL(file));
     setImagePreviews(previews);
   };
+  // Function to check if any field has changed
+  const hasChanges = (product) => {
+    if (!editingId || !editableValues) return false;
+
+    // Compare each field
+    return Object.keys(editableValues).some((key) => {
+      if (key === "newImages") {
+        return editableValues.newImages?.length > 0; // new images added
+      }
+      return editableValues[key] !== product[key];
+    });
+  };
+
 
   // Add new product
   const handleAddProduct = async (e) => {
@@ -75,7 +88,6 @@ const Admin = () => {
 
     try {
       setIsAdding(true);
-
       const formData = new FormData();
       Object.keys(form).forEach((key) => {
         if (key === "images") {
@@ -98,8 +110,11 @@ const Admin = () => {
     }
   };
 
-  // Start editing a product
+  // Start editing
   const startEditing = (product) => {
+    // setEditable(!editable);
+    // console.log(editable);
+
     setEditingId(product._id);
     setEditableValues({
       title: product.title,
@@ -111,28 +126,44 @@ const Admin = () => {
       lowStockAlert: product.lowStockAlert,
       gstRate: product.gstRate,
       productType: product.productType,
+      description: product.description,
+      newImages: [],
     });
   };
 
-  // Confirm edit
+  // Save changes
   const saveChanges = async (id) => {
     try {
-      await api.put(`/product/update/${id}`, editableValues);
-      toast.success("Product updated successfully!");
+      const formData = new FormData();
+
+      Object.entries(editableValues).forEach(([key, value]) => {
+        if (key === "newImages" && value?.length) {
+          // Append multiple images
+          value.forEach((img) => formData.append("images", img));
+        } else if (value !== undefined && value !== null) {
+          // Convert numbers/booleans to string for FormData
+          formData.append(key, String(value));
+        }
+      });
+
+      // Call your API
+      await updateProductById(id, formData);
+
+      toast.success("✅ Product updated successfully!");
       setEditingId(null);
       await loadProducts();
     } catch (error) {
       console.error("Error updating product:", error);
-      toast.error("Failed to update product");
+      toast.error("❌ Failed to update product");
     }
   };
+
 
   // Delete product
   const handleDelete = async (id) => {
     try {
-      //await api.delete(`/product/delete/${id}`);
       await hardDeleteProduct(id);
-      toast.success("Product deleted successfully!");
+      toast.success("🗑️ Product deleted successfully!");
       setDeleteConfirmId(null);
       await loadProducts();
     } catch (error) {
@@ -141,8 +172,6 @@ const Admin = () => {
     }
   };
 
-
-  // Cancel edit
   const cancelEdit = () => {
     setEditingId(null);
     setEditableValues({});
@@ -150,12 +179,10 @@ const Admin = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
-      {/* Toast Container */}
-      <ToastContainer position="top-right" autoClose={3000}  />
-
+      <ToastContainer position="top-right" autoClose={3000} />
       <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
 
-      {/* Add Product Section */}
+      {/* ➕ Add Product Section */}
       <div className="bg-white p-6 rounded-xl shadow-md mb-8">
         <h2 className="text-xl font-semibold mb-4">Add Product</h2>
         <form
@@ -269,7 +296,7 @@ const Admin = () => {
             )}
           </div>
 
-          {/* Add Product Button */}
+          {/* Add Button */}
           <button
             type="submit"
             disabled={isAdding}
@@ -290,288 +317,230 @@ const Admin = () => {
         </form>
       </div>
 
-      {/* Product Table */}
-      <div className="bg-white p-6 rounded-xl shadow-md mb-8 overflow-x-auto">
-        <h2 className="text-xl font-semibold mb-4">Products & Stock</h2>
-        <table className="w-full">
-          <thead>
-            <tr className="bg-gray-200 text-left">
-              <th className="p-3">Image</th>
-              <th className="p-3">Title</th>
-              <th className="p-3">Brand</th>
-              <th className="p-3">Category</th>
-              <th className="p-3">Price / Discount</th>
-              <th className="p-3">Stock</th>
-              <th className="p-3">Low Stock Alert</th>
-              <th className="p-3">GST</th>
-              <th className="p-3">Type</th>
-              <th className="p-3">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {products.map((p) => (
-              <tr key={p._id} className="border-t">
-                {/* Image */}
-                <td className="p-3">
-                  <span className=" font-semibold text-gray-600 text-[14px]">
-                    ID <span className="text-gray-400">#{p._id.toString().slice(-6)} </span>
+      {/* 📦 Product Cards */}
+      <div>
+        <h2 className="text-xl font-semibold mb-4">Manage Products</h2>
+
+        {products.length === 0 ? (
+          <p className="text-gray-500">No products added yet.</p>
+        ) : (
+          products.map((p) => (
+            <details
+              key={p._id}
+              className="bg-white mb-4 rounded-xl shadow-md overflow-hidden"
+              onToggle={(e) => {
+                if (e.target.open) {
+                  // The details is now open
+                  // onsole.log("Details opened for product:", p._id);
+                  // Do something, e.g., make fields editable
+                  startEditing(p);
+                  setExpandedId(p._id);
+                } else {
+                  // The details is now closed
+                  // console.log("Details closed for product:", p._id);
+                  cancelEdit();
+                  setExpandedId(null);
+                }
+              }}
+            //open={expandedId === p._id} // optional: control programmatically
+
+            >
+              <summary className="flex justify-between items-center cursor-pointer bg-gray-50 px-4 py-3">
+                <div className="font-semibold text-gray-800">
+                  {p.title}{" "}
+                  <span className="text-gray-400 text-sm">
+                    #{p._id.toString().slice(-6)}
                   </span>
-                  {p.imagePreviews?.length > 0 ? (
-                    <img
-                      src={p.imagePreviews[0]}
-                      alt={p.title}
-                      className="w-16 h-16 object-cover rounded"
-                    />
-                  ) : (
-                    <span className="text-gray-400">No Image</span>
-                  )}
-                </td>
 
-                {/* Title */}
-                <td className="p-3">
-                  {editingId === p._id ? (
-                    <input
-                      value={editableValues.title}
-                      onChange={(e) =>
-                        setEditableValues({
-                          ...editableValues,
-                          title: e.target.value,
-                        })
-                      }
-                      className="border p-1 rounded w-full"
-                    />
-                  ) : (
-                    p.title
-                  )}
-                </td>
 
-                {/* Brand */}
-                <td className="p-3">
-                  {editingId === p._id ? (
-                    <input
-                      value={editableValues.brand}
-                      onChange={(e) =>
-                        setEditableValues({
-                          ...editableValues,
-                          brand: e.target.value,
-                        })
-                      }
-                      className="border p-1 rounded w-full"
-                    />
-                  ) : (
-                    p.brand
-                  )}
-                </td>
-
-                {/* Category */}
-                <td className="p-3">
-                  {editingId === p._id ? (
-                    <select
-                      value={editableValues.category}
-                      onChange={(e) =>
-                        setEditableValues({
-                          ...editableValues,
-                          category: e.target.value,
-                        })
-                      }
-                      className="border p-1 rounded w-full"
-                    >
-                      <option value="Man">Man</option>
-                      <option value="Woman">Woman</option>
-                      <option value="Kids">Kids</option>
-                    </select>
-                  ) : (
-                    p.category
-                  )}
-                </td>
-
-                {/* Price / Discount */}
-                <td className="p-3">
-                  {editingId === p._id ? (
-                    <div className="flex flex-col gap-1">
-                      <input
-                        type="number"
-                        value={editableValues.price}
-                        onChange={(e) =>
-                          setEditableValues({
-                            ...editableValues,
-                            price: e.target.value,
-                          })
-                        }
-                        className="border p-1 rounded"
-                      />
-                      <input
-                        type="number"
-                        placeholder="Discount"
-                        value={editableValues.discountPrice}
-                        onChange={(e) =>
-                          setEditableValues({
-                            ...editableValues,
-                            discountPrice: e.target.value,
-                          })
-                        }
-                        className="border p-1 rounded"
-                      />
-                    </div>
-                  ) : (
-                    <>
-                      ₹{p.price}{" "}
-                      {p.discountPrice > 0 && (
-                        <span className="line-through text-gray-400 text-sm ml-1">
-                          ₹{p.discountPrice}
-                        </span>
-                      )}
-                    </>
-                  )}
-                </td>
-
-                {/* Stock */}
-                <td className="p-3">
-                  {editingId === p._id ? (
-                    <input
-                      type="number"
-                      placeholder="Stock"
-                      value={editableValues.stock}
-                      onChange={(e) =>
-                        setEditableValues({
-                          ...editableValues,
-                          stock: e.target.value,
-                        })
-                      }
-                      className="border p-1 rounded w-full"
-                    />
-                  ) : (
-                    <span
-                      className={`font-semibold ${p.stock <= p.lowStockAlert
-                        ? "text-red-500"
-                        : "text-green-600"
-                        }`}
-                    >
-                      {p.stock}
-                    </span>
-                  )}
-                </td>
-
-                {/* Low Stock Alert */}
-                <td className="relative pl-8">
-                  {editingId === p._id ? (
-                    <input
-                      type="number"
-                      placeholder="Low Stock Alert"
-                      value={editableValues.lowStockAlert}
-                      onChange={(e) =>
-                        setEditableValues({
-                          ...editableValues,
-                          lowStockAlert: e.target.value,
-                        })
-                      }
-                      className="absolute border top-13 right-0 p-1 rounded w-full"
-                    />
-                  ) : (
-                    <span className="text-gray-600">
-                      {p.lowStockAlert || "—"}
-                    </span>
-                  )}
-                </td>
-
-                {/* GST */}
-                <td className="p-3">
-                  {editingId === p._id ? (
-                    <input
-                      type="number"
-                      placeholder="GST %"
-                      value={editableValues.gstRate}
-                      onChange={(e) =>
-                        setEditableValues({
-                          ...editableValues,
-                          gstRate: e.target.value,
-                        })
-                      }
-                      className="border p-1 rounded w-20"
-                    />
-                  ) : (
-                    `${p.gstRate || 0}%`
-                  )}
-                </td>
-
-                {/* Type */}
-                <td className="p-3">
-                  {editingId === p._id ? (
-                    <input
-                      placeholder="Type"
-                      value={editableValues.productType}
-                      onChange={(e) =>
-                        setEditableValues({
-                          ...editableValues,
-                          productType: e.target.value,
-                        })
-                      }
-                      className="border p-1 rounded w-full"
-                    />
-                  ) : (
-                    p.productType
-                  )}
-                </td>
-
-                {/* Actions */}
-                <td className="p-3 flex flex-col gap-2">
-                  {editingId === p._id ? (
-                    <>
-                      <button
-                        onClick={() => saveChanges(p._id)}
-                        className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded"
-                      >
-                        Confirm
-                      </button>
-                      <button
-                        onClick={cancelEdit}
-                        className="bg-gray-400 hover:bg-gray-500 text-white px-3 py-1 rounded"
-                      >
-                        Cancel
-                      </button>
-                    </>
-                  ) : (
-                    <div className="flex flex-col gap-2">
-                      <button
-                        onClick={() => startEditing(p)}
-                        className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
-                      >
-                        Edit
-                      </button>
-                      {deleteConfirmId === p._id ? (
-                        <div className="flex flex-col gap-2">
-                          <button
-                            onClick={() => handleDelete(p._id)}
-                            className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
-                          >
-                            Confirm Delete
-                          </button>
-                          <button
-                            onClick={() => setDeleteConfirmId(null)}
-                            className="bg-gray-400 hover:bg-gray-500 text-white px-3 py-1 rounded"
-                          >
-                            Cancel
-                          </button>
-                        </div>
+                  {/* Image section */}
+                  <div className="md:col-span-2 lg:col-span-3">
+                    {/* <p className="text-sm font-medium text-gray-700 mb-2">
+                    Images
+                  </p> */}
+                    <div className="flex flex-wrap gap-2">
+                      {p.images?.length > 0 ? (
+                        p.images.map((img, idx) => (
+                          <img
+                            key={idx}
+                            src={img}
+                            alt="product"
+                            className="w-16 h-16 object-cover rounded"
+                          />
+                        ))
                       ) : (
-                        <button
-                          onClick={() => setDeleteConfirmId(p._id)}
-                          className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
-                        >
-                          Delete
-                        </button>
+                        <p className="text-gray-400 text-sm">No images</p>
                       )}
-
                     </div>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                    {editingId === p._id && (
+                      <input
+                        type="file"
+                        multiple
+                        accept="image/*"
+                        onChange={(e) =>
+                          setEditableValues({
+                            ...editableValues,
+                            newImages: Array.from(e.target.files),
+                          })
+                        }
+                        className="mt-2 text-sm"
+                      />
+                    )}
+                  </div>
 
-        {products.length === 0 && (
-          <p className="text-gray-500 mt-3">No products added yet.</p>
+
+                </div>
+                <div className="relative flex items-center gap-3">
+                  {/* Actions */}
+                  <div className="md:col-span-2 lg:col-span-3 flex flex-wrap gap-3 mt-3">
+                    {editingId === p._id ? (
+                      <>
+                        {editingId === p._id && hasChanges(p) && (
+                          <button
+                            onClick={() => saveChanges(p._id)}
+                            className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
+                          >
+                            <FaSave /> Save
+                          </button>
+                        )}
+
+                        {/* <button
+                          onClick={cancelEdit}
+                          className="flex items-center gap-2 bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded"
+                        >
+                          <FaTimes /> Cancel
+                        </button> */}
+                      </>
+                    ) : (
+                      <div className=" absolute flex right-40 top-0 items-center gap-3">
+                        {/* <button
+                          onClick={() => startEditing(p)}
+                          className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+                        >
+                          <FaEdit /> Edit
+                        </button> */}
+                        {deleteConfirmId === p._id ? (
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleDelete(p._id)}
+                              className="flex items-center h-8 gap-2 bg-red-600 hover:bg-red-700 duration-300 text-white px-4 py-2 rounded"
+                            >
+                              <FaTrash /> Confirm
+                            </button>
+                            <button
+                              onClick={() => setDeleteConfirmId(null)}
+                              className="flex items-center h-8 gap-2 bg-gray-400 hover:bg-gray-500 duration-300 text-white px-4 py-2 rounded"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => setDeleteConfirmId(p._id)}
+                            className="flex items-center gap-2 bg-red-500 hover:bg-red-600 duration-300 text-white px-4 py-2 rounded"
+                          >
+                            <FaTrash /> 
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <span
+                    className={`font-semibold ${p.stock <= p.lowStockAlert
+                      ? "text-red-500"
+                      : "text-green-600"
+                      }`}
+                  >
+                    Stock: {p.stock}
+                  </span>
+                </div>
+              </summary>
+              <div className="">
+
+
+                <div className="p-4 w-full grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {/* Editable fields */}
+                  {[
+                    { key: "title", label: "Product Title" },
+                    { key: "brand", label: "Brand" },
+                    { key: "category", label: "Category" },
+                    { key: "price", label: "Price (₹)" },
+                    { key: "discountPrice", label: "Discount Price (₹)" },
+                    { key: "stock", label: "Stock Quantity" },
+                    { key: "lowStockAlert", label: "Low Stock Alert" },
+                    { key: "gstRate", label: "GST Rate (%)" },
+                    { key: "productType", label: "Product Type" },
+                  ].map(({ key, label }) => (
+                    <div key={key} className="flex flex-col">
+                      <label
+                        htmlFor={key}
+                        className="text-gray-500 text-[15px] mb-1"
+                      >
+                        {label}
+                      </label>
+                      <input
+                        id={key}
+                        type={
+                          ["price", "discountPrice", "stock", "lowStockAlert", "gstRate"].includes(
+                            key
+                          )
+                            ? "number"
+                            : "text"
+                        }
+                        placeholder={label}
+                        value={
+                          editingId === p._id
+                            ? editableValues[key]
+                            : p[key] || ""
+                        }
+                        onChange={(e) =>
+                          setEditableValues({
+                            ...editableValues,
+                            [key]: e.target.value,
+                          })
+                        }
+                        disabled={editingId !== p._id}
+                        className={`border p-2 rounded ${editingId === p._id
+                          ? "bg-white"
+                          : "bg-gray-100 text-gray-500"
+                          }`}
+                      />
+                    </div>
+                  ))}
+
+
+                  {/* Description */}
+                  <div className="flex flex-col md:col-span-2 lg:col-span-3">
+                    <span className="text-gray-500 text-[15px]">Description</span>
+                    <textarea
+                      placeholder="Description"
+                      rows="2"
+                      value={
+                        editingId === p._id
+                          ? editableValues.description
+                          : p.description || ""
+                      }
+                      onChange={(e) =>
+                        setEditableValues({
+                          ...editableValues,
+                          description: e.target.value,
+                        })
+                      }
+                      disabled={editingId !== p._id}
+                      className={`border p-2 w-full rounded md:col-span-2 lg:col-span-3 ${editingId === p._id
+                        ? "bg-white"
+                        : "bg-gray-100 text-gray-500"
+                        }`}
+                    />
+
+                  </div>
+
+
+                </div>
+              </div>
+
+            </details>
+          ))
         )}
       </div>
     </div>

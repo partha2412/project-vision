@@ -15,9 +15,15 @@ router.post(
   productController.uploadMiddleware, // multer middleware
   productController.addProduct
 );
+
+
 // Update product by name
-// Update product by name
-router.put('/update/:id', productController.updateProductById);
+router.put(
+  '/update/:id',
+  productController.uploadMiddleware, // multer middleware
+  productController.updateProductById
+);
+
 
 // Get all products
 router.get('/', async (req, res) => {

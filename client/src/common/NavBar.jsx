@@ -101,25 +101,30 @@ const NavBar = () => {
                   <div className="absolute top-[-8px] right-4 w-3 h-3 bg-white transform rotate-45 shadow-lg"></div>
 
                   <div className="flex flex-col text-gray-700 text-sm">
+                    <div className='flex flex-col'>
                     {isAdmin() ? (
                       <button
-                        className="flex items-center gap-2 px-5 py-3 hover:bg-gradient-to-r hover:from-blue-100 hover:to-purple-100 transition-colors duration-200"
+                        className="flex flex-col items-start w-full gap-2 px-5 pt-3 hover:bg-gradient-to-r hover:from-blue-100 hover:to-purple-100 transition-colors duration-200"
                         onClick={() => { navigate("/admindashboard"); setOpen(false); }}
                       >
-                        🛠 Admin Dashboard
+                        <span>🛠 Admin Dashboard</span>
+                        
+                        <span className='text-[14px] text-gray-400 pb-3'>{user.email}</span>
                       </button>
                     ) : (
                       <button
-                        className="flex items-center gap-2 px-5 py-3 hover:bg-gradient-to-r hover:from-blue-100 hover:to-purple-100 transition-colors duration-200"
+                        className="flex flex-col items-start w-full gap-2 px-5 py-3 hover:bg-gradient-to-r hover:from-blue-100 hover:to-purple-100 transition-colors duration-200"
                         onClick={() => { navigate("/userdashboard"); setOpen(false); }}
                       >
                         📊 Dashboard
+                        <span className='text-[14px] text-gray-400 pb-3'>{user.email}</span>
                       </button>
                     )}
-
+                    
+                    </div>
                     <button
                       className="flex items-center gap-2 px-5 py-3 hover:bg-gradient-to-r hover:from-blue-100 hover:to-purple-100 transition-colors duration-200"
-                      onClick={() => { navigate("/orders"); setOpen(false); }}
+                      onClick={() => { navigate("/userdashboard"); setOpen(false); }}
                     >
                       📦 Orders
                     </button>
