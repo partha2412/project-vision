@@ -87,3 +87,17 @@ export const hardDeleteProduct = async (productId) => {
     throw error.response ? error.response.data : { message: "Network error" };
   }
 };
+
+// ✅ Fetch products by category
+export const fetchProductsByCategory = async (category) => {
+  try {
+    const endpoint =
+      category.toLowerCase() === "all"
+        ? "/product/all"
+        : `/product/category/${category}`;
+    const response = await api.get(endpoint);
+    return response.data; // backend returns { products: [...] }
+  } catch (error) {
+    throw error.response ? error.response.data : { message: "Network error" };
+  }
+};

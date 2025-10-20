@@ -12,10 +12,10 @@ const cartRoutes = require('./routes/cart');
 const notificationRoutes = require("./routes/notification");
 const wishlistRoutes = require('./routes/wishlist');
 const analytics = require("./routes/analytics");
-
+const front_url = process.env.REACT_APP_API_BASE_URL
 app.use(cors({
   origin: (origin, callback) => {
-    const allowedOrigins = ['https://sastakart.vercel.app', 'http://localhost:5173', 'http://localhost:3000'];
+    const allowedOrigins = ['https://sastakart.vercel.app', 'http://localhost:5173', front_url, 'http://localhost:3000'];
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
