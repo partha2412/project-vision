@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "A E-commerce Website",
   "main": "index.js",
-  "type": "module",
+  
   "engines": {
     "node": "22.x"
   },
