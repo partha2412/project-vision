@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { register,login,logout,updateUser,deleteUser,googleSignup } = require('../controllers/authcontrollers');
-const { isAuthenticated } = require('../middleware/auth');
+const { register,login,logout,updateUser,deleteUser,googleSignup } = require('../controllers/authcontrollers.js');
+const { isAuthenticated } = require('../middleware/auth.js');
 const multer = require('multer');
 // ✅ Multer setup for single image
 const storage = multer.memoryStorage();

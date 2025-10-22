@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const cartController = require('../controllers/cartcontroller');
-const { protect } = require('../middleware/authmiddleware');
+const cartController = require('../controllers/cartcontroller.js');
+const { protect } = require('../middleware/authmiddleware.js');
 
 // All routes are protected
 router.use(protect);
