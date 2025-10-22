@@ -4,8 +4,8 @@ const {
   getWishlist,
   addToWishlist,
   removeFromWishlist,
-} = require("../controllers/wishlistController"); // ✅ Make sure the filename matches exactly
-const { isAuthenticated } = require("../middleware/auth");
+} = require("../controllers/wishlistController.js"); // ✅ Make sure the filename matches exactly
+const { isAuthenticated } = require("../middleware/auth.js");
 
 // ✅ Get the user's wishlist
 router.get("/", isAuthenticated, getWishlist);

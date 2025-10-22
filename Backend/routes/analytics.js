@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { getSalesOverview, getRevenueByCategory, getOrdersDistribution } = require("../controllers/analyticsController");
+const { getSalesOverview, getRevenueByCategory, getOrdersDistribution } = require("../controllers/analyticsController.js");
 
 router.get("/sales", getSalesOverview);
 router.get("/revenue-by-category", getRevenueByCategory);

@@ -5,17 +5,17 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const app = express();
-const authRoutes = require('./routes/auth');
-const orderRoutes = require('./routes/order');
-const authProduct = require('./routes/product');
-const cartRoutes = require('./routes/cart');
-const notificationRoutes = require("./routes/notification");
-const wishlistRoutes = require('./routes/wishlist');
-const analytics = require("./routes/analytics");
-
+const authRoutes = require('./routes/auth.js');
+const orderRoutes = require('./routes/order.js');
+const authProduct = require('./routes/product.js');
+const cartRoutes = require('./routes/cart.js');
+const notificationRoutes = require("./routes/notification.js");
+const wishlistRoutes = require('./routes/wishlist.js');
+const analytics = require("./routes/analytics.js");
+const front_url = process.env.REACT_APP_API_BASE_URL
 app.use(cors({
   origin: (origin, callback) => {
-    const allowedOrigins = ['https://sastakart.vercel.app', 'http://localhost:5173', 'http://localhost:3000'];
+    const allowedOrigins = ['https://project-vision-kjv1.vercel.app', 'http://localhost:5173', front_url, 'http://localhost:3000'];
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {

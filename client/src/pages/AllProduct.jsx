@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback } from "react";
 import LeftOptions from "../components/LeftOptions";
 import ProductCard from "../components/ProductCard";
-import { fetchSortedProducts } from "../api/productApi";
 import { FiSearch } from "react-icons/fi";
 import axios from "axios";
+import { fetchProductsByCategory, fetchSortedProducts } from "../api/productApi";
 
 export default function AllProducts() {
-  const [showOptions, setShowOptions] = useState(true);
+  const [showOptions, setShowOptions] = useState(false);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -18,15 +18,12 @@ export default function AllProducts() {
   const productsPerPage = 9;
 
   // Fetch products by category from backend
-  const fetchProductsByCategory = useCallback(async (cat) => {
+  // Fetch products by category
+  const fetchProducts = useCallback(async (cat) => {
     try {
       setLoading(true);
-      const url =
-        cat.toLowerCase() === "all"
-          ? "http://localhost:5000/api/product/all"
-          : `http://localhost:5000/api/product/category/${cat}`;
-      const res = await axios.get(url);
-      setProducts(res.data.products || []);
+      const data = await fetchProductsByCategory(cat);
+      setProducts(data.products || []);
       setCurrentPage(1);
       setError(null);
     } catch (err) {
@@ -37,10 +34,11 @@ export default function AllProducts() {
     }
   }, []);
 
-  // Initial load
+
   useEffect(() => {
-    fetchProductsByCategory(category);
-  }, [category, fetchProductsByCategory]);
+    fetchProducts(category);
+  }, [category, fetchProducts]);
+
 
   // Handle sort change
   useEffect(() => {
@@ -83,9 +81,8 @@ export default function AllProducts() {
     <div className="flex min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-white">
       {/* Sidebar */}
       <div
-        className={`transition-all duration-300 ease-in-out bg-white shadow-xl border-r border-gray-200 ${
-          showOptions ? "w-72" : "w-0"
-        } overflow-hidden`}
+        className={`transition-all duration-300 ease-in-out bg-white shadow-xl border-r border-gray-200 ${showOptions ? "w-72" : "w-0"
+          } overflow-hidden`}
       >
         <LeftOptions
           selectedOption={selectedSort}
@@ -104,19 +101,16 @@ export default function AllProducts() {
           >
             <div className="space-y-1.5">
               <span
-                className={`block h-0.5 w-6 rounded-full bg-gray-800 transform transition duration-300 ${
-                  showOptions ? "rotate-45 translate-y-2" : ""
-                }`}
+                className={`block h-0.5 w-6 rounded-full bg-gray-800 transform transition duration-300 ${showOptions ? "rotate-45 translate-y-2" : ""
+                  }`}
               ></span>
               <span
-                className={`block h-0.5 w-6 rounded-full bg-gray-800 transition-opacity duration-300 ${
-                  showOptions ? "opacity-0" : "opacity-100"
-                }`}
+                className={`block h-0.5 w-6 rounded-full bg-gray-800 transition-opacity duration-300 ${showOptions ? "opacity-0" : "opacity-100"
+                  }`}
               ></span>
               <span
-                className={`block h-0.5 w-6 rounded-full bg-gray-800 transform transition duration-300 ${
-                  showOptions ? "-rotate-45 -translate-y-2" : ""
-                }`}
+                className={`block h-0.5 w-6 rounded-full bg-gray-800 transform transition duration-300 ${showOptions ? "-rotate-45 -translate-y-2" : ""
+                  }`}
               ></span>
             </div>
           </button>
@@ -138,22 +132,21 @@ export default function AllProducts() {
 
         {/* Category Buttons */}
         <div className="flex justify-center gap-4 mb-6">
-         {["All", "Man", "Woman", "Kids"].map((cat) => (
-  <button
-    key={cat}
-    onClick={() => {
-      setCategory(cat);               // Update the state
-      fetchProductsByCategory(cat);   // Fetch products immediately
-    }}
-    className={`px-4 py-2 rounded-lg font-medium transition ${
-      category === cat
-        ? "bg-gray-800 text-white"
-        : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-    }`}
-  >
-    {cat}
-  </button>
-))}
+          {["All", "Man", "Woman", "Kids"].map((cat) => (
+            <button
+              key={cat}
+              onClick={() => {
+                setCategory(cat);               // Update the state
+                fetchProductsByCategory(cat);   // Fetch products immediately
+              }}
+              className={`px-4 py-2 rounded-lg font-medium transition ${category === cat
+                ? "bg-gray-800 text-white"
+                : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                }`}
+            >
+              {cat}
+            </button>
+          ))}
 
         </div>
 
@@ -192,11 +185,10 @@ export default function AllProducts() {
                   <button
                     key={i + 1}
                     onClick={() => goToPage(i + 1)}
-                    className={`px-4 py-2 border border-gray-300 rounded-md ${
-                      currentPage === i + 1
-                        ? "bg-gray-800 text-white"
-                        : "hover:bg-gray-200"
-                    }`}
+                    className={`px-4 py-2 border border-gray-300 rounded-md ${currentPage === i + 1
+                      ? "bg-gray-800 text-white"
+                      : "hover:bg-gray-200"
+                      }`}
                   >
                     {i + 1}
                   </button>
