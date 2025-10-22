@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const orderController = require('../controllers/ordercontroller');
-const { protect, adminOnly } = require('../middleware/authmiddleware');
+const orderController = require('../controllers/ordercontroller.js');
+const { protect, adminOnly } = require('../middleware/authmiddleware.js');
 
 // example: /api/order/
 router.get('/', protect, adminOnly, orderController.getAllOrders);

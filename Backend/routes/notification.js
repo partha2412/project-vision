@@ -5,8 +5,8 @@ const {
   createNotification,
   deleteNotification,
   markAsRead,
-} = require("../controllers/notificationcontrollers");
-const { protect, adminOnly } = require("../middleware/authmiddleware");
+} = require("../controllers/notificationcontrollers.js");
+const { protect, adminOnly } = require("../middleware/authmiddleware.js");
 
 // Get all notifications (for admins)
 router.get("/", getNotifications);
