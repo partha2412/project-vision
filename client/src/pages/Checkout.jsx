@@ -82,7 +82,7 @@ const Checkout = () => {
         config
       );
 
-      toast.success(`✅ ${response.data.message}\nTotal: ₹${totalAmount.toFixed(2)}`);
+      toast.success(` ${response.data.message} \nTotal: ₹${totalAmount.toFixed(2)}`);
       // Wait 2 seconds before navigating
       setTimeout(async () => {
         await clearCart();  // Refresh cart in context
