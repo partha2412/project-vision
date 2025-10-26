@@ -15,7 +15,8 @@ const analytics = require("./routes/analytics.js");
 const front_url = process.env.REACT_APP_API_BASE_URL
 app.use(cors({
   origin: (origin, callback) => {
-    const allowedOrigins = ['*'];
+    const allowedOrigins = ['https://project-vision-kjv1.vercel.app', 'http://localhost:5173', front_url, 'http://localhost:3000'];
+;
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
