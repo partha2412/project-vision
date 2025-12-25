@@ -165,7 +165,7 @@ const Checkout = () => {
                     alt={item.product?.title || item.name}
                     className="w-16 h-16 object-cover rounded mr-2"
                   />
-                  <span className="flex-1">{item.product?.title || item.name} × {item.quantity}</span>
+                    <span className="flex-1">{item.product?.title || item.name} <span> {item.quantity==1?(""):(<span>x {item.quantity}</span>)  } </span> </span>
                   <span>₹{((item.product?.price || item.price) * item.quantity).toFixed(2)}</span>
                 </div>
               ))}

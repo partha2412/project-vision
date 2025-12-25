@@ -1,15 +1,65 @@
 import React, { useContext } from "react";
 import { WishlistContext } from "../context/WishlistContext";
+import { useNavigate } from "react-router-dom";
 
 export default function WishlistPage() {
   const { wishlist, removeFromWishlist } = useContext(WishlistContext);
+  const navigate = useNavigate();
+  const handleCheckoutAll = () => {
+    //    console.log(wishlist);
+
+    const totalAmount = wishlist.reduce(
+      (acc, item) => acc + item.discountPrice,
+      0
+    );
+
+    const checkoutItems = wishlist.map((item) => ({
+      productId: item._id,
+      name: item.title,
+      price: item.discountPrice,
+      quantity: 1,
+      image: item.image || item.images?.[0] || "",
+    }));
+    //  console.log(checkoutItems);
+    navigate("/checkout", {
+      state: {
+        totalAmount,
+        items: checkoutItems,
+      },
+    });
+  };
+  const handleCheckout = (item) => {
+    //console.log(item);
+    navigate("/checkout", {
+      state: {
+        totalAmount: item.discountPrice,
+        items: [
+          {
+
+            image: item.images?.[0] || item.image || "",
+            name: item.title,
+            price: item.discountPrice,
+            quantity: 1,
+            productId: item._id
+
+          }
+        ],
+      }
+    })
+  }
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
+
       <h1 className="text-3xl font-bold mb-8 text-center text-gray-800">
         My Wishlist
       </h1>
-
+      <div className="w-ful flex items-end justify-end mb-5 ">
+        <button className="bg-gray-700 hover:bg-gray-500 text-white font-semibold px-3 py-1.5 rounded-full shadow-md transition-all duration-200"
+          onClick={handleCheckoutAll} >
+          Order All
+        </button>
+      </div>
       {wishlist.length === 0 ? (
         <p className="text-center text-gray-500 text-lg">
           Your wishlist is empty!
@@ -52,13 +102,36 @@ export default function WishlistPage() {
                         </span>
                       )}
                     </div>
-
-                    <button
-                      onClick={() => removeFromWishlist(product._id)}
-                      className="bg-gray-700 hover:bg-gray-500 text-white font-semibold px-3 py-1.5 rounded-full shadow-md transition-all duration-200"
-                    >
-                      Remove
-                    </button>
+                    <div className="relative flex flex-col items-center justify-center h-full ">
+                      <div className="absolute bottom-0 right-0 flex flex-col gap-3">
+                        <div className="flex gap-[1px]">
+                          <button
+                            onClick={(e) => handleCheckout(product)}
+                            className="bg-gray-700 flex items-center justify-center hover:bg-gray-500 w-[50%] text-white font-semibold px-3 py-1.5 rounded-l-full shadow-md transition-all duration-200"
+                          >
+                            -
+                          </button>
+                          <button
+                            onClick={(e) => handleCheckout(product)}
+                            className="bg-gray-700 flex items-center justify-center hover:bg-gray-500 w-[50%] text-white font-semibold px-3 py-1.5 rounded-r-full shadow-md transition-all duration-200"
+                          >
+                            +
+                          </button>
+                        </div>
+                        <button
+                          onClick={(e) => handleCheckout(product)}
+                          className="bg-gray-700 hover:bg-gray-500 text-white font-semibold px-3 py-1.5 rounded-full shadow-md transition-all duration-200"
+                        >
+                          Order
+                        </button>
+                        <button
+                          onClick={() => removeFromWishlist(product._id)}
+                          className="bg-gray-700 hover:bg-gray-500 text-white font-semibold px-3 py-1.5 rounded-full shadow-md transition-all duration-200"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
