@@ -55,7 +55,11 @@ export default function WishlistPage() {
         My Wishlist
       </h1>
       <div className="w-ful flex items-end justify-end mb-5 ">
-        <button className="bg-gray-700 hover:bg-gray-500 text-white font-semibold px-3 py-1.5 rounded-full shadow-md transition-all duration-200"
+        <button className="bg-red-300 hover:bg-red-500 text-red-800 hover:text-gray-100 font-semibold w-25 h-11 mr-3 rounded-full shadow-md transition-all cursor-pointer duration-300"
+          onClick={handleCheckoutAll} >
+          Clear All
+        </button>
+        <button className="bg-gray-300 hover:bg-gray-500 text-gray-800 hover:text-gray-100 font-semibold w-25 h-11 mr-3 rounded-full shadow-md transition-all cursor-pointer duration-300"
           onClick={handleCheckoutAll} >
           Order All
         </button>
