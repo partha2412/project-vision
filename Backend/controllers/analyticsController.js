@@ -1,5 +1,5 @@
-const Order = require("../models/Order");
-const Product = require("../models/Product");
+const Order = require("../models/Order.js");
+const Product = require("../models/Product.js");
 
 // 1️⃣ Sales Overview (monthly revenue)
 exports.getSalesOverview = async (req, res) => {

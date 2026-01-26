@@ -1,7 +1,7 @@
-const User = require('../models/User');
+const User = require('../models/User.js');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const { uploadImagesToCloudinary } = require('./imagecontroller');
+const { uploadImagesToCloudinary } = require('./imagecontroller.js');
 const { OAuth2Client } = require("google-auth-library");
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);  // ✅ define client here
 

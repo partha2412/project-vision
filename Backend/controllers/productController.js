@@ -1,7 +1,7 @@
 const multer = require('multer');
-const Product = require('../models/Product');
-const Notification = require("../models/Notification");
-const { uploadImagesToCloudinary } = require('./imagecontroller');
+const Product = require('../models/Product.js');
+const Notification = require("../models/Notification.js");
+const { uploadImagesToCloudinary } = require('./imagecontroller.js');
 const mongoose = require("mongoose");
 
 // ✅ Multer setup
