@@ -4,7 +4,7 @@ const {
   getWishlist,
   addToWishlist,
   removeFromWishlist,
-} = require("../controllers/wishlistController.js"); // ✅ Make sure the filename matches exactly
+} = require("../controllers/wishlistcontroller.js"); // ✅ Make sure the filename matches exactly
 const { isAuthenticated } = require("../middleware/auth.js");
 
 // ✅ Get the user's wishlist
