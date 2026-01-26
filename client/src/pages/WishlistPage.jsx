@@ -3,8 +3,14 @@ import { WishlistContext } from "../context/WishlistContext";
 import { useNavigate } from "react-router-dom";
 
 export default function WishlistPage() {
-  const { wishlist, removeFromWishlist } = useContext(WishlistContext);
+  const { wishlist, removeFromWishlist, fetchWishlist } = useContext(WishlistContext);
   const navigate = useNavigate();
+  
+  const handleClearAll = (productId) => {
+    console.log(fetchWishlist());
+    removeFromWishlist(productId);
+  };
+
   const handleCheckoutAll = () => {
     //    console.log(wishlist);
 
@@ -56,7 +62,7 @@ export default function WishlistPage() {
       </h1>
       <div className="w-ful flex items-end justify-end mb-5 ">
         <button className="bg-red-300 hover:bg-red-500 text-red-800 hover:text-gray-100 font-semibold w-25 h-11 mr-3 rounded-full shadow-md transition-all cursor-pointer duration-300"
-          onClick={handleCheckoutAll} >
+          onClick={handleClearAll} >
           Clear All
         </button>
         <button className="bg-gray-300 hover:bg-gray-500 text-gray-800 hover:text-gray-100 font-semibold w-25 h-11 mr-3 rounded-full shadow-md transition-all cursor-pointer duration-300"

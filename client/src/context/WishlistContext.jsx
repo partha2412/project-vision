@@ -19,6 +19,8 @@ export const WishlistProvider = ({ children }) => {
     try {
       const res = await api.get("/wishlist", getAuthConfig());
       const products = (res.data.products ?? []).map(item => item.product);
+      console.log(products);
+      
       setWishlist(products);
     } catch (err) {
       console.error("Error fetching wishlist:", err);
