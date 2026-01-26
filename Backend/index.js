@@ -12,23 +12,15 @@ const cartRoutes = require('./routes/cart.js');
 const notificationRoutes = require("./routes/notification.js");
 const wishlistRoutes = require('./routes/wishlist.js');
 const analytics = require("./routes/analytics.js");
-const front_url = process.env.FRONTEND_URL
+const front_url =  process.env.FRONTEND_URL
+
 app.use(cors({
-  origin: (origin, callback) => {
-    const allowedOrigins = [ front_url ];//, 'http://localhost:5173', 'http://localhost:3000'];
-;
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie', 'stripe-signature'],
-  exposedHeaders: ['set-cookie'],
-  maxAge: 86400 // Cache preflight requests for 24 hours
+  origin: process.env.FRONTEND_URL,
+  credentials: true
 }));
+
+//app.options("*", cors());
+
 
 app.use(express.json());     
 app.use(cookieParser());
