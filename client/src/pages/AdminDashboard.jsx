@@ -43,6 +43,8 @@ const AdminDashboard = () => {
   //   loadProducts();
   // }, []);
 
+  const [showSidebar, setShowSidebar] = useState(true);
+
   // Sidebar buttons with icons
   const menu = [
     { id: "analytics", label: "Analytics", icon: <BarChart2 className="w-5 h-5" /> },
@@ -57,26 +59,40 @@ const AdminDashboard = () => {
     <div className="flex min-h-screen bg-gray-100">
       <ToastContainer position="top-right" autoClose={3000} theme="colored" /> {/* ✅ ADD THIS */}
 
-      {/* Sidebar */}
-      <aside className="w-64 bg-white shadow-lg p-6 flex flex-col">
-        <h2 className="text-2xl font-bold text-indigo-600 mb-8">Admin Panel</h2>
+      {showSidebar && (
+        <aside className="bg-white shadow-lg p-4 flex flex-col
+                    w-16 sm:w-20 md:w-64 transition-all duration-300">
 
-        <nav className="flex flex-col gap-3">
-          {menu.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setActivePage(item.id)}
-              className={`flex items-center gap-2 p-3 rounded-lg text-left transition ${activePage === item.id
-                  ? "bg-indigo-600 text-white shadow-md"
-                  : "hover:bg-indigo-100 text-gray-700"
-                }`}
-            >
-              {item.icon}
-              {item.label}
-            </button>
-          ))}
-        </nav>
-      </aside>
+          {/* Title */}
+          <h2 className="text-indigo-600 font-bold mb-8
+                   hidden md:block text-2xl">
+            Admin Panel
+          </h2>
+
+          <nav className="flex flex-col gap-3">
+            {menu.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setActivePage(item.id)}
+                className={`flex items-center gap-3 p-3 rounded-lg transition
+            ${activePage === item.id
+                    ? "bg-indigo-600 text-white shadow-md"
+                    : "hover:bg-indigo-100 text-gray-700"
+                  }`}
+              >
+                {/* Icon (always visible) */}
+                <span className="text-xl">{item.icon}</span>
+
+                {/* Label (hidden on small screens) */}
+                <span className="hidden md:inline">
+                  {item.label}
+                </span>
+              </button>
+            ))}
+          </nav>
+        </aside>
+      )}
+
 
       {/* Main Content */}
       <main className="flex-1 p-6 overflow-y-auto">
