@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { fetchAllOrders, deleteOrder, updateOrderStatus } from "../api/orderApi";
 import { FaTrash } from "react-icons/fa"; // Trash icon
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Pending = () => {
   const [filter, setFilter] = useState("all");
@@ -50,7 +52,8 @@ const Pending = () => {
       const payload = { status: newStatus };
 
       const updatedOrder = await updateOrderStatus(id, payload);
-      console.log("Updated order:", updatedOrder);
+      toast.success(`Order #${id.slice(-6)} status updated to ${newStatus}`);
+      //console.log("Updated order:", updatedOrder);
 
       // Update orders state
       setOrders(

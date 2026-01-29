@@ -4,6 +4,7 @@ import {
   LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, Tooltip, CartesianGrid, Legend, ResponsiveContainer,
 } from "recharts";
+import api from "../api/axios";
 
 const Analytics = () => {
   // Example Data
@@ -20,9 +21,9 @@ const Analytics = () => {
         const config = { headers: { Authorization: `Bearer ${token}` } };
 
         const [salesRes, revenueRes, ordersRes] = await Promise.all([
-          axios.get("http://localhost:5000/api/admin/analytics/sales", config),
-          axios.get("http://localhost:5000/api/admin/analytics/revenue-by-category", config),
-          axios.get("http://localhost:5000/api/admin/analytics/orders-status", config),
+          api.get("/admin/analytics/sales", config),
+          api.get("/admin/analytics/revenue-by-category", config),
+          api.get("/admin/analytics/orders-status", config),
         ]);
 
         setSalesData(salesRes.data);

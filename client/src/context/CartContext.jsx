@@ -66,7 +66,7 @@ export const CartProvider = ({ children }) => {
       await api.post("/cart/add", { productId: product, quantity }, getAuthConfig());
       fetchCart(); // sync with backend
     } catch (err) {
-      console.error("Error adding to cart:", err);
+      //console.error("Error adding to cart:", err);
       fetchCart(); // rollback
     }
   };

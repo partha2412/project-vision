@@ -76,8 +76,8 @@ const Checkout = () => {
       setLoading(true);
       const config = { headers: { Authorization: `Bearer ${token}` } };
 
-      const response = await axios.post(
-        "http://localhost:5000/api/order/create",
+      const response = await api.post(
+        "/order/create",
         orderData,
         config
       );
@@ -89,6 +89,8 @@ const Checkout = () => {
         navigate("/ordersuccess");
       }, 2000);
     } catch (error) {
+      console.log(error);
+      
       toast.error(
         "❌ Failed to place order: " +
         (error.response?.data?.message || error.message)
