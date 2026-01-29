@@ -52,7 +52,7 @@ const Pending = () => {
       const payload = { status: newStatus };
 
       const updatedOrder = await updateOrderStatus(id, payload);
-      toast.success(`Order #${id.slice(-6)} status updated to ${newStatus}`);
+      toast.success(`Order #${id.slice(-6)} status updated to ${updatedOrder.order.status}`);
       //console.log("Updated order:", updatedOrder);
 
       // Update orders state

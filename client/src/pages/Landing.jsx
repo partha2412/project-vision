@@ -18,7 +18,7 @@ const Landing = () => {
 
 
                 {/* Sliding 1st Slide */}
-                <div className='bg-sky-400 h-180'>
+                <div className='bg-sky-400'>
                     <Carousel images={images} />
                 </div>
 
