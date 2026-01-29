@@ -116,7 +116,7 @@ const Notifications = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <ToastContainer />
-      <h1 className="text-3xl font-extrabold mb-6 flex items-center gap-2">
+      <h1 className="text-3xl font-bold mb-6 flex items-center gap-2">
         <Bell className="w-8 h-8 text-blue-600" /> Notifications
       </h1>
 

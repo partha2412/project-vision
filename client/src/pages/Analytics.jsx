@@ -5,6 +5,7 @@ import {
   XAxis, YAxis, Tooltip, CartesianGrid, Legend, ResponsiveContainer,
 } from "recharts";
 import api from "../api/axios";
+import { ChartNoAxesCombined } from 'lucide-react';
 
 const Analytics = () => {
   // Example Data
@@ -38,7 +39,9 @@ const Analytics = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
-      <h1 className="text-3xl font-extrabold mb-8">Admin Analytics</h1>
+      <h1 className="text-3xl font-bold mb-6 flex items-center gap-2">
+        <ChartNoAxesCombined className="w-8 h-8 text-blue-600"/> Analytics Dashboard
+      </h1>
 
       <div className="grid md:grid-cols-2 gap-8">
         {/* Line Chart: Sales Over Time */}

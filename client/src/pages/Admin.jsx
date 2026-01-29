@@ -4,6 +4,7 @@ import api from "../api/axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { FaEdit, FaTrash, FaSave, FaTimes } from "react-icons/fa";
+import { LayoutDashboard } from 'lucide-react';
 
 const Admin = () => {
   const initialFormState = {
@@ -180,7 +181,9 @@ const Admin = () => {
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <ToastContainer position="top-right" autoClose={3000} />
-      <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
+      <h1 className="text-3xl font-bold mb-6 flex items-center gap-2">
+        <LayoutDashboard className="w-8 h-8 text-blue-600" /> Admin Product Management
+      </h1>
 
       {/* ➕ Add Product Section */}
       <div className="bg-white p-6 rounded-xl shadow-md mb-8">
