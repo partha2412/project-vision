@@ -61,7 +61,7 @@ const AdminDashboard = () => {
 
       {showSidebar && (
         <aside className="bg-white shadow-lg p-4 flex flex-col
-                    w-16 sm:w-20 md:w-64 transition-all duration-300">
+                    w-20 sm:w-20 md:w-64 transition-all duration-300">
 
           {/* Title */}
           <h2 className="text-indigo-600 font-bold mb-8
