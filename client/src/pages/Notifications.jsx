@@ -107,7 +107,7 @@ const Notifications = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex justify-center items-center text-gray-600">
+      <div className="h-screen flex justify-center items-center text-gray-600">
         Loading notifications...
       </div>
     );

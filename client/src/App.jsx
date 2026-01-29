@@ -23,7 +23,7 @@ import AdminDashboard from './pages/AdminDashboard';
 
 const App = () => {
   return (
-    <div className='relative h-screen'>
+    <div className='relative w-screen h-screen'>
       <BrowserRouter>
         <> {/* ✅ Wrap everything needing wishlist */}
           <NavBar />
