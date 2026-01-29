@@ -77,7 +77,7 @@ const Analytics = () => {
         {/* Pie Chart: Orders Distribution */}
         <div className="bg-white p-6 rounded-xl shadow-lg md:col-span-2">
           <h2 className="text-xl font-semibold mb-4">Orders Distribution</h2>
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={350}>
             <PieChart>
               <Pie
                 data={ordersData}
