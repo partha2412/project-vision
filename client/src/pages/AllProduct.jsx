@@ -132,7 +132,7 @@ export default function AllProducts() {
 
         {/* Category Buttons */}
         <div className="flex justify-center gap-4 mb-6">
-          {["All", "Man", "Woman", "Kids"].map((cat) => (
+          {["All", "Men", "Women", "Kids"].map((cat) => (
             <button
               key={cat}
               onClick={() => {
@@ -163,7 +163,7 @@ export default function AllProducts() {
               {currentProducts.map((product) => (
                 <div
                   key={product._id || product.id}
-                  className="bg-white rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 p-4"
+                  className="bg-white rounded-xl shadow-md hover:shadow-2xl transition-all duration-300  p-4"
                 >
                   <ProductCard product={product} />
                 </div>

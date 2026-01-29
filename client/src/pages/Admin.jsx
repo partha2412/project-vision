@@ -4,7 +4,7 @@ import api from "../api/axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { FaEdit, FaTrash, FaSave, FaTimes } from "react-icons/fa";
-import { LayoutDashboard } from 'lucide-react';
+import { LayoutDashboard, PackagePlus, ChevronDown } from 'lucide-react';
 
 const Admin = () => {
   const initialFormState = {
@@ -30,6 +30,7 @@ const Admin = () => {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [editable, setEditable] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
+  const [showAddForm, setShowAddForm] = useState(false);
   // Load all products
   const loadProducts = async () => {
     try {
@@ -187,138 +188,188 @@ const Admin = () => {
 
       {/* ➕ Add Product Section */}
       <div className="bg-white p-6 rounded-xl shadow-md mb-8">
-        <h2 className="text-xl font-semibold mb-4">Add Product</h2>
-        <form
-          onSubmit={handleAddProduct}
-          className="grid md:grid-cols-2 lg:grid-cols-3 gap-4"
-        >
-          <input
-            type="text"
-            placeholder="Product Title"
-            className="border p-2 rounded"
-            value={form.title}
-            onChange={(e) => setForm({ ...form, title: e.target.value })}
-            required
-          />
-          <textarea
-            placeholder="Description"
-            className="border p-2 rounded md:col-span-2 lg:col-span-3"
-            value={form.description}
-            onChange={(e) => setForm({ ...form, description: e.target.value })}
-            required
-          />
-          <input
-            type="number"
-            placeholder="Price"
-            className="border p-2 rounded"
-            value={form.price}
-            onChange={(e) => setForm({ ...form, price: e.target.value })}
-            required
-          />
-          <input
-            type="number"
-            placeholder="Discount Price"
-            className="border p-2 rounded"
-            value={form.discountPrice}
-            onChange={(e) =>
-              setForm({ ...form, discountPrice: e.target.value })
-            }
-          />
-          <input
-            type="number"
-            placeholder="Stock"
-            className="border p-2 rounded"
-            value={form.stock}
-            onChange={(e) => setForm({ ...form, stock: e.target.value })}
-            required
-          />
-          <input
-            type="number"
-            placeholder="Low Stock Alert"
-            className="border p-2 rounded"
-            value={form.lowStockAlert}
-            onChange={(e) =>
-              setForm({ ...form, lowStockAlert: e.target.value })
-            }
-          />
-          <input
-            type="number"
-            placeholder="GST Rate (%)"
-            className="border p-2 rounded"
-            value={form.gstRate}
-            onChange={(e) => setForm({ ...form, gstRate: e.target.value })}
-          />
-          <input
-            type="text"
-            placeholder="Category"
-            className="border p-2 rounded"
-            value={form.category}
-            onChange={(e) => setForm({ ...form, category: e.target.value })}
-            required
-          />
-          <input
-            type="text"
-            placeholder="Product Type"
-            className="border p-2 rounded"
-            value={form.productType}
-            onChange={(e) =>
-              setForm({ ...form, productType: e.target.value })
-            }
-          />
-          <input
-            type="text"
-            placeholder="Brand"
-            className="border p-2 rounded"
-            value={form.brand}
-            onChange={(e) => setForm({ ...form, brand: e.target.value })}
-          />
-
-          {/* Image Upload */}
-          <div className="md:col-span-2 lg:col-span-3">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Product Images
-            </label>
-            <input
-              type="file"
-              multiple
-              accept="image/*"
-              className="border p-2 rounded w-full"
-              onChange={handleImageChange}
-            />
-            {imagePreviews.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-2">
-                {imagePreviews.map((src, idx) => (
-                  <img
-                    key={idx}
-                    src={src}
-                    alt="preview"
-                    className="w-16 h-16 object-cover rounded"
-                  />
-                ))}
-              </div>
-            )}
+        <div className="flex items-center w-full gap-3 cursor-pointer" onClick={(e) => setShowAddForm(!showAddForm)}>
+          <PackagePlus className="text-blue-500 size-15" />
+          <p className="font-semibold text-2xl w-100">
+            Add Product
+          </p>
+          <div className="w-full flex justify-end">
+            <span className="flex">
+              <ChevronDown />
+            </span>
           </div>
+        </div>
+        {showAddForm ? (
+          <div>
+            <h2 className="text-xl font-semibold mb-4"></h2>
+            <form
+              onSubmit={handleAddProduct}
+              className="grid md:grid-cols-2 lg:grid-cols-3 gap-4"
+            >
+              <input
+                type="text"
+                placeholder="Product Title"
+                className="border p-2 rounded"
+                value={form.title}
+                onChange={(e) => setForm({ ...form, title: e.target.value })}
+                required
+              />
+              <textarea
+                placeholder="Description"
+                className="border p-2 rounded md:col-span-2 lg:col-span-3"
+                value={form.description}
+                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                required
+              />
+              <input
+                type="number"
+                placeholder="Price"
+                className="border p-2 rounded"
+                value={form.price}
+                onChange={(e) => setForm({ ...form, price: e.target.value })}
+                required
+              />
+              <input
+                type="number"
+                placeholder="Discount Price"
+                className="border p-2 rounded"
+                value={form.discountPrice}
+                onChange={(e) =>
+                  setForm({ ...form, discountPrice: e.target.value })
+                }
+              />
+              <input
+                type="number"
+                placeholder="Stock"
+                className="border p-2 rounded"
+                value={form.stock}
+                onChange={(e) => setForm({ ...form, stock: e.target.value })}
+                required
+              />
+              <input
+                type="number"
+                placeholder="Low Stock Alert"
+                className="border p-2 rounded"
+                value={form.lowStockAlert}
+                onChange={(e) =>
+                  setForm({ ...form, lowStockAlert: e.target.value })
+                }
+              />
+              <input
+                type="number"
+                placeholder="GST Rate (%)"
+                className="border p-2 rounded"
+                value={form.gstRate}
+                onChange={(e) => setForm({ ...form, gstRate: e.target.value })}
+              />
+              <input 
+                type="text" 
+                placeholder="Product Type" 
+                className="border p-2 rounded" 
+                value={form.productType} 
+                onChange={(e) => setForm({ ...form, productType: e.target.value })} 
+              />
+              <div className="border p-2 rounded">
+                <label className=" opacity-55">Select Product Type</label>
+                <div className="flex gap-4">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="category"
+                      value="Men"
+                      checked={form.category === "Men"}
+                      onChange={(e) =>
+                        setForm({ ...form, category: e.target.value })
+                      }
+                    />
+                    Men
+                  </label>
 
-          {/* Add Button */}
-          <button
-            type="submit"
-            disabled={isAdding}
-            className={`flex items-center justify-center gap-2 font-semibold px-4 py-2 rounded md:col-span-2 lg:col-span-3 transition-all duration-200 ${isAdding
-              ? "bg-blue-400 text-white cursor-not-allowed"
-              : "bg-blue-600 hover:bg-blue-700 text-white"
-              }`}
-          >
-            {isAdding ? (
-              <>
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                <span>Adding...</span>
-              </>
-            ) : (
-              "Add Product"
-            )}
-          </button>
-        </form>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="category"
+                      value="Women"
+                      checked={form.category === "Women"}
+                      onChange={(e) =>
+                        setForm({ ...form, category: e.target.value })
+                      }
+                    />
+                    Women
+                  </label>
+
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="category"
+                      value="Kids"
+                      checked={form.category === "Kids"}
+                      onChange={(e) =>
+                        setForm({ ...form, category: e.target.value })
+                      }
+                    />
+                    Kids
+                  </label>
+                </div>
+              </div>
+
+              <input
+                type="text"
+                placeholder="Brand"
+                className="border p-2 rounded"
+                value={form.brand}
+                onChange={(e) => setForm({ ...form, brand: e.target.value })}
+              />
+
+              {/* Image Upload */}
+              <div className="md:col-span-2 lg:col-span-3">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Product Images
+                </label>
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  className="border p-2 rounded w-full"
+                  onChange={handleImageChange}
+                />
+                {imagePreviews.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {imagePreviews.map((src, idx) => (
+                      <img
+                        key={idx}
+                        src={src}
+                        alt="preview"
+                        className="w-16 h-16 object-cover rounded"
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Add Button */}
+              <button
+                type="submit"
+                disabled={isAdding}
+                className={`flex items-center justify-center gap-2 font-semibold px-4 py-2 rounded md:col-span-2 lg:col-span-3 transition-all duration-200 ${isAdding
+                  ? "bg-blue-400 text-white cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700 text-white"
+                  }`}
+              >
+                {isAdding ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Adding...</span>
+                  </>
+                ) : (
+                  "Add Product"
+                )}
+              </button>
+            </form>
+          </div>
+        ) : null}
       </div>
+
 
       {/* 📦 Product Cards */}
       <div>
@@ -442,7 +493,7 @@ const Admin = () => {
                             onClick={() => setDeleteConfirmId(p._id)}
                             className="flex items-center gap-2 bg-red-500 hover:bg-red-600 duration-300 text-white px-4 py-2 rounded"
                           >
-                            <FaTrash /> 
+                            <FaTrash />
                           </button>
                         )}
                       </div>

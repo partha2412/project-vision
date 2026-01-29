@@ -20,7 +20,7 @@ export default function ProductCard({ product }) {
 
   // Toggle wishlist
   const toggleWishlist = (e) => {
-   
+
     e.preventDefault();
     e.stopPropagation();
     if (inWishlist) removeFromWishlist(product._id);
@@ -45,15 +45,18 @@ export default function ProductCard({ product }) {
 
   return (
     <Link to={`/product/${product._id}`} className="block">
-      <div className="relative bg-white rounded-xl shadow-md overflow-hidden transform transition-all duration-300 hover:-translate-y-2 hover:scale-105 hover:shadow-2xl">
+      <div className="relative bg-white rounded-xl overflow-hidden transform transition-all duration-300 ">
         {/* Product images */}
-        <div className="relative w-full h-56 bg-gray-50">
+        <div className="relative w-full h-56 bg-gray-50 hover:-translate-y-2 hover:scale-110 duration-300">
           <Carousl_SingleProduct images={product.images || []} />
+        </div>
 
+        {/* Product info */}
+        <div className="p-4">
           {/* Wishlist button */}
           <button
             onClick={toggleWishlist}
-            className="absolute top-4 right-12 bg-white/90 backdrop-blur-sm w-10 h-10 rounded-full flex justify-center items-center shadow-md hover:scale-110 transition"
+            className="absolute mx-4 top-60 right-12 bg-white/90 backdrop-blur-sm w-10 h-10 rounded-full flex justify-center items-center border border-red-500/50 shadow-lg hover:scale-110 transition"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -74,7 +77,7 @@ export default function ProductCard({ product }) {
           {/* Cart button */}
           <button
             onClick={toggleCart}
-            className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm w-10 h-10 rounded-full flex justify-center items-center shadow-md hover:scale-110 transition"
+            className="absolute top-60 right-4 bg-white/90 backdrop-blur-sm w-10 h-10 rounded-full flex justify-center items-center border border-red-500/50 shadow-lg hover:scale-110 transition"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -91,10 +94,6 @@ export default function ProductCard({ product }) {
               />
             </svg>
           </button>
-        </div>
-
-        {/* Product info */}
-        <div className="p-4">
           <h3 className="text-lg font-semibold">{product.title}</h3>
           <p className="text-gray-600">{product.brand}</p>
           <div className="flex items-center text-yellow-500 mt-2">
