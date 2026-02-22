@@ -22,7 +22,7 @@ export const fetchProductById = async (productId) => {
 // Search products by title or description
 export const searchProducts = async (order) => {
   try {
-    const response = await api.get("/product/search", { params: { o } });
+    const response = await api.get("/product/search", { params: { order } });
     return response.data;
   } catch (error) {
     throw error.response ? error.response.data : { message: "Network error" };

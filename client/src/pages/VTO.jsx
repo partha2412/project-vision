@@ -8,7 +8,7 @@ export default function VTO() {
 
     useEffect(() => {
         // API calling
-        const results = '';
+        //const results = '';
 
         const image_png = "./glass1.png"; 
         const size = 2;
