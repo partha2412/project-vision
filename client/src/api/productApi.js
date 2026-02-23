@@ -53,6 +53,17 @@ export const addProduct = async (productData) => {
   }
 };
 
+// Add Bulk
+export const addBulk = async (csv_file) =>{
+  try{
+    const response = await api.post("/product/add_bulk",csv_file);    
+    return response.data.message
+  }
+  catch (error) {
+    throw error.response ? error.response.data : { message: "Network error" };
+  }
+}
+
 // Update product by ID
 export const updateProductById = async (productId, updateData) => {
   try {

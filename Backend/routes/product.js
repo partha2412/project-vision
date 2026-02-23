@@ -15,7 +15,8 @@ router.post(
   productController.uploadMiddleware, // multer middleware
   productController.addProduct
 );
-
+// Add Bulk
+router.post('/add_bulk', productController.addbulkProduct);
 
 // Update product by name
 router.put(

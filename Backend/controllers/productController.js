@@ -84,6 +84,24 @@ exports.addProduct = async (req, res) => {
   }
 };
 
+exports.addbulkProduct = async(req,res) => {
+  try{
+    // console.log(req);
+    
+    res.status(200).json({
+      success: true,
+      message: 'Bulk Products added successfully',
+    })
+  }
+  catch (error) {
+    console.error('Error adding product:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error while adding Bulk product',
+      error: error.message,
+    });
+  }
+}
 
 // Update Product by ID
 exports.updateProductById = async (req, res) => {
