@@ -139,22 +139,21 @@ const Admin = () => {
 
     try {
       setIsBulkUploading(true);
-      const formData = new FormData();
-      formData.append("file", bulkFile);
-      console.log(formData);
 
-      await addBulk(formData)
+      const formData = new FormData();
+      formData.append("file", bulkFile); // 🔥 MUST be "file"
+
+      await addBulk(formData);
 
       toast.success("✅ Bulk products uploaded successfully!");
-      // setBulkFile(null);
       await loadProducts();
     } catch (error) {
       console.error(error);
       toast.error("❌ Bulk upload failed");
     } finally {
-      setBulkFile(null);           // reset state
+      setBulkFile(null);
       if (fileInputRef.current) {
-        fileInputRef.current.value = ""; // reset DOM input
+        fileInputRef.current.value = "";
       }
       setIsBulkUploading(false);
     }
@@ -229,9 +228,8 @@ const Admin = () => {
       // }
 
       // Call your API
-      res=await updateProductById(id, formData);
-      console.log(res);
-      
+      await updateProductById(id, formData);
+
       toast.success("✅ Product updated successfully!");
       setEditingId(null);
       await loadProducts();
@@ -648,7 +646,10 @@ const Admin = () => {
                       <>
                         {editingId === p._id && hasChanges(p) && (
                           <button
-                            onClick={() => saveChanges(p._id)}
+                            onClick={(e) => {
+                              e.stopPropagation(); // ✅ prevents <summary> toggle
+                              saveChanges(p._id)
+                            }}
                             className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
                           >
                             <FaSave /> Save
@@ -706,9 +707,8 @@ const Admin = () => {
                   </span>
                 </div>
               </summary>
+
               <div className="">
-
-
                 <div className="p-4 w-full grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {/* Editable fields */}
                   {[
