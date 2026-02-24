@@ -132,7 +132,7 @@ export default function AllProducts() {
 
         {/* Category Buttons */}
         <div className="flex justify-center gap-4 mb-6">
-          {["All", "Men", "Women", "Kids"].map((cat) => (
+          {["All", "Men", "Women", "Unisex", "Unisex Kids"].map((cat) => (
             <button
               key={cat}
               onClick={() => {
