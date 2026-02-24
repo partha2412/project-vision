@@ -143,8 +143,9 @@ const Admin = () => {
       const formData = new FormData();
       formData.append("file", bulkFile); // 🔥 MUST be "file"
 
-      await addBulk(formData);
-
+      const res = await addBulk(formData);
+      //console.log(res.data.data[0]);
+      
       toast.success("✅ Bulk products uploaded successfully!");
       await loadProducts();
     } catch (error) {
@@ -540,6 +541,7 @@ const Admin = () => {
 
                             return (
                               <td
+                                key={row[rowIndex]}
                                 className={`px-3 py-2 border-b ${isInvalid
                                   ? "bg-red-50 text-red-600 font-semibold"
                                   : "text-gray-800"

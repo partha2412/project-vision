@@ -9,6 +9,19 @@ const csv = require("csv-parser");
 const XLSX = require("xlsx");
 
 const mapRowToProduct = (row) => {
+  let images = [];
+
+  try {
+    if (row.images) {
+      const parsedImages = JSON.parse(row.images); // string → array
+
+      for (let i = 0; i < parsedImages.length; i++) {
+        images.push(String(parsedImages[i]));
+      }
+    }
+  } catch (err) {
+    images = [];
+  }
   return {
     title: String(row.title || "").trim(),
     description: String(row.description || "").trim(),
@@ -25,8 +38,9 @@ const mapRowToProduct = (row) => {
     brand: String(row.brand || ""),
 
     gstRate: Number(row.gstRate || 12),
+    
+    images,
 
-    images: String(row.images)[0], // bulk upload does not support images
     isDeleted: false
   };
 };
@@ -182,6 +196,7 @@ exports.addbulkProduct = async (req, res) => {
       inserted: validProducts.length,
       rejected: products.length - validProducts.length,
       message: "Bulk products added successfully",
+      data: validProducts
     });
 
   } catch (error) {
