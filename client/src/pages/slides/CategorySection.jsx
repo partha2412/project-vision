@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { fetchProducts } from "../api/productApi";
+import { fetchProducts } from "../../api/productApi";
 import { IoIosMale, IoIosFemale } from "react-icons/io";
 import { FaChild } from "react-icons/fa";
 const CategorySection = () => {
@@ -85,28 +85,37 @@ const CategorySection = () => {
             {products.slice(0, 4).map((item) => (
               <motion.div
                 key={item._id}
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ y: -6 }}
+                transition={{ type: "spring", stiffness: 200, damping: 15 }}
                 onClick={() => navigate(`/product/${item._id}`)}
-                className="bg-white border rounded-xl p-4 shadow cursor-pointer"
+                className="group bg-white rounded-2xl p-4 shadow-md hover:shadow-xl cursor-pointer"
               >
-                <div className="relative">
+                {/* Image Frame */}
+                <div className="relative w-full h-44 sm:h-52 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center mb-4 overflow-hidden">
                   <img
                     src={item.images[0]}
                     alt={item.title || item.name}
-                    className="w-full h-36 object-contain mb-3"
+                    className="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-105"
                   />
-                  <h3 className="text-sm font-semibold truncate">
-                    {item.title || item.name}
-                  </h3>
-                  <p className="font-bold text-teal-600">
+                </div>
+
+                {/* Text */}
+                <h3 className="text-sm sm:text-base font-semibold text-gray-800 truncate">
+                  {item.title || item.name}
+                </h3>
+
+                <div className="flex items-center justify-between mt-2">
+                  <p className="text-teal-600 font-bold text-sm sm:text-base">
                     ₹{item.discountPrice}
                   </p>
 
-                  <p className="absolute right-2 bottom-2">
-                    {item.reviews.rating}
-                  </p>
+                  {/* Optional subtle badge */}
+                  {item.discountPrice < item.price && (
+                    <span className="text-xs px-2 py-1 rounded-full bg-teal-50 text-teal-700">
+                      Offer
+                    </span>
+                  )}
                 </div>
-
               </motion.div>
             ))}
           </div>

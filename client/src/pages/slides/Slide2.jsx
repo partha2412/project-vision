@@ -69,7 +69,7 @@ const Slide2 = () => {
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Left Side Text */}
-      <div className="min-w-[200px] mr-6">
+      <div className="hidden md:block min-w-[200px] mr-6">
         <h1 className="text-3xl md:text-4xl text-black font-bold leading-snug">
           WEAR THE TREND
         </h1>
@@ -80,9 +80,9 @@ const Slide2 = () => {
 
       {/* Scroll Buttons */}
       <button
-        onClick={() => scroll("left")}
-        className="absolute left-[220px] z-10 px-3 py-2 rounded-full  shadow-md duration-300 cursor-pointer hover:bg-gray-200"
-      >
+  onClick={() => scroll("left")}
+  className="absolute left-2 md:left-[220px] z-20 px-3 py-2 rounded-full shadow-md bg-white/90 hover:bg-gray-200"
+>
         <div className="size-8">
           <img src={left} alt="left" />
         </div>
@@ -105,27 +105,21 @@ const Slide2 = () => {
           <div
             key={product._id}
             onClick={() => navigate(`/product/${product._id}`)}
-            className="flex-shrink-0 w-40 sm:w-80 bg-gray-200 hover:bg-gray-100 duration-300 cursor-pointer rounded-lg flex flex-col items-center justify-between p-3"
+            className="flex-shrink-0 w-44 sm:w-80 bg-gray-100 hover:bg-white duration-300 cursor-pointer rounded-xl flex flex-col items-center p-4 shadow-sm hover:shadow-md transition"
           >
-            <div className="text-lg mb-3 font-semibold capitalize">
+            {/* Image Container */}
+            <div className="w-full h-48 sm:h-56 flex items-center justify-center mb-4">
+              <img
+                src={product.images[0]}
+                alt={product.title}
+                className="max-h-full max-w-full object-contain"
+              />
+            </div>
+
+            {/* Title */}
+            <div className="text-base sm:text-lg font-semibold capitalize text-gray-800">
               {product.productType}
             </div>
-            <img
-              src={product.images[0]}
-              alt={product.title}
-              className="w-full h-28 object-contain"
-            />
-
-            {/* <button
-              className="mt-5 px-3 py-2 bg-black hover:bg-gray-500 duration-300 cursor-pointer text-white text-sm font-semibold rounded-md"
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate(`/product/${item._id}`);
-              }}
-            >
-              Explore
-            </button> */}
-
           </div>
         ))}
       </div>
