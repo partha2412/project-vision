@@ -4,9 +4,83 @@ const Notification = require("../models/Notification.js");
 const { uploadImagesToCloudinary } = require('./imagecontroller.js');
 const mongoose = require("mongoose");
 
+const fs = require("fs");
+const csv = require("csv-parser");
+const XLSX = require("xlsx");
+
+const mapRowToProduct = (row) => {
+  let images = [];
+
+  try {
+    if (row.images) {
+      const parsedImages = JSON.parse(row.images); // string → array
+
+      for (let i = 0; i < parsedImages.length; i++) {
+        images.push(String(parsedImages[i]));
+      }
+    }
+  } catch (err) {
+    images = [];
+  }
+  return {
+    title: String(row.title || "").trim(),
+    description: String(row.description || "").trim(),
+
+    price: Number(row.price || 0),
+    discountPrice: Number(row.dis_price || 0),
+
+    category: String(row.category || ""),
+
+    stock: Number(row.stock || 32),
+    lowStockAlert: Number(row.lowStockAlert || 5),
+
+    productType: String(row.type || ""),
+    brand: String(row.brand || ""),
+
+    gstRate: Number(row.gstRate || 12),
+    
+    images,
+
+    isDeleted: false
+  };
+};
+const validateProduct = (p) => {
+  if (!p.title) return false;
+  if (!p.price || p.price <= 0) return false;
+  if (!p.category) return false;
+  if (p.stock < 0) return false;
+  return true;
+};
+
+const parseCSV = (filePath) => {
+  return new Promise((resolve, reject) => {
+    const products = [];
+
+    fs.createReadStream(filePath)
+      .pipe(csv({ skipEmptyLines: true }))
+      .on("data", (row) => {
+        products.push(mapRowToProduct(row)); // ✅ key change
+      })
+      .on("end", () => resolve(products))
+      .on("error", reject);
+  });
+};
+const parseExcel = (filePath) => {
+  const workbook = XLSX.readFile(filePath);
+  const sheet = workbook.Sheets[workbook.SheetNames[0]];
+  const rows = XLSX.utils.sheet_to_json(sheet);
+
+  return rows.map(mapRowToProduct); // ✅ key change
+};
+
 // ✅ Multer setup
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
+
+const uploadFile = multer({ dest: "uploads/" });
+
+// EXPORT THE MIDDLEWARE
+exports.bulkUploadMiddleware = uploadFile.single("file");
 exports.uploadMiddleware = upload.array('images', 5); // max 5 images
 
 // ===============================
@@ -84,6 +158,60 @@ exports.addProduct = async (req, res) => {
   }
 };
 
+exports.addbulkProduct = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+
+    let products = [];
+
+    // 1️⃣ Parse file → products[]
+    if (req.file.mimetype === "text/csv") {
+      products = await parseCSV(req.file.path);
+    } else if (
+      req.file.mimetype ===
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    ) {
+      products = parseExcel(req.file.path);
+    } else {
+      return res.status(400).json({ message: "Unsupported file type" });
+    }
+
+    // 2️⃣ Validate
+    const validProducts = products.filter(validateProduct);
+
+    if (!validProducts.length) {
+      return res.status(400).json({ message: "No valid products found" });
+    }
+
+    // 3️⃣ Insert
+    await Product.insertMany(validProducts, { ordered: false });
+
+    // 4️⃣ Cleanup
+    fs.unlinkSync(req.file.path);
+
+    res.status(201).json({
+      success: true,
+      inserted: validProducts.length,
+      rejected: products.length - validProducts.length,
+      message: "Bulk products added successfully",
+      data: validProducts
+    });
+
+  } catch (error) {
+    // console.error("Bulk upload error:", error);
+
+    if (req.file?.path) {
+      fs.unlinkSync(req.file.path);
+    }
+
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
 // Update Product by ID
 exports.updateProductById = async (req, res) => {

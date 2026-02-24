@@ -53,11 +53,31 @@ export const addProduct = async (productData) => {
   }
 };
 
+// Add Bulk
+export const addBulk = async (formData) => {
+  try {
+    const response = await api.post(
+      "/product/add_bulk",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    // console.log(response);
+    
+    return response;
+  } catch (error) {
+    throw error.response?.data || { message: "Network error" };
+  }
+};
+
 // Update product by ID
 export const updateProductById = async (productId, updateData) => {
   try {
     //console.log(updateData);
-    
+
     const response = await api.put(`/product/update/${productId}`, updateData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
