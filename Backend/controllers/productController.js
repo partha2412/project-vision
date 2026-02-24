@@ -217,44 +217,45 @@ exports.addbulkProduct = async (req, res) => {
 exports.updateProductById = async (req, res) => {
   try {
     const { id } = req.params;
+    const mongoose = require("mongoose");
 
-    // Copy all text fields from FormData
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid product ID"
+      });
+    }
+
     const updateData = { ...req.body };
 
-    // If there are new uploaded images, upload to Cloudinary
+    // Upload new images if provided
     if (req.files && req.files.length > 0) {
-      const imageUrls = await uploadImagesToCloudinary(req.files, 'products');
-      updateData.images = imageUrls; // replace or append to existing images
+      const imageUrls = await uploadImagesToCloudinary(req.files, "products");
+      updateData.images = imageUrls; // replace images
     }
 
-    // Check if product exists
-    const product = await Product.findById(id);
-    if (!product) {
-      return res.status(404).json({ success: false, message: "Product not found" });
-    }
+    const updatedProduct = await Product.findByIdAndUpdate(
+      id,
+      updateData,
+      { new: true, runValidators: true }
+    );
 
-    // Validate enum fields if present
-    if (updateData.status && !["Active", "Draft", "Out of Stock", "Low Stock"].includes(updateData.status)) {
-      return res.status(400).json({ success: false, message: "Invalid status value" });
+    if (!updatedProduct) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found"
+      });
     }
-    if (updateData.category && !["Man", "Woman", "Kids"].includes(updateData.category)) {
-      return res.status(400).json({ success: false, message: "Invalid category value" });
-    }
-
-    // Update the product
-    const updatedProduct = await Product.findByIdAndUpdate(id, updateData, {
-      new: true,
-      runValidators: true,
-    });
 
     return res.status(200).json({
       success: true,
-      message: "✅ Product updated successfully",
+      message: "Product updated successfully",
       product: updatedProduct,
     });
+
   } catch (error) {
     console.error("Error updating product:", error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Server error while updating product",
       error: error.message,

@@ -18,6 +18,7 @@ import Men from "./pages/Men"
 import Women from "./pages/Women"
 import Kids from "./pages/Kids"
 import AdminDashboard from './pages/AdminDashboard';
+import OrderSuccess from './pages/OrderSuccess'
 
 
 
@@ -46,6 +47,7 @@ const App = () => {
             />
 
             <Route path='/checkout' element={<Checkout />} />
+            <Route path='/ordersuccess' element={<OrderSuccess />} />
             <Route path='/vto' element={<VTO />} />
             <Route
               path="/admindashboard"

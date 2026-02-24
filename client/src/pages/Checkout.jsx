@@ -8,6 +8,7 @@ import api from "../api/axios";
 import { clearCart } from "../api/cartApi";
 import { useContext } from "react";
 import { CartContext } from "../context/CartContext";
+import { placeOrder } from "../api/orderApi";
 
 const Checkout = () => {
   const { state } = useLocation();
@@ -74,26 +75,21 @@ const Checkout = () => {
 
     try {
       setLoading(true);
-      const config = { headers: { Authorization: `Bearer ${token}` } };
-
-      const response = await api.post(
-        "/order/create",
-        orderData,
-        config
-      );
-
-      toast.success(` ${response.data.message} \nTotal: ₹${totalAmount.toFixed(2)}`);
+      const response = await placeOrder(orderData);
+      // console.log(response.message);
+      
+      toast.success(` ${response.message} \nTotal: ₹${totalAmount.toFixed(2)}`);
       // Wait 2 seconds before navigating
       setTimeout(async () => {
-        await clearCart();  // Refresh cart in context
+        // await clearCart();  // Refresh cart in context
         navigate("/ordersuccess");
       }, 2000);
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       
       toast.error(
         "❌ Failed to place order: " +
-        (error.response?.data?.message || error.message)
+        (error.message || error.response?.data?.message )
       );
     } finally {
       setLoading(false);
