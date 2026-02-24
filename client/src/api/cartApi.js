@@ -3,15 +3,9 @@ import api from "./axios";
 // Helper to get Authorization header
 const getAuthConfig = () => {
   const token = localStorage.getItem("token");
-  if (!token) {
-    // 🚫 If no token, throw immediately
-    throw new Error("Unauthorized: Please log in to continue");
-  }
-  return {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
+  return token
+    ? { headers: { Authorization: `Bearer ${token}` } }
+    : {};
 };
 
 // ✅ Add product to cart
@@ -21,7 +15,7 @@ export const addToCart = async (productId, quantity = 1) => {
       "/cart/add",
       { productId, quantity },
       getAuthConfig()
-    );
+    );    
     return data;
   } catch (err) {
     handleApiError(err);

@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { addProduct, fetchProducts, hardDeleteProduct, updateProductById } from "../api/productApi";
+import React, { useState, useRef, useEffect } from "react";
+import { addProduct, addBulk, fetchProducts, hardDeleteProduct, updateProductById } from "../api/productApi";
 import api from "../api/axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { FaEdit, FaTrash, FaSave, FaTimes } from "react-icons/fa";
 import { LayoutDashboard, PackagePlus, ChevronDown } from 'lucide-react';
+import Papa from "papaparse";
+import * as XLSX from "xlsx";
 
 const Admin = () => {
   const initialFormState = {
@@ -31,6 +33,17 @@ const Admin = () => {
   const [editable, setEditable] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
+
+  // Bulk upload states
+  const [showBulkUpload, setShowBulkUpload] = useState(false);
+  const [bulkFile, setBulkFile] = useState(null);
+  const [isBulkUploading, setIsBulkUploading] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const [bulkPreview, setBulkPreview] = useState([]);
+  const [bulkHeaders, setBulkHeaders] = useState([]);
+  const [showPreview, setShowPreview] = useState(false);
+
   // Load all products
   const loadProducts = async () => {
     try {
@@ -82,6 +95,70 @@ const Admin = () => {
     });
   };
 
+  const handlePreviewFile = (file) => {
+    if (!file) return;
+
+    const ext = file.name.split(".").pop().toLowerCase();
+
+    if (ext === "csv") {
+      Papa.parse(file, {
+        header: true,
+        skipEmptyLines: true,
+        complete: (result) => {
+          setBulkHeaders(Object.keys(result.data[0] || {}));
+          setBulkPreview(result.data);
+          setShowPreview(true);
+        },
+      });
+    }
+    else if (ext === "xlsx" || ext === "xls") {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const workbook = XLSX.read(e.target.result, { type: "binary" });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+        const jsonData = XLSX.utils.sheet_to_json(sheet);
+
+        setBulkHeaders(Object.keys(jsonData[0] || {}));
+        setBulkPreview(jsonData);
+        setShowPreview(true);
+      };
+      reader.readAsBinaryString(file);
+    }
+    else {
+      toast.error("Unsupported file format");
+    }
+  };
+
+  // Add in Bulk
+  const handleBulkUpload = async () => {
+    if (!bulkFile) {
+      toast.warning("Please select a CSV or Excel file");
+      return;
+    }
+
+    try {
+      setIsBulkUploading(true);
+
+      const formData = new FormData();
+      formData.append("file", bulkFile); // 🔥 MUST be "file"
+
+      const res = await addBulk(formData);
+      //console.log(res.data.data[0]);
+      
+      toast.success("✅ Bulk products uploaded successfully!");
+      await loadProducts();
+    } catch (error) {
+      console.error(error);
+      toast.error("❌ Bulk upload failed");
+    } finally {
+      setBulkFile(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+      setIsBulkUploading(false);
+    }
+  };
 
   // Add new product
   const handleAddProduct = async (e) => {
@@ -147,6 +224,9 @@ const Admin = () => {
           formData.append(key, String(value));
         }
       });
+      // for (let [key, value] of formData.entries()) {
+      //   console.log(key, value);
+      // }
 
       // Call your API
       await updateProductById(id, formData);
@@ -155,7 +235,7 @@ const Admin = () => {
       setEditingId(null);
       await loadProducts();
     } catch (error) {
-      console.error("Error updating product:", error);
+      // console.error("Error updating product:", error);
       toast.error("❌ Failed to update product");
     }
   };
@@ -262,12 +342,12 @@ const Admin = () => {
                 value={form.gstRate}
                 onChange={(e) => setForm({ ...form, gstRate: e.target.value })}
               />
-              <input 
-                type="text" 
-                placeholder="Product Type" 
-                className="border p-2 rounded" 
-                value={form.productType} 
-                onChange={(e) => setForm({ ...form, productType: e.target.value })} 
+              <input
+                type="text"
+                placeholder="Product Type"
+                className="border p-2 rounded"
+                value={form.productType}
+                onChange={(e) => setForm({ ...form, productType: e.target.value })}
               />
               <div className="border p-2 rounded">
                 <label className=" opacity-55">Select Product Type</label>
@@ -370,6 +450,123 @@ const Admin = () => {
         ) : null}
       </div>
 
+      {/* 📂 Bulk Product Upload Section */}
+      <div className="bg-white p-6 rounded-xl shadow-md mb-8">
+        <div
+          className="flex items-center w-full gap-3 cursor-pointer"
+          onClick={() => setShowBulkUpload(!showBulkUpload)}
+        >
+          <PackagePlus className="text-green-600 size-15" />
+          <p className="font-semibold text-2xl w-100">
+            Bulk Upload Products
+          </p>
+          <div className="w-full flex justify-end">
+            <ChevronDown />
+          </div>
+        </div>
+
+        {showBulkUpload && (
+          <div className="mt-4 border border-dashed rounded-lg p-6 bg-gray-50">
+            <p className="text-sm text-gray-600 mb-4">
+              Upload a CSV or Excel file containing multiple products.
+            </p>
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".csv,.xlsx,.xls"
+              onChange={(e) => {
+                const file = e.target.files[0];
+                setBulkFile(file);
+                handlePreviewFile(file);
+              }}
+              className="border p-2 rounded w-full mb-4 bg-white cursor-pointer hover:bg-gray-200"
+            />
+
+            <button
+              onClick={handleBulkUpload}
+              disabled={isBulkUploading}
+              className={`flex items-center justify-center gap-2 font-semibold px-4 py-2 rounded transition-all duration-200 ${isBulkUploading
+                ? "bg-green-400 cursor-not-allowed text-white"
+                : "bg-green-600 hover:bg-green-700 text-white"
+                }`}
+            >
+              {isBulkUploading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Uploading...
+                </>
+              ) : (
+                "Upload File"
+              )}
+            </button>
+
+            {/* Bulk Preview */}
+            {showPreview && bulkPreview.length > 0 && (
+              <div className="mt-6">
+                <h3 className="text-lg font-semibold mb-3">
+                  Preview ({bulkPreview.length} rows)
+                </h3>
+
+                <div className="overflow-x-auto max-h-[400px] border rounded-lg bg-white shadow-sm">
+                  <table className="min-w-full text-sm">
+                    <thead className="bg-gray-100 sticky top-0 z-10">
+                      <tr>
+                        {bulkHeaders.map((header) => (
+                          <th
+                            key={header}
+                            className="px-3 py-2 text-left font-semibold text-gray-700 border-b"
+                          >
+                            {header}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      {bulkPreview.map((row, rowIndex) => (
+                        <tr
+                          key={rowIndex}
+                          className="odd:bg-white even:bg-gray-50 hover:bg-blue-50 "
+                        >
+                          {bulkHeaders.map((header) => {
+                            const value = row[header];
+
+                            const isInvalid =
+                              value === null ||
+                              value === undefined ||
+                              value === "" ||
+                              value === 0 ||
+                              value === "0";
+
+                            return (
+                              <td
+                                key={row[rowIndex]}
+                                className={`px-3 py-2 border-b ${isInvalid
+                                  ? "bg-red-50 text-red-600 font-semibold"
+                                  : "text-gray-800"
+                                  }`}
+                              >
+                                <div className="max-h-[40px] overflow-y-auto">
+                                  {isInvalid ? "⚠ Missing" : value}
+                                </div>
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <p className="text-xs text-gray-500 mt-2">
+                  ⚠ Highlighted cells contain empty or zero values.
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
 
       {/* 📦 Product Cards */}
       <div>
@@ -451,7 +648,10 @@ const Admin = () => {
                       <>
                         {editingId === p._id && hasChanges(p) && (
                           <button
-                            onClick={() => saveChanges(p._id)}
+                            onClick={(e) => {
+                              e.stopPropagation(); // ✅ prevents <summary> toggle
+                              saveChanges(p._id)
+                            }}
                             className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
                           >
                             <FaSave /> Save
@@ -509,9 +709,8 @@ const Admin = () => {
                   </span>
                 </div>
               </summary>
+
               <div className="">
-
-
                 <div className="p-4 w-full grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {/* Editable fields */}
                   {[

@@ -101,9 +101,9 @@ export default function ProductDetail() {
             {/* Wishlist Heart */}
             <button
               className="absolute top-4 right-4 bg-white/90 w-10 h-10 rounded-full flex justify-center items-center shadow-md hover:scale-110 transition"
-              onClick={() => toggleWish(product)}
+              onClick={() => product && toggleWish(product)}
             >
-              {wishlist.find((w) => w._id === product._id) ? (
+              {wishlist?.some((w) => w?._id === product?._id) ? (
                 <span className="text-red-600 text-2xl">♥</span>
               ) : (
                 <span className="text-gray-600 text-2xl">♡</span>
