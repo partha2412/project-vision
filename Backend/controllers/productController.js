@@ -16,17 +16,17 @@ const mapRowToProduct = (row) => {
     price: Number(row.price || 0),
     discountPrice: Number(row.dis_price || 0),
 
-    category: String(row.category || "Men"),
+    category: String(row.category || ""),
 
-    stock: Number(row.stock || 0),
+    stock: Number(row.stock || 32),
     lowStockAlert: Number(row.lowStockAlert || 5),
 
-    productType: String(row.productType || ""),
+    productType: String(row.type || ""),
     brand: String(row.brand || ""),
 
     gstRate: Number(row.gstRate || 12),
 
-    images: ["gdfrgds"], // bulk upload does not support images
+    images: String(row.images)[0], // bulk upload does not support images
     isDeleted: false
   };
 };
@@ -40,14 +40,14 @@ const validateProduct = (p) => {
 
 const parseCSV = (filePath) => {
   return new Promise((resolve, reject) => {
-    const results = [];
+    const products = [];
 
     fs.createReadStream(filePath)
-      .pipe(csv())
+      .pipe(csv({ skipEmptyLines: true }))
       .on("data", (row) => {
         products.push(mapRowToProduct(row)); // ✅ key change
       })
-      .on("end", () => resolve(results))
+      .on("end", () => resolve(products))
       .on("error", reject);
   });
 };
@@ -185,13 +185,13 @@ exports.addbulkProduct = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Bulk upload error:", error);
+    // console.error("Bulk upload error:", error);
 
     if (req.file?.path) {
       fs.unlinkSync(req.file.path);
     }
 
-    res.status(500).json({
+    res.status(400).json({
       success: false,
       message: error.message,
     });

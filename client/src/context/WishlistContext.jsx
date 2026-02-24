@@ -18,9 +18,11 @@ export const WishlistProvider = ({ children }) => {
     setLoading(true);
     try {
       const res = await api.get("/wishlist", getAuthConfig());
-      const products = (res.data.products ?? []).map(item => item.product);
+      const products = (res.data.products ?? [])
+        .map(item => item.product)
+        .filter(Boolean); // 🔥 removes null / undefined
       //console.log(products);
-      
+
       setWishlist(products);
     } catch (err) {
       console.error("Error fetching wishlist:", err);

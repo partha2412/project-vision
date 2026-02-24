@@ -32,7 +32,7 @@ export default function ProductCard({ product }) {
     e.preventDefault();
     e.stopPropagation();
     if (inCart) removeFromCart(product._id);
-    else addToCart(product._id, 1);
+    else addToCart(product, 1);
   };
 
   // Render stars

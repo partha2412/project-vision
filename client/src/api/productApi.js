@@ -65,7 +65,7 @@ export const addBulk = async (formData) => {
         },
       }
     );
-    console.log(response);
+    // console.log(response);
     
     return response;
   } catch (error) {
