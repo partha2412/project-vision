@@ -121,7 +121,14 @@ export const fetchProductsByCategory = async (category) => {
     throw error.response ? error.response.data : { message: "Network error" };
   }
 };
-
+export const fetchCategories = async () => {
+  try {
+    //const res = await api.get("/product/category");
+    return ["Men","Women","Unisex"]//res.data;
+  } catch (error) {
+    throw error.response?.data || { message: "Network error" };
+  }
+};
 
 export const productFilter = async (minRange, maxRange) => {
   try {
