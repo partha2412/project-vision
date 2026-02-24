@@ -1,32 +1,14 @@
-import React, { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import left from "../../assets/icon/left-arrow-svgrepo-com.svg";
 import right from "../../assets/icon/right-arrow-svgrepo-com.svg";
-
-import airflex from "../../photo/airflex.webp";
-import aviator from "../../photo/aviator.webp";
-import blend from "../../photo/blend.webp";
-import cateeye from "../../photo/cateeye.webp";
-import clipon from "../../photo/clipon.webp";
-import clubmaster from "../../photo/clubmaster.webp";
-import image179 from "../../photo/image179.webp";
-import trans from "../../photo/trans.webp";
+import { fetchProducts } from "../../api/productApi";
 
 const Slide2 = () => {
   const navigate = useNavigate();
   const scrollRef = useRef(null);
   const [isHovered, setIsHovered] = useState(false);
-
-  const images = [
-    { src: airflex, name: "airflex" },
-    { src: aviator, name: "aviator" },
-    { src: blend, name: "blend" },
-    { src: cateeye, name: "cateeye" },
-    { src: clipon, name: "clipon" },
-    { src: clubmaster, name: "clubmaster" },
-    { src: image179, name: "image179" },
-    { src: trans, name: "trans" },
-  ];
+  const [products, setProducts] = useState([]);
 
   const scroll = (direction) => {
     if (scrollRef.current) {
@@ -56,6 +38,29 @@ const Slide2 = () => {
     }
     return () => clearInterval(interval);
   }, [isHovered]);
+
+  useEffect(() => {
+    loadProduct();
+  }, []);
+
+  const loadProduct = async () => {
+    const data = await fetchProducts();
+    const allProducts = data.products || data;
+
+    // group by productType
+    const map = new Map();
+
+    allProducts.forEach(product => {
+      if (!map.has(product.productType)) {
+        map.set(product.productType, product);
+      }
+    });
+
+    // one product per unique type
+    const uniqueTypeProducts = Array.from(map.values());
+
+    setProducts(uniqueTypeProducts);
+  };
 
   return (
     <div
@@ -96,30 +101,30 @@ const Slide2 = () => {
         ref={scrollRef}
         className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth"
       >
-        {images.map((item, index) => (
+        {products.map((product) => (
           <div
-            key={index}
-            onClick={() => navigate(`/products/${item.name}`)}
-            className="flex-shrink-0 w-40 sm:w-80  hover:bg-gray-100 duration-300 cursor-pointer rounded-lg flex flex-col items-center justify-between p-3"
+            key={product._id}
+            onClick={() => navigate(`/product/${product._id}`)}
+            className="flex-shrink-0 w-40 sm:w-80 bg-gray-200 hover:bg-gray-100 duration-300 cursor-pointer rounded-lg flex flex-col items-center justify-between p-3"
           >
             <div className="text-lg mb-3 font-semibold capitalize">
-              {item.name}
+              {product.productType}
             </div>
             <img
-              src={item.src}
-              alt={item.name}
+              src={product.images[0]}
+              alt={product.title}
               className="w-full h-28 object-contain"
             />
 
-            <button
+            {/* <button
               className="mt-5 px-3 py-2 bg-black hover:bg-gray-500 duration-300 cursor-pointer text-white text-sm font-semibold rounded-md"
               onClick={(e) => {
                 e.stopPropagation();
-                navigate(`/products/${item.name}`);
+                navigate(`/product/${item._id}`);
               }}
             >
               Explore
-            </button>
+            </button> */}
 
           </div>
         ))}
