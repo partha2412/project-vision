@@ -66,7 +66,7 @@ export const addBulk = async (formData) => {
       }
     );
     // console.log(response);
-    
+
     return response;
   } catch (error) {
     throw error.response?.data || { message: "Network error" };
@@ -121,3 +121,16 @@ export const fetchProductsByCategory = async (category) => {
     throw error.response ? error.response.data : { message: "Network error" };
   }
 };
+
+
+export const productFilter = async (minRange, maxRange) => {
+  try {
+    const res = await api.get("/product/filter", {
+      params: { min: minRange, max: maxRange },
+    });
+    return res;
+  }
+  catch (e) {
+    throw error.response ? error.response.data : { message: "Network error" };
+  }
+}

@@ -560,7 +560,7 @@ exports.filterProductsByPrice = async (req, res) => {
 
     // Fetch products in the range
     const products = await Product.find({
-      price: { $gte: min, $lte: max },
+      discountPrice: { $gte: min, $lte: max },
     });
 
     // Return in object format so frontend can do response.data.products
