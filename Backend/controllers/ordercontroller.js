@@ -41,7 +41,6 @@ exports.placeOrder = async (req, res) => {
       paymentMethod,
       totalAmount,
       isPaid: false,
-      paidAt: null,
       isDelivered: false,
       deliveredAt: null,
       status: 'Processing',
