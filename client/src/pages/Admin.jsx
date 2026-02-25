@@ -260,17 +260,17 @@ const Admin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div className="min-h-screen sm:text-[14px] bg-gray-100 p-6">
       <ToastContainer position="top-right" autoClose={3000} />
-      <h1 className="text-3xl font-bold mb-6 flex items-center gap-2">
+      <h1 className="sm:text-4xl text-[18px] font-bold mb-6 flex items-center gap-2">
         <LayoutDashboard className="w-8 h-8 text-blue-600" /> Admin Product Management
       </h1>
 
       {/* ➕ Add Product Section */}
-      <div className="bg-white p-6 rounded-xl shadow-md mb-8">
+      <div className="bg-white p-4 rounded-xl shadow-md mb-8">
         <div className="flex items-center w-full gap-3 cursor-pointer" onClick={(e) => setShowAddForm(!showAddForm)}>
           <PackagePlus className="text-blue-500 size-15" />
-          <p className="font-semibold text-2xl w-100">
+          <p className="font-semibold sm:text-2xl w-100">
             Add Product
           </p>
           <div className="w-full flex justify-end">
@@ -451,13 +451,13 @@ const Admin = () => {
       </div>
 
       {/* 📂 Bulk Product Upload Section */}
-      <div className="bg-white p-6 rounded-xl shadow-md mb-8">
+      <div className="bg-white p-4 rounded-xl shadow-md mb-8">
         <div
           className="flex items-center w-full gap-3 cursor-pointer"
           onClick={() => setShowBulkUpload(!showBulkUpload)}
         >
           <PackagePlus className="text-green-600 size-15" />
-          <p className="font-semibold text-2xl w-100">
+          <p className="font-semibold sm:text-2xl w-100">
             Bulk Upload Products
           </p>
           <div className="w-full flex justify-end">
@@ -570,7 +570,7 @@ const Admin = () => {
 
       {/* 📦 Product Cards */}
       <div>
-        <h2 className="text-xl font-semibold mb-4">Manage Products</h2>
+        <h2 className="sm:text-xl font-semibold mb-4">Manage Products</h2>
 
         {products.length === 0 ? (
           <p className="text-gray-500">No products added yet.</p>
@@ -596,7 +596,7 @@ const Admin = () => {
             //open={expandedId === p._id} // optional: control programmatically
 
             >
-              <summary className="flex justify-between items-center cursor-pointer bg-gray-50 px-4 py-3">
+              <summary className="flex justify-between items-center h-29 cursor-pointer bg-gray-50 px-4 py-3">
                 <div className="font-semibold text-gray-800">
                   {p.title}{" "}
                   <span className="text-gray-400 text-sm">
@@ -641,7 +641,7 @@ const Admin = () => {
 
 
                 </div>
-                <div className="relative flex items-center gap-3">
+                <div className="relative flex flex-col items-center gap-6">
                   {/* Actions */}
                   <div className="md:col-span-2 lg:col-span-3 flex flex-wrap gap-3 mt-3">
                     {editingId === p._id ? (
@@ -666,7 +666,7 @@ const Admin = () => {
                         </button> */}
                       </>
                     ) : (
-                      <div className=" absolute flex right-40 top-0 items-center gap-3">
+                      <div className=" flex right-40 top-0 items-center gap-3">
                         {/* <button
                           onClick={() => startEditing(p)}
                           className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
