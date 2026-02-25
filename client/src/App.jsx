@@ -19,6 +19,7 @@ import Women from "./pages/Women"
 import Kids from "./pages/Kids"
 import AdminDashboard from './pages/AdminDashboard';
 import OrderSuccess from './pages/OrderSuccess'
+import { ToastContainer } from "react-toastify";
 
 
 
@@ -27,7 +28,9 @@ const App = () => {
     <div className='relative h-screen'>
       <BrowserRouter>
         <> {/* ✅ Wrap everything needing wishlist */}
+        
           <NavBar />
+          <ToastContainer position="top-right" autoClose={2000} />
           <Routes>
             <Route path='/' element={<Landing />} />
             <Route path='/login' element={<Login />} />

@@ -4,6 +4,7 @@ const {
   getWishlist,
   addToWishlist,
   removeFromWishlist,
+  clearCart,
 } = require("../controllers/wishlistcontroller.js"); // ✅ Make sure the filename matches exactly
 const { isAuthenticated } = require("../middleware/auth.js");
 
@@ -12,6 +13,9 @@ router.get("/", isAuthenticated, getWishlist);
 
 // ✅ Add a product to the wishlist
 router.post("/add", isAuthenticated, addToWishlist);
+
+// ✅ Clear the wishlist
+router.delete("/clear", isAuthenticated, clearCart );
 
 // ✅ Remove a product from the wishlist
 router.delete("/remove/:productId", isAuthenticated, removeFromWishlist);

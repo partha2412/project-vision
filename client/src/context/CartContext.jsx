@@ -17,7 +17,11 @@ export const CartProvider = ({ children }) => {
 
   const getAuthConfig = () => {
     const token = localStorage.getItem("token");
-    return { headers: { Authorization: `Bearer ${token}` } };
+    if (token)
+      return { headers: { Authorization: `Bearer ${token}` }, status: "Authenticated" };
+    else {
+      return { headers: { Authorization: `Bearer ${token}` }, status: "Not Authenticated" };
+    }
   };
 
   // Fetch cart from backend
@@ -36,7 +40,7 @@ export const CartProvider = ({ children }) => {
         totalAmount: safeItems.reduce((a, i) => a + i.totalPrice, 0),
       });
     } catch (err) {
-      console.error(err.message);
+      throw err;
     } finally {
       setLoading(false);
     }
@@ -48,46 +52,48 @@ export const CartProvider = ({ children }) => {
 
   // Add product to cart (optimistic)
   const addToCart = async (product, quantity = 1) => {
-    // 🔥 1. OPTIMISTIC UI UPDATE
-    setCart(prev => {
-      const items = [...prev.items];
-      const index = items.findIndex(i => i.product._id === product._id);
+    const me = getAuthConfig();
+    if (me.status == "Authenticated") {
 
-      if (index > -1) {
-        items[index] = {
-          ...items[index],
-          quantity: items[index].quantity + quantity,
-          totalPrice:
-            (items[index].discountPrice || items[index].price) *
-            (items[index].quantity + quantity),
+      // ✅ 2️⃣ ONLY NOW update UI
+      setCart(prev => {
+        const items = [...prev.items];
+        const index = items.findIndex(i => i.product._id === product._id);
+
+        if (index > -1) {
+          items[index] = {
+            ...items[index],
+            quantity: items[index].quantity + quantity,
+            totalPrice:
+              (items[index].discountPrice || items[index].price) *
+              (items[index].quantity + quantity),
+          };
+        } else {
+          items.push({
+            product,
+            quantity,
+            price: product.price,
+            discountPrice: product.discountPrice || 0,
+            gstRate: product.gstRate || 0,
+            totalPrice: (product.discountPrice || product.price) * quantity,
+            image: product.images?.[0] || "",
+          });
+        }
+
+        return {
+          items,
+          totalItems: items.reduce((a, i) => a + i.quantity, 0),
+          totalAmount: items.reduce((a, i) => a + i.totalPrice, 0),
         };
-      } else {
-        items.push({
-          product,
-          quantity,
-          price: product.price,
-          discountPrice: product.discountPrice || 0,
-          gstRate: product.gstRate || 0,
-          totalPrice: (product.discountPrice || product.price) * quantity,
-          image: product.images?.[0] || "",
-        });
+      });}
+      try {
+        // 🔐 1️⃣ Validate auth + backend FIRST
+        await apiAddToCart(product._id, quantity);
+      } catch (err) {
+        // ❌ API already showed toast
+        // ❌ DO NOT update cart
+        return;
       }
-
-      return {
-        items,
-        totalItems: items.reduce((a, i) => a + i.quantity, 0),
-        totalAmount: items.reduce((a, i) => a + i.totalPrice, 0),
-      };
-    });
-
-    // 🔄 2. BACKEND SYNC
-    try {
-      await apiAddToCart(product._id, quantity);
-    } catch (err) {
-      console.error(err.message);
-      // ❌ 3. ROLLBACK ON FAILURE
-      fetchCart();
-    }
   };
 
   const removeFromCart = async (productId) => {
@@ -128,11 +134,44 @@ export const CartProvider = ({ children }) => {
   };
 
   const changeCartItemQuantity = async (productId, increment = true) => {
+    // 1️⃣ Store previous state for rollback
+    const previousCart = cart;
+
+    // 2️⃣ Optimistically update UI
+    setCart(prev => {
+      const items = prev.items.map(item => {
+        if (item.product._id === productId) {
+          const newQuantity = increment
+            ? item.quantity + 1
+            : item.quantity - 1;
+
+          const safeQuantity = newQuantity < 1 ? 1 : newQuantity;
+
+          return {
+            ...item,
+            quantity: safeQuantity,
+            totalPrice:
+              (item.discountPrice || item.price) * safeQuantity,
+          };
+        }
+        return item;
+      });
+
+      return {
+        items,
+        totalItems: items.reduce((a, i) => a + i.quantity, 0),
+        totalAmount: items.reduce((a, i) => a + i.totalPrice, 0),
+      };
+    });
+
+    // 3️⃣ Backend sync
     try {
       await apiChangeQty(productId, increment);
-      fetchCart();
     } catch (err) {
       console.error(err.message);
+
+      // 4️⃣ Rollback if failed
+      setCart(previousCart);
     }
   };
 

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { CartContext } from "../context/CartContext";
 import { useNavigate } from "react-router-dom";
 
@@ -25,17 +25,16 @@ const CartPage = () => {
 
   const handleRemove = async (productId) => {
     await removeFromCart(productId);
-    fetchCart();
+    //fetchCart();
   };
 
-  const handleChangeQuantity = async (productId, increment) => {
-    await changeCartItemQuantity(productId, increment);
-    fetchCart();
+  const handleChangeQuantity = (productId, increment) => {
+    changeCartItemQuantity(productId, increment);
   };
 
   const handleClearCart = async () => {
     await clearCart();
-    fetchCart();
+    //fetchCart();
   };
 
   const handleCheckout = () => {
@@ -87,18 +86,16 @@ const CartPage = () => {
 
                   <div className="flex items-center gap-2 mt-3">
                     <button
-                      onClick={() =>
-                        handleChangeQuantity(item.product._id, false)
-                      }
+                      onClick={() => handleChangeQuantity(item.product._id, false)}
                       className="px-2 py-1 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition"
                     >
                       -
                     </button>
+
                     <span className="text-gray-800">{item.quantity}</span>
+
                     <button
-                      onClick={() =>
-                        handleChangeQuantity(item.product._id, true)
-                      }
+                      onClick={() => handleChangeQuantity(item.product._id, true)}
                       className="px-2 py-1 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition"
                     >
                       +

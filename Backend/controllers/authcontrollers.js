@@ -130,7 +130,7 @@ exports.login = async (req, res) => {
     }
 
     const isMatch = await user.comparePassword(password);
-    console.log(isMatch);
+    // console.log(isMatch);
     if (!isMatch) {
       return res.status(401).json({ message: 'Invalid password' });
     }

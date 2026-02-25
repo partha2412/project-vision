@@ -110,8 +110,8 @@ const CategorySection = () => {
                   </p>
 
                   {/* Optional subtle badge */}
-                  {item.discountPrice < item.price && (
-                    <span className="text-xs px-2 py-1 rounded-full bg-teal-50 text-teal-700">
+                  {((item.price - item.discountPrice)/item.price)*100 > 40 && (
+                    <span className="text-sm px-2 py-1 rounded-full bg-teal-50 text-teal-700">
                       Offer
                     </span>
                   )}
