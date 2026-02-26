@@ -4,7 +4,20 @@ import ProductCard from "../components/ProductCard";
 import { FiSearch } from "react-icons/fi";
 import axios from "axios";
 import { fetchProductsByCategory, fetchSortedProducts } from "../api/productApi";
-
+const SkeletonProductCard = () => (
+  <div className="bg-white rounded-xl overflow-hidden p-4">
+    {/* Image */}
+    <div className="w-full h-56 bg-gray-200 animate-pulse rounded-lg mb-4" />
+    {/* Title */}
+    <div className="h-4 w-3/4 bg-gray-200 animate-pulse rounded mb-2" />
+    {/* Brand */}
+    <div className="h-3 w-1/2 bg-gray-200 animate-pulse rounded mb-2" />
+    {/* Stars */}
+    <div className="h-3 w-24 bg-gray-200 animate-pulse rounded mb-2" />
+    {/* Price */}
+    <div className="h-4 w-1/3 bg-gray-200 animate-pulse rounded" />
+  </div>
+);
 export default function AllProducts() {
   const [showOptions, setShowOptions] = useState(false);
   const [products, setProducts] = useState([]);
@@ -152,7 +165,11 @@ export default function AllProducts() {
 
         {/* Products Grid */}
         {loading ? (
-          <p className="text-center text-gray-500">Loading products...</p>
+          <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 w-full max-w-[1200px] mx-auto">
+            {Array.from({ length: 9 }).map((_, i) => (
+              <SkeletonProductCard key={i} />
+            ))}
+          </div>
         ) : error ? (
           <p className="text-center text-red-500">{error}</p>
         ) : filteredProducts.length === 0 ? (
