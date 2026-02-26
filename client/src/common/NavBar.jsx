@@ -40,8 +40,7 @@ const NavBar = () => {
   }, []);
 
   return (
-    <div>
-      <header className="w-full flex items-center p-4 bg-white shadow-md z-50 ">
+      <header className="w-full flex items-center p-4 bg-white shadow-md sticky top-0 z-50 ">
         {/* Logo */}
         <div
           className="text-2xl md:text-5xl font-extrabold tracking-widest text-gray-900 uppercase cursor-pointer"
@@ -184,7 +183,6 @@ const NavBar = () => {
           </button>
         </nav>
       </header>
-    </div>
   );
 };
 

@@ -105,7 +105,7 @@ export default function AllProducts() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 p-6 md:p-10 transition-all duration-300">
+      <div className="flex-1 p-4 sm:p-6 md:p-10 transition-all duration-300 overflow-x-hidden">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <button
@@ -128,7 +128,7 @@ export default function AllProducts() {
             </div>
           </button>
 
-          <h1 className="text-2xl font-semibold text-gray-800">All Products</h1>
+          <h1 className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800">All Products</h1>
         </div>
 
         {/* Search */}
@@ -144,7 +144,7 @@ export default function AllProducts() {
         </div>
 
         {/* Category Buttons */}
-        <div className="flex justify-center gap-4 mb-6">
+        <div className="flex flex-wrap justify-center gap-2 sm:gap-4 mb-6">
           {["All", "Men", "Women", "Unisex", "Unisex Kids"].map((cat) => (
             <button
               key={cat}
@@ -152,7 +152,7 @@ export default function AllProducts() {
                 setCategory(cat);               // Update the state
                 fetchProductsByCategory(cat);   // Fetch products immediately
               }}
-              className={`px-4 py-2 rounded-lg font-medium transition ${category === cat
+              className={`px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base rounded-lg font-medium transition ${category === cat
                 ? "bg-gray-800 text-white"
                 : "bg-gray-200 text-gray-800 hover:bg-gray-300"
                 }`}
@@ -165,7 +165,7 @@ export default function AllProducts() {
 
         {/* Products Grid */}
         {loading ? (
-          <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 w-full max-w-[1200px] mx-auto">
+          <div className="grid gap-4 sm:gap-6 md:gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 w-full max-w-[1200px] mx-auto">
             {Array.from({ length: 9 }).map((_, i) => (
               <SkeletonProductCard key={i} />
             ))}
@@ -189,11 +189,11 @@ export default function AllProducts() {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="flex justify-center mt-10 space-x-3">
+              <div className="flex flex-wrap justify-center mt-8 gap-2">
                 <button
                   onClick={() => goToPage(currentPage - 1)}
                   disabled={currentPage === 1}
-                  className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-200 disabled:opacity-50"
+                  className="px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base border border-gray-300 rounded-md hover:bg-gray-200 disabled:opacity-50"
                 >
                   Previous
                 </button>

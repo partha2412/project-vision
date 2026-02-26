@@ -19,23 +19,21 @@ import Women from "./pages/Women"
 import Kids from "./pages/Kids"
 import AdminDashboard from './pages/AdminDashboard';
 import OrderSuccess from './pages/OrderSuccess'
-import { ToastContainer } from "react-toastify";
-
+import { ToastContainer } from "react-toastify"
+import NotFound from './common/NotFound'
 
 
 const App = () => {
   return (
-    <div className='relative h-screen'>
-      <BrowserRouter>
-        <> {/* ✅ Wrap everything needing wishlist */}
-        
+    <div className='relative min-h-screen w-full '>
+      <BrowserRouter>        
           <NavBar />
           <ToastContainer position="top-right" autoClose={2000} />
           <Routes>
+            
             <Route path='/' element={<Landing />} />
             <Route path='/login' element={<Login />} />
             <Route path='/signup' element={<SignupPage />} />
-            <Route path='/products/:type' element={<ProductsPage />} />
             <Route path='/wishlist' element={<WishlistPage />} />
             <Route path='/cart' element={<CartPage />} />
 
@@ -63,14 +61,15 @@ const App = () => {
 
             <Route path="/products" element={<AllProducts />} />
             <Route path="/product/:id" element={<ProductDetail />} />
-            <Route path="/men" element={<Men />} />
+            {/* <Route path="/men" element={<Men />} />
             <Route path="/women" element={<Women />} />
-            <Route path="/kids" element={<Kids />} />
+            <Route path="/kids" element={<Kids />} /> */}
             {/* <Route path="/review" element={<ReviewPage />} /> */}
+            <Route path='*' element={<NotFound />} />
           </Routes>
-        </>
+        <Footer />
       </BrowserRouter>
-      <Footer />
+      
     </div>
   )
 }
