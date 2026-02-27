@@ -18,10 +18,24 @@ import { ToastContainer } from "react-toastify"
 import NotFound from './common/NotFound'
 
 
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [pathname]);
+
+  return null;
+}
+
+
 const App = () => {
   return (
-    <div className='relative min-h-screen w-full '>
       <BrowserRouter>        
+          <ScrollToTop />
           <NavBar />
           <ToastContainer position="top-right" autoClose={1500} />
           <Routes>
@@ -59,8 +73,6 @@ const App = () => {
           </Routes>
         <Footer />
       </BrowserRouter>
-      
-    </div>
   )
 }
 
