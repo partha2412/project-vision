@@ -596,6 +596,32 @@ exports.getProductsByCategory = async (req, res) => {
   }
 };
 
+exports.deleteAllProducts = async (req, res) => {
+  try {
+    await Product.deleteMany({});
+    res.status(200).json({ success: true, message: "All products deleted" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
 
+exports.deleteMultipleProducts = async (req, res) => {
+  try {
+    const { ids } = req.body; // array of product IDs
+
+    if (!ids || !ids.length) {
+      return res.status(400).json({ message: "No IDs provided" });
+    }
+
+    await Product.deleteMany({ _id: { $in: ids } });
+
+    res.status(200).json({
+      success: true,
+      message: `${ids.length} products deleted`
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
 
 

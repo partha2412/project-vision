@@ -141,3 +141,21 @@ export const productFilter = async (minRange, maxRange) => {
     throw error.response ? error.response.data : { message: "Network error" };
   }
 }
+
+export const deleteAllProducts = async () => {
+  try {
+    const res = await api.delete("/product/delete/all");
+    return res;
+  } catch (error) {
+    throw error.response ? error.response.data : { message: "Network error" };
+  }
+};
+
+export const deleteMultipleProducts = async (ids) => {
+  try {
+    const res = await api.delete("/product/delete/bulk", { data: { ids } });
+    return res;
+  } catch (error) {
+    throw error.response ? error.response.data : { message: "Network error" };
+  }
+};

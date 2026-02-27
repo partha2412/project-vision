@@ -81,5 +81,7 @@ router.get('/best-seller', productController.getBestSellerProducts);
 // Discount products
 router.get('/discount', productController.getDiscountProducts);
 
+router.delete("/delete/all", productController.deleteAllProducts);
+router.delete("/delete/bulk", productController.deleteMultipleProducts); // send { ids: [...] } in body
 
 module.exports = router;
