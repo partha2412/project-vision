@@ -65,7 +65,7 @@ export default function ProductDetail() {
 
   const inWishlist = wishlist?.some((w) => w?._id === product?._id);
   const inCart = cart?.items?.some((i) => i.product?._id === product?._id);
-  const inStock = product && product.status !== "Out of Stock" && product.stock > 0;
+  const [inStock,setInStock] = useState(product?.stock > 0);
   const [similarProducts, setSimilarProducts] = useState([]);
 
   const toggleWish = () => {
@@ -90,7 +90,9 @@ export default function ProductDetail() {
           .filter((p) => p._id !== id)
           .slice(0, 8); // show max 8
         setSimilarProducts(filtered);
-        setProduct(data.product);
+        setProduct(data.product);   
+        setInStock(data.product.stock > 0);
+        
       } catch (e) {
         console.error(e);
         setProduct(null);
