@@ -84,6 +84,21 @@ export default function AllProducts() {
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
   const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
   const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+  const getPageNumbers = () => {
+    if (totalPages <= 5) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+
+    if (currentPage <= 3) {
+      return [1, 2, 3, "...", totalPages];
+    }
+
+    if (currentPage >= totalPages - 2) {
+      return [1, "...", totalPages - 2, totalPages - 1, totalPages];
+    }
+
+    return [1, "...", currentPage - 1, currentPage, currentPage + 1, "...", totalPages];
+  };
 
   const goToPage = (page) => {
     if (page < 1 || page > totalPages) return;
@@ -180,7 +195,7 @@ export default function AllProducts() {
               {currentProducts.map((product) => (
                 <div
                   key={product._id || product.id}
-                  className="bg-white rounded-xl shadow-md hover:shadow-2xl transition-all duration-300  p-4"
+                  className="bg-white rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 h-full p-4"
                 >
                   <ProductCard product={product} />
                 </div>
@@ -189,34 +204,38 @@ export default function AllProducts() {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="flex flex-wrap justify-center mt-8 gap-2">
+              <div className="flex justify-center items-center mt-8 gap-1">
                 <button
                   onClick={() => goToPage(currentPage - 1)}
                   disabled={currentPage === 1}
-                  className="px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base border border-gray-300 rounded-md hover:bg-gray-200 disabled:opacity-50"
+                  className="px-3 py-1.5 rounded-md hover:bg-gray-200 disabled:opacity-30"
                 >
-                  Previous
+                  ←
                 </button>
 
-                {Array.from({ length: totalPages }, (_, i) => (
-                  <button
-                    key={i + 1}
-                    onClick={() => goToPage(i + 1)}
-                    className={`px-4 py-2 border border-gray-300 rounded-md ${currentPage === i + 1
-                      ? "bg-gray-800 text-white"
-                      : "hover:bg-gray-200"
-                      }`}
-                  >
-                    {i + 1}
-                  </button>
-                ))}
+                {getPageNumbers().map((page, index) =>
+                  page === "..." ? (
+                    <span key={index} className="px-2 text-gray-400">...</span>
+                  ) : (
+                    <button
+                      key={index}
+                      onClick={() => goToPage(page)}
+                      className={`w-8 h-8 rounded-md text-sm ${currentPage === page
+                        ? "bg-gray-800 text-white"
+                        : "hover:bg-gray-100 text-gray-700"
+                        }`}
+                    >
+                      {page}
+                    </button>
+                  )
+                )}
 
                 <button
                   onClick={() => goToPage(currentPage + 1)}
                   disabled={currentPage === totalPages}
-                  className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-200 disabled:opacity-50"
+                  className="px-3 py-1.5 rounded-md hover:bg-gray-200 disabled:opacity-30"
                 >
-                  Next
+                  →
                 </button>
               </div>
             )}
