@@ -6,6 +6,7 @@ import { WishlistContext } from "../context/WishlistContext";
 import { CartContext } from "../context/CartContext";
 import ReviewPage from "./ReviewPage";
 import { fetchProductById, fetchProductsByCategory } from "../api/productApi";
+import { placeOrder } from "../api/orderApi";
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
 const Pulse = ({ className }) => (
@@ -65,7 +66,7 @@ export default function ProductDetail() {
 
   const inWishlist = wishlist?.some((w) => w?._id === product?._id);
   const inCart = cart?.items?.some((i) => i.product?._id === product?._id);
-  const [inStock,setInStock] = useState(product?.stock > 0);
+  const [inStock, setInStock] = useState(product?.stock > 0);
   const [similarProducts, setSimilarProducts] = useState([]);
 
   const toggleWish = () => {
@@ -80,6 +81,28 @@ export default function ProductDetail() {
     finally { setAddingCart(false); }
   };
 
+  const handleBuyNow = async () => {
+    if (!product) return;
+    try {
+      const orderData = {
+        productId: product._id,
+        name: product.title,
+        price: product.discountPrice,
+        quantity: 1,
+        image: product.images?.[0] || "",
+      };
+      navigate("/checkout", {
+        state: {
+          totalAmount: orderData.price * orderData.quantity,
+          items: [orderData],
+        },
+      });
+    }
+    catch (e) {
+      console.error("Order placement failed:", e);
+      alert("Failed to place order. Please try again.");
+    }
+  }
   // Fetch product
   useEffect(() => {
     const load = async () => {
@@ -90,9 +113,9 @@ export default function ProductDetail() {
           .filter((p) => p._id !== id)
           .slice(0, 8); // show max 8
         setSimilarProducts(filtered);
-        setProduct(data.product);   
+        setProduct(data.product);
         setInStock(data.product.stock > 0);
-        
+
       } catch (e) {
         console.error(e);
         setProduct(null);
@@ -388,6 +411,7 @@ export default function ProductDetail() {
               {/* Buy now */}
               <button
                 disabled={!inStock}
+                onClick={handleBuyNow}
                 className={`flex-1 min-w-[120px] py-3 rounded-xl text-sm font-semibold border-2 transition-all duration-200 ${inStock
                   ? "border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white"
                   : "border-gray-100 text-gray-300 cursor-not-allowed"
