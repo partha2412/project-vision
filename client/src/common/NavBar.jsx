@@ -42,12 +42,12 @@ const NavBar = () => {
   return (
       <header className="w-full flex items-center p-4 bg-white shadow-md sticky top-0 z-50 ">
         {/* Logo */}
-        <div
+        <button
           className="text-2xl md:text-5xl font-extrabold tracking-widest text-gray-900 uppercase cursor-pointer"
           onClick={() => navigate("/")}
         >
           Vision
-        </div>
+        </button>
 
         {/* Navbar */}
         <nav className="flex items-center space-x-2 md:space-x-4 text-black font-medium ml-auto">
