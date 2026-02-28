@@ -33,9 +33,9 @@ const Login = () => {
 
       const data = await loginUser(loginPayload); // call backend API
 
-      // Save user and token
-      localStorage.setItem("user", JSON.stringify(data.user));
-      localStorage.setItem("token", data.token);
+      // // Save user and token
+      // localStorage.setItem("user", JSON.stringify(data.user));
+      // localStorage.setItem("token", data.token);
 
       toast.success(
         `${activeForm === "admin" ? "Admin" : "User"} logged in successfully!`,

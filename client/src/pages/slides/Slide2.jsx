@@ -1,32 +1,25 @@
-import React, { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import left from "../../assets/icon/left-arrow-svgrepo-com.svg";
 import right from "../../assets/icon/right-arrow-svgrepo-com.svg";
+import { fetchProducts } from "../../api/productApi";
 
-import airflex from "../../photo/airflex.webp";
-import aviator from "../../photo/aviator.webp";
-import blend from "../../photo/blend.webp";
-import cateeye from "../../photo/cateeye.webp";
-import clipon from "../../photo/clipon.webp";
-import clubmaster from "../../photo/clubmaster.webp";
-import image179 from "../../photo/image179.webp";
-import trans from "../../photo/trans.webp";
+// Skeleton card component
+const SkeletonCard = () => (
+  <div className="flex-shrink-0 w-44 sm:w-80 bg-gray-100 rounded-xl flex flex-col items-center p-4 shadow-sm">
+    {/* Image placeholder */}
+    <div className="w-full h-48 sm:h-56 rounded-lg bg-gray-200 animate-pulse mb-4" />
+    {/* Title placeholder */}
+    <div className="h-5 w-3/4 rounded-md bg-gray-200 animate-pulse" />
+  </div>
+);
 
 const Slide2 = () => {
   const navigate = useNavigate();
   const scrollRef = useRef(null);
   const [isHovered, setIsHovered] = useState(false);
-
-  const images = [
-    { src: airflex, name: "airflex" },
-    { src: aviator, name: "aviator" },
-    { src: blend, name: "blend" },
-    { src: cateeye, name: "cateeye" },
-    { src: clipon, name: "clipon" },
-    { src: clubmaster, name: "clubmaster" },
-    { src: image179, name: "image179" },
-    { src: trans, name: "trans" },
-  ];
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const scroll = (direction) => {
     if (scrollRef.current) {
@@ -40,7 +33,7 @@ const Slide2 = () => {
   // Auto-scroll loop
   useEffect(() => {
     let interval;
-    if (!isHovered) {
+    if (!isHovered && !loading) {
       interval = setInterval(() => {
         if (scrollRef.current) {
           const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
@@ -52,31 +45,59 @@ const Slide2 = () => {
             scrollRef.current.scrollBy({ left: 300, behavior: "smooth" });
           }
         }
-      }, 2000); // auto scroll every 2.5s
+      }, 2000);
     }
     return () => clearInterval(interval);
-  }, [isHovered]);
+  }, [isHovered, loading]);
+
+  useEffect(() => {
+    loadProduct();
+  }, []);
+
+  const loadProduct = async () => {
+    setLoading(true);
+    const data = await fetchProducts();
+    const allProducts = data.products || data;
+
+
+    const map = new Map();
+    allProducts.forEach((product) => {
+      if (!map.has(product.productType)) {
+        map.set(product.productType, product);
+      }
+    });
+
+    
+    const uniqueTypeProducts = Array.from(map.values());
+    
+    setProducts(uniqueTypeProducts);
+    setLoading(false);
+  };
 
   return (
     <div
-      className="w-full bg-white flex items-center p-6 relative "
+      className="w-full bg-white flex items-center p-6 relative"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Left Side Text */}
-      <div className="min-w-[200px] mr-6">
+      <div className="hidden md:block min-w-[200px] mr-6">
         <h1 className="text-3xl md:text-4xl text-black font-bold leading-snug">
           WEAR THE TREND
         </h1>
-        <p className="text-sm text-gray-700 font-semibold mt-2">
-          Our hottest collections
-        </p>
+        {loading ? (
+          <div className="h-4 w-36 rounded-md bg-gray-200 animate-pulse mt-2" />
+        ) : (
+          <p className="text-sm text-gray-700 font-semibold mt-2">
+            Our hottest collections
+          </p>
+        )}
       </div>
 
       {/* Scroll Buttons */}
       <button
         onClick={() => scroll("left")}
-        className="absolute left-[220px] z-10 px-3 py-2 rounded-full  shadow-md duration-300 cursor-pointer hover:bg-gray-200"
+        className="absolute left-2 md:left-[220px] z-20 px-3 py-2 rounded-full shadow-md bg-white/90 hover:bg-gray-200"
       >
         <div className="size-8">
           <img src={left} alt="left" />
@@ -91,38 +112,34 @@ const Slide2 = () => {
         </div>
       </button>
 
-      {/* Right Side Images */}
+      {/* Cards */}
       <div
         ref={scrollRef}
         className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth"
       >
-        {images.map((item, index) => (
-          <div
-            key={index}
-            onClick={() => navigate(`/products/${item.name}`)}
-            className="flex-shrink-0 w-40 sm:w-80  hover:bg-gray-100 duration-300 cursor-pointer rounded-lg flex flex-col items-center justify-between p-3"
-          >
-            <div className="text-lg mb-3 font-semibold capitalize">
-              {item.name}
-            </div>
-            <img
-              src={item.src}
-              alt={item.name}
-              className="w-full h-28 object-contain"
-            />
-
-            <button
-              className="mt-5 px-3 py-2 bg-black hover:bg-gray-500 duration-300 cursor-pointer text-white text-sm font-semibold rounded-md"
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate(`/products/${item.name}`);
-              }}
-            >
-              Explore
-            </button>
-
-          </div>
-        ))}
+        {loading
+          ? // Show 5 skeleton cards while loading
+            Array.from({ length: 5 }).map((_, i) => (
+              <SkeletonCard key={i} />
+            ))
+          : products.map((product) => (
+              <div
+                key={product._id}
+                onClick={() => navigate(`/product/${product._id}`)}
+                className="flex-shrink-0 w-44 sm:w-80 bg-gray-100 hover:bg-white duration-300 cursor-pointer rounded-xl flex flex-col items-center p-4 shadow-sm hover:shadow-md transition"
+              >
+                <div className="w-full h-48 sm:h-56 flex items-center justify-center mb-4">
+                  <img
+                    src={product.images[0]}
+                    alt={product.title}
+                    className="max-h-full max-w-full object-contain"
+                  />
+                </div>
+                <div className="text-base sm:text-lg font-semibold capitalize text-gray-800">
+                  {product.productType}
+                </div>
+              </div>
+            ))}
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
-const User = require('../models/User');
+const User = require('../models/User.js');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const { uploadImagesToCloudinary } = require('./imagecontroller');
+const { uploadImagesToCloudinary } = require('./imagecontroller.js');
 const { OAuth2Client } = require("google-auth-library");
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);  // ✅ define client here
 
@@ -130,7 +130,7 @@ exports.login = async (req, res) => {
     }
 
     const isMatch = await user.comparePassword(password);
-    console.log(isMatch);
+    // console.log(isMatch);
     if (!isMatch) {
       return res.status(401).json({ message: 'Invalid password' });
     }
@@ -305,5 +305,34 @@ exports.googleSignup = async (req, res) => {
   } catch (error) {
     console.error("Google signup error:", error);
     res.status(500).json({ success: false, message: "Google signup failed", error: error.message });
+  }
+};
+
+
+exports.getMe = async (req, res) => {
+  try {
+    const userId = req.user.id; // From auth middleware
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.status(200).json({
+      success: true,
+      user: {
+        id: user._id,
+        firstname: user.firstname,
+        lastname: user.lastname,
+        email: user.email,
+        phone: user.phone,
+        gender: user.gender,
+        dob: user.dob,
+        avatar: user.avatar || "default-avatar.jpg",
+        role: user.role
+      }
+    });
+  } catch (error) {
+    console.error('GetMe error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch user data', error: error.message });
   }
 };

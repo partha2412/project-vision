@@ -14,6 +14,8 @@ export const signupUser = async (userData) => {
 export const loginUser = async (loginData) => {
   try {
     const response = await api.post("/auth/login", loginData);
+    localStorage.setItem("user", JSON.stringify(response.data.user));
+    localStorage.setItem("token", response.data.token);    
     // Backend returns { success, message, role, token, user }
     return response.data;
   } catch (error) {
@@ -90,7 +92,7 @@ export const updateUser = async (userData) => {
 
 
 export const googleSignup = async (userData) => {
-  const response = await fetch("http://localhost:5000/api/auth/google", {
+  const response = await fetch("/auth/google", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(userData),
@@ -98,3 +100,18 @@ export const googleSignup = async (userData) => {
   return response.json();
 };
 
+export async function getme() {
+    try {
+        const token = localStorage.getItem("token"); // 👈 fix this
+      
+        const response = await api.get("/auth/getme", {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        return response.data.user;
+    } catch (err) {
+        return null;
+    }
+}

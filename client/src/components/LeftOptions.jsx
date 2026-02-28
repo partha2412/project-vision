@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import axios from "axios";
+import { productFilter } from "../api/productApi";
 
-const LeftOptions = ({ selectedOption = "Trending", setSelectedOption = () => {}, setProducts }) => {
+const LeftOptions = ({ selectedOption = "Trending", setSelectedOption = () => { }, setProducts }) => {
   const [minRange, setMinRange] = useState("");
   const [maxRange, setMaxRange] = useState("");
 
@@ -17,10 +17,8 @@ const LeftOptions = ({ selectedOption = "Trending", setSelectedOption = () => {}
   // Apply range filter
   const handleApplyRange = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/product/filter", {
-        params: { min: minRange, max: maxRange },
-      });
-setProducts(response.data.products || []); 
+      const response = await productFilter(minRange,maxRange);
+      setProducts(response.data.products || []);
     } catch (error) {
       console.error("Error filtering products:", error);
     }
@@ -56,11 +54,10 @@ setProducts(response.data.products || []);
                   className="text-gray-700 focus:ring-gray-500"
                 />
                 <span
-                  className={`transition-colors duration-300 ${
-                    selectedOption === option
+                  className={`transition-colors duration-300 ${selectedOption === option
                       ? "text-gray-900 font-semibold"
                       : "text-gray-700"
-                  }`}
+                    }`}
                 >
                   {option}
                 </span>

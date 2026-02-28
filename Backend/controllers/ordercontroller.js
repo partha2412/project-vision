@@ -1,5 +1,7 @@
-const Order = require('../models/Order');
-const User = require('../models/User');
+const Order = require('../models/Order.js');
+const Product = require('../models/Product.js');
+const User = require('../models/User.js');
+const mongoose = require("mongoose");
 
 
 exports.getAllOrders = async (req, res) => {
@@ -21,52 +23,130 @@ exports.getAllOrders = async (req, res) => {
 
 // placeorder
 exports.placeOrder = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
-    // Make sure user is authenticated
     const userId = req.user?._id;
     if (!userId) {
-      return res.status(401).json({ success: false, message: 'Unauthorized' });
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized"
+      });
     }
 
     const { orderItems, shippingAddress, paymentMethod, totalAmount } = req.body;
 
-    if (!orderItems || orderItems.length === 0 || !shippingAddress || !paymentMethod) {
-      return res.status(400).json({ success: false, message: 'All fields are required' });
+    if (
+      !Array.isArray(orderItems) ||
+      orderItems.length === 0 ||
+      !shippingAddress ||
+      !paymentMethod ||
+      totalAmount == null
+    ) {
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(400).json({
+        success: false,
+        message: "All fields are required"
+      });
     }
 
-    const newOrder = new Order({
-      user: userId, // get user from token
-      orderItems,
-      shippingAddress,
-      paymentMethod,
-      totalAmount,
-      isPaid: false,
-      paidAt: null,
-      isDelivered: false,
-      deliveredAt: null,
-      status: 'Processing',
-      createdAt: Date.now(),
-    });
+    /* ───────────────────────────────
+       CREATE ORDER
+    ─────────────────────────────── */
 
-    const savedOrder = await newOrder.save();
+    const order = await Order.create(
+      [
+        {
+          user: userId,
+          orderItems,
+          shippingAddress,
+          paymentMethod,
+          totalAmount,
+          isPaid: false,
+          paidAt: null,
+          isDelivered: false,
+          deliveredAt: null,
+          status: "Processing"
+        }
+      ],
+      { session }
+    );
 
-    res.status(201).json({
+
+    /* ───────────────────────────────
+       STOCK VALIDATION + UPDATE
+    ─────────────────────────────── */
+
+    for (const item of orderItems) {
+
+      if (!mongoose.Types.ObjectId.isValid(item.product)) {
+        throw new Error("Invalid product ID");
+      }
+
+      const quantity = Number(item.quantity);  //  FIXED
+
+      if (!Number.isInteger(quantity) || quantity <= 0) {
+        throw new Error("Invalid quantity");
+      }
+
+      const product = await Product.findById(item.product).session(session);
+
+      if (!product || product.isDeleted) {
+        throw new Error("Product not found");
+      }
+
+      if (product.stock < quantity) {
+        throw new Error(
+          `Insufficient stock for ${product.title}. Available: ${product.stock}`
+        );
+      }
+
+      // Reduce stock
+      product.stock -= quantity;
+
+      // Update product status automatically
+      if (product.stock === 0) {
+        product.status = "Out of Stock";
+      } else if (product.stock <= product.lowStockAlert) {
+        product.status = "Low Stock";
+      }
+
+      await product.save({ session });
+    }
+    /* ───────────────────────────────
+       COMMIT TRANSACTION
+    ─────────────────────────────── */
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return res.status(201).json({
       success: true,
-      message: 'Order placed successfully',
-      order: savedOrder
+      message: "Order placed successfully",
+      order: order[0]
     });
+
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    await session.abortTransaction();
+    session.endSession();
+
+    return res.status(400).json({
+      success: false,
+      message: error.message
+    });
   }
 };
-
 
 // Update order status (admin only)
 exports.updateOrderStatus = async (req, res) => {
   try {
     const { orderId } = req.params;
     const {             // Pending, Processing, Shipped, Delivered, Cancelled
-      status,          
+      status,
       isPaid,
       isDelivered,
       trackingNumber,

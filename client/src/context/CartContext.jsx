@@ -1,6 +1,13 @@
 // context/CartContext.jsx
 import React, { createContext, useState, useEffect } from "react";
-import api from "../api/axios";
+import {
+  addToCart as apiAddToCart,
+  getCart,
+  removeCartItem,
+  updateCartItem as apiUpdateCartItem,
+  changeCartItemQuantity as apiChangeQty,
+  clearCart as apiClearCart,
+} from "../api/cartApi";
 
 export const CartContext = createContext();
 
@@ -10,17 +17,30 @@ export const CartProvider = ({ children }) => {
 
   const getAuthConfig = () => {
     const token = localStorage.getItem("token");
-    return { headers: { Authorization: `Bearer ${token}` } };
+    if (token)
+      return { headers: { Authorization: `Bearer ${token}` }, status: "Authenticated" };
+    else {
+      return { headers: { Authorization: `Bearer ${token}` }, status: "Not Authenticated" };
+    }
   };
 
   // Fetch cart from backend
   const fetchCart = async () => {
     setLoading(true);
     try {
-      const res = await api.get("/cart", getAuthConfig());
-      setCart(res.data);
+      const data = await getCart();
+
+      const safeItems = (data.items || []).filter(
+        i => i?.product?._id
+      );
+
+      setCart({
+        items: safeItems,
+        totalItems: safeItems.reduce((a, i) => a + i.quantity, 0),
+        totalAmount: safeItems.reduce((a, i) => a + i.totalPrice, 0),
+      });
     } catch (err) {
-      console.error("Error fetching cart:", err);
+      throw err;
     } finally {
       setLoading(false);
     }
@@ -32,94 +52,135 @@ export const CartProvider = ({ children }) => {
 
   // Add product to cart (optimistic)
   const addToCart = async (product, quantity = 1) => {
-    const existingItem = cart.items.find(i => i.product._id === product._id);
+    const me = getAuthConfig();
+    if (me.status == "Authenticated") {
 
-    let updatedCart;
-    if (existingItem) {
-      updatedCart = {
-        ...cart,
-        items: cart.items.map(i =>
-          i.product._id === product._id
-            ? { ...i, quantity: i.quantity + quantity, totalPrice: (i.discountPrice || i.price) * (i.quantity + quantity) }
-            : i
-        ),
-      };
-    } else {
-      const newItem = {
-        product,
-        quantity,
-        price: product.price,
-        discountPrice: product.discountPrice || 0,
-        gstRate: product.gstRate || 0,
-        totalPrice: (product.discountPrice || product.price) * quantity,
-        image: product.images?.[0] || "",
+      // ✅ 2️⃣ ONLY NOW update UI
+      setCart(prev => {
+        const items = [...prev.items];
+        const index = items.findIndex(i => i.product._id === product._id);
 
-      };
-      updatedCart = { ...cart, items: [...cart.items, newItem] };
-    }
-    updatedCart.totalItems = updatedCart.items.reduce((acc, i) => acc + i.quantity, 0);
-    updatedCart.totalAmount = updatedCart.items.reduce((acc, i) => acc + i.totalPrice, 0);
+        if (index > -1) {
+          items[index] = {
+            ...items[index],
+            quantity: items[index].quantity + quantity,
+            totalPrice:
+              (items[index].discountPrice || items[index].price) *
+              (items[index].quantity + quantity),
+          };
+        } else {
+          items.push({
+            product,
+            quantity,
+            price: product.price,
+            discountPrice: product.discountPrice || 0,
+            gstRate: product.gstRate || 0,
+            totalPrice: (product.discountPrice || product.price) * quantity,
+            image: product.images?.[0] || "",
+          });
+        }
 
-    setCart(updatedCart);
-
-    try {
-      await api.post("/cart/add", { productId: product, quantity }, getAuthConfig());
-      fetchCart(); // sync with backend
-    } catch (err) {
-      console.error("Error adding to cart:", err);
-      fetchCart(); // rollback
-    }
+        return {
+          items,
+          totalItems: items.reduce((a, i) => a + i.quantity, 0),
+          totalAmount: items.reduce((a, i) => a + i.totalPrice, 0),
+        };
+      });}
+      try {
+        // 🔐 1️⃣ Validate auth + backend FIRST
+        await apiAddToCart(product._id, quantity);
+      } catch (err) {
+        // ❌ API already showed toast
+        // ❌ DO NOT update cart
+        return;
+      }
   };
 
-  // Remove product
   const removeFromCart = async (productId) => {
-    const prevCart = { ...cart };
-    setCart({
-      ...cart,
-      items: cart.items.filter(i => i.product._id !== productId),
-      totalItems: cart.totalItems - (cart.items.find(i => i.product._id === productId)?.quantity || 0),
-      totalAmount: cart.items.reduce(
-        (acc, i) => (i.product._id === productId ? acc : acc + i.totalPrice),
-        0
-      ),
+
+    // 🔥 1️⃣ OPTIMISTIC UI UPDATE
+    const previousCart = cart;
+
+    setCart(prev => {
+      const items = prev.items.filter(
+        i => i.product._id !== productId
+      );
+
+      return {
+        items,
+        totalItems: items.reduce((a, i) => a + i.quantity, 0),
+        totalAmount: items.reduce((a, i) => a + i.totalPrice, 0),
+      };
     });
 
+    // 🔄 2️⃣ BACKEND SYNC
     try {
-      await api.delete(`/cart/remove/${productId}`, getAuthConfig());
-      fetchCart(); // sync
+      await removeCartItem(productId);
     } catch (err) {
-      console.error("Error removing from cart:", err);
-      setCart(prevCart); // rollback
+      console.error(err.message);
+
+      // ❌ 3️⃣ ROLLBACK if API fails
+      setCart(previousCart);
     }
   };
 
-  // Update quantity directly
   const updateCartItem = async (productId, quantity) => {
     try {
-      await api.put("/cart/update", { productId, quantity }, getAuthConfig());
+      await apiUpdateCartItem(productId, quantity);
       fetchCart();
     } catch (err) {
-      console.error("Error updating cart item:", err);
+      console.error(err.message);
     }
   };
 
-  // Increment / decrement quantity
   const changeCartItemQuantity = async (productId, increment = true) => {
+    // 1️⃣ Store previous state for rollback
+    const previousCart = cart;
+
+    // 2️⃣ Optimistically update UI
+    setCart(prev => {
+      const items = prev.items.map(item => {
+        if (item.product._id === productId) {
+          const newQuantity = increment
+            ? item.quantity + 1
+            : item.quantity - 1;
+
+          const safeQuantity = newQuantity < 1 ? 1 : newQuantity;
+
+          return {
+            ...item,
+            quantity: safeQuantity,
+            totalPrice:
+              (item.discountPrice || item.price) * safeQuantity,
+          };
+        }
+        return item;
+      });
+
+      return {
+        items,
+        totalItems: items.reduce((a, i) => a + i.quantity, 0),
+        totalAmount: items.reduce((a, i) => a + i.totalPrice, 0),
+      };
+    });
+
+    // 3️⃣ Backend sync
     try {
-      await api.put("/cart/change-quantity", { productId, increment }, getAuthConfig());
-      fetchCart();
+      await apiChangeQty(productId, increment);
     } catch (err) {
-      console.error("Error changing cart item quantity:", err);
+      console.error(err.message);
+
+      // 4️⃣ Rollback if failed
+      setCart(previousCart);
     }
   };
 
-  // Clear entire cart
   const clearCart = async () => {
     try {
-      await api.delete("/cart/clear", getAuthConfig());
+      await apiClearCart();
       setCart({ items: [], totalItems: 0, totalAmount: 0 });
     } catch (err) {
-      console.error("Error clearing cart:", err);
+      console.error(err.message);
     }
   };
 

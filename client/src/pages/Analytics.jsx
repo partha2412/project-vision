@@ -4,6 +4,8 @@ import {
   LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, Tooltip, CartesianGrid, Legend, ResponsiveContainer,
 } from "recharts";
+import api from "../api/axios";
+import { ChartNoAxesCombined } from 'lucide-react';
 
 const Analytics = () => {
   // Example Data
@@ -20,9 +22,9 @@ const Analytics = () => {
         const config = { headers: { Authorization: `Bearer ${token}` } };
 
         const [salesRes, revenueRes, ordersRes] = await Promise.all([
-          axios.get("http://localhost:5000/api/admin/analytics/sales", config),
-          axios.get("http://localhost:5000/api/admin/analytics/revenue-by-category", config),
-          axios.get("http://localhost:5000/api/admin/analytics/orders-status", config),
+          api.get("/admin/analytics/sales", config),
+          api.get("/admin/analytics/revenue-by-category", config),
+          api.get("/admin/analytics/orders-status", config),
         ]);
 
         setSalesData(salesRes.data);
@@ -37,7 +39,9 @@ const Analytics = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
-      <h1 className="text-3xl font-extrabold mb-8">Admin Analytics</h1>
+      <h1 className="text-3xl font-bold mb-6 flex items-center gap-2">
+        <ChartNoAxesCombined className="w-8 h-8 text-blue-600"/> Analytics Dashboard
+      </h1>
 
       <div className="grid md:grid-cols-2 gap-8">
         {/* Line Chart: Sales Over Time */}
@@ -73,7 +77,7 @@ const Analytics = () => {
         {/* Pie Chart: Orders Distribution */}
         <div className="bg-white p-6 rounded-xl shadow-lg md:col-span-2">
           <h2 className="text-xl font-semibold mb-4">Orders Distribution</h2>
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={350}>
             <PieChart>
               <Pie
                 data={ordersData}

@@ -33,6 +33,25 @@ export const fetchUserOrders = async (userId) => {
 };
 
 // Delete order by ID (admin only)
+export const placeOrder = async (orderData) => {
+  try {
+    // console.log(orderData);
+    
+    const token = localStorage.getItem("token");
+    const response = await api.post(`/order/create`,orderData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      }
+    });
+    //console.log(response);
+    
+    return response.data;
+  } catch (error) {
+    throw error.response ? error.response.data : { message: "Network error" };
+  }
+};
+
+// Delete order by ID (admin only)
 export const deleteOrder = async (orderId) => {
   try {
     const token = localStorage.getItem("token");

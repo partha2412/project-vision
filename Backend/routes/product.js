@@ -15,7 +15,8 @@ router.post(
   productController.uploadMiddleware, // multer middleware
   productController.addProduct
 );
-
+// Add Bulk
+router.post('/add_bulk', productController.bulkUploadMiddleware , productController.addbulkProduct);
 
 // Update product by name
 router.put(
@@ -80,5 +81,7 @@ router.get('/best-seller', productController.getBestSellerProducts);
 // Discount products
 router.get('/discount', productController.getDiscountProducts);
 
+router.delete("/delete/all", productController.deleteAllProducts);
+router.delete("/delete/bulk", productController.deleteMultipleProducts); // send { ids: [...] } in body
 
 module.exports = router;

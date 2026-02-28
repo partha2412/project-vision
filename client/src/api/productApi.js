@@ -22,7 +22,7 @@ export const fetchProductById = async (productId) => {
 // Search products by title or description
 export const searchProducts = async (order) => {
   try {
-    const response = await api.get("/product/search", { params: { o } });
+    const response = await api.get("/product/search", { params: { order } });
     return response.data;
   } catch (error) {
     throw error.response ? error.response.data : { message: "Network error" };
@@ -53,11 +53,31 @@ export const addProduct = async (productData) => {
   }
 };
 
+// Add Bulk
+export const addBulk = async (formData) => {
+  try {
+    const response = await api.post(
+      "/product/add_bulk",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    // console.log(response);
+
+    return response;
+  } catch (error) {
+    throw error.response?.data || { message: "Network error" };
+  }
+};
+
 // Update product by ID
 export const updateProductById = async (productId, updateData) => {
   try {
     //console.log(updateData);
-    
+
     const response = await api.put(`/product/update/${productId}`, updateData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
@@ -97,6 +117,44 @@ export const fetchProductsByCategory = async (category) => {
         : `/product/category/${category}`;
     const response = await api.get(endpoint);
     return response.data; // backend returns { products: [...] }
+  } catch (error) {
+    throw error.response ? error.response.data : { message: "Network error" };
+  }
+};
+export const fetchCategories = async () => {
+  try {
+    //const res = await api.get("/product/category");
+    return ["Men","Women","Unisex"]//res.data;
+  } catch (error) {
+    throw error.response?.data || { message: "Network error" };
+  }
+};
+
+export const productFilter = async (minRange, maxRange) => {
+  try {
+    const res = await api.get("/product/filter", {
+      params: { min: minRange, max: maxRange },
+    });
+    return res;
+  }
+  catch (e) {
+    throw error.response ? error.response.data : { message: "Network error" };
+  }
+}
+
+export const deleteAllProducts = async () => {
+  try {
+    const res = await api.delete("/product/delete/all");
+    return res;
+  } catch (error) {
+    throw error.response ? error.response.data : { message: "Network error" };
+  }
+};
+
+export const deleteMultipleProducts = async (ids) => {
+  try {
+    const res = await api.delete("/product/delete/bulk", { data: { ids } });
+    return res;
   } catch (error) {
     throw error.response ? error.response.data : { message: "Network error" };
   }

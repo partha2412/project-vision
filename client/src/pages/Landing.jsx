@@ -1,7 +1,7 @@
 import Carousel from '../components/Carousl'
 import BuyOneGetOne from './slides/BuyOneGetOne'
 import Slide2 from './slides/Slide2'
-import CategorySection from "../components/CategorySection";
+import CategorySection from "./slides/CategorySection";
 import SubNavBar from '../common/SubNavBar';
 
 const Landing = () => {
@@ -18,7 +18,7 @@ const Landing = () => {
 
 
                 {/* Sliding 1st Slide */}
-                <div className='bg-sky-400 h-180'>
+                <div className='bg-sky-400'>
                     <Carousel images={images} />
                 </div>
 

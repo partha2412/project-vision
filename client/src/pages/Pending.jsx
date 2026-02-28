@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import { fetchAllOrders, deleteOrder, updateOrderStatus } from "../api/orderApi";
 import { FaTrash } from "react-icons/fa"; // Trash icon
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { Package } from 'lucide-react';
 
 const Pending = () => {
   const [filter, setFilter] = useState("all");
@@ -50,7 +53,8 @@ const Pending = () => {
       const payload = { status: newStatus };
 
       const updatedOrder = await updateOrderStatus(id, payload);
-      console.log("Updated order:", updatedOrder);
+      toast.success(`Order #${id.slice(-6)} status updated to ${updatedOrder.order.status}`);
+      //console.log("Updated order:", updatedOrder);
 
       // Update orders state
       setOrders(
@@ -93,8 +97,10 @@ const Pending = () => {
   if (error) return <p className="text-red-500">{error}</p>;
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-6">Orders</h1>
+    <div className="p-6">
+      <h1 className="text-3xl font-bold mb-6 flex items-center gap-2 ">
+        <Package className="w-8 h-8 text-blue-600" /> Orders
+      </h1>
 
       {/* Filter Dropdown */}
       <div className="mb-4">

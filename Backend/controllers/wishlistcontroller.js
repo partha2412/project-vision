@@ -1,4 +1,4 @@
-const Wishlist = require("../models/Wishlist");
+const Wishlist = require("../models/Wishlist.js");
 
 // ✅ Get Wishlist
 exports.getWishlist = async (req, res) => {
@@ -59,3 +59,23 @@ exports.removeFromWishlist = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+exports.clearCart = async (req, res) => {
+  try {
+    await Wishlist.updateOne(
+      { user: req.user.id },
+      { $set: { products: [] } }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Wishlist cleared successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to clear wishlist",
+    });
+  }
+}

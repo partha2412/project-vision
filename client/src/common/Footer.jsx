@@ -3,11 +3,10 @@ import { FaFacebook, FaWhatsapp, FaInstagram } from "react-icons/fa";
 
 const Footer = () => {
   return (
-    <>  
-     <div className="absolute h-[250px] w-full bg-black text-white px-8 py-6 grid grid-cols-3 gap-10 justify-between">
+    <div className="w-full bg-black text-white px-6 py-8 grid grid-cols-1 md:grid-cols-3 gap-6">
       
       {/* Column 1 */}
-      <div className="mb-4 md:mb-0 ">
+      <div>
         <h3 className="font-bold mb-2">Company Overview</h3>
         <p>About Us</p>
         <p>Our Values</p>
@@ -19,7 +18,7 @@ const Footer = () => {
       </div>
 
       {/* Column 2 */}
-      <div className="mb-4 md:mb-0">
+      <div>
         <h3 className="font-bold mb-2">Knowledge</h3>
         <p>FAQs</p>
         <p>Return & Refund Policy</p>
@@ -28,30 +27,24 @@ const Footer = () => {
       </div>
 
       {/* Column 3 */}
-      <div className="mb-4 md:mb-0">
+      <div>
         <h3 className="font-bold mb-2">Contact Us</h3>
         <p>Need help fast? Fill out our form or email help@beminimalist.co</p>
 
-        {/* Social Icons */}
-      <div className="mt-10 flex items-center space-x-4 text-2xl">
-        <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300  bg-blue-600">
-          <FaFacebook />
-        </a>
-        <a href="https://wa.me/your-number" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300 bg-green-400 ">
-          <FaWhatsapp />
-        </a>
-        <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300 bg-pink-600">
-          <FaInstagram />
-        </a>
+        <div className="mt-6 flex items-center space-x-4 text-2xl">
+          <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300">
+            <FaFacebook />
+          </a>
+          <a href="https://wa.me/your-number" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300">
+            <FaWhatsapp />
+          </a>
+          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300">
+            <FaInstagram />
+          </a>
+        </div>
       </div>
-
-      </div>
-
-      
 
     </div>
-     </>
-   
   )
 }
 
