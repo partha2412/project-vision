@@ -40,6 +40,7 @@ const NavBar = () => {
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
+    window.addEventListener("userUpdated", loadUser);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 

@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import { Tab } from "@headlessui/react";
+import {
+  ShoppingBag, User, MapPin, Heart, Star, Bell, Gift
+} from "lucide-react";
 import OrdersTab from "./OrdersTab";
 import UpdateTab from "./UpdateTab";
 import AddressBookTab from "./AddressBookTab";
@@ -8,60 +10,83 @@ import ReviewsTab from "./ReviewsTab";
 import NotificationsTab from "./NotificationsTab";
 import RewardsTab from "./RewardsTab";
 
-function classNames(...classes) {
-  return classes.filter(Boolean).join(" ");
-}
-
 const ProfileSettings = () => {
-  const [darkMode, setDarkMode] = useState(false);
+  const [activePage, setActivePage] = useState("orders");
 
   const tabs = [
-    { name: "Orders", component: <OrdersTab /> },
-    { name: "Update", component: <UpdateTab /> },
-    { name: "Address Book", component: <AddressBookTab /> },
-    { name: "Wishlist", component: <WishlistTab /> },
-    { name: "Reviews", component: <ReviewsTab /> },
-    { name: "Notifications", component: <NotificationsTab /> },
-    { name: "Rewards", component: <RewardsTab /> },
+    { id: "orders",        label: "Orders",        icon: <ShoppingBag className="w-5 h-5" />, component: <OrdersTab /> },
+    { id: "update",        label: "Profile",        icon: <User className="w-5 h-5" />,        component: <UpdateTab /> },
+    { id: "address",       label: "Address Book",   icon: <MapPin className="w-5 h-5" />,      component: <AddressBookTab /> },
+    { id: "wishlist",      label: "Wishlist",       icon: <Heart className="w-5 h-5" />,       component: <WishlistTab /> },
+    { id: "reviews",       label: "Reviews",        icon: <Star className="w-5 h-5" />,        component: <ReviewsTab /> },
+    { id: "notifications", label: "Notifications",  icon: <Bell className="w-5 h-5" />,        component: <NotificationsTab /> },
+    { id: "rewards",       label: "Rewards",        icon: <Gift className="w-5 h-5" />,        component: <RewardsTab /> },
   ];
 
+  const activeTab = tabs.find((t) => t.id === activePage);
+
   return (
-    <div className={`${darkMode ? "dark" : ""} min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors`}>
-      <div className="max-w-screen mx-auto p-6 bg-white dark:bg-gray-800 shadow-md rounded-lg mt-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold dark:text-white">Account Settings</h1>
+    <div className="flex flex-col md:flex-row min-h-screen bg-gray-100">
+
+      {/* ── DESKTOP SIDEBAR ── */}
+      <aside className="hidden md:flex flex-col bg-white shadow-lg p-4 w-64">
+        <h2 className="text-gray-900 font-bold text-2xl mb-8 px-2">My Account</h2>
+        <nav className="flex flex-col gap-2">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActivePage(tab.id)}
+              className={`flex items-center gap-3 p-3 rounded-lg text-sm font-medium transition ${
+                activePage === tab.id
+                  ? "bg-gray-900 text-white shadow-md"
+                  : "hover:bg-gray-100 text-gray-600"
+              }`}
+            >
+              {tab.icon}
+              <span>{tab.label}</span>
+            </button>
+          ))}
+        </nav>
+      </aside>
+
+      {/* ── MAIN CONTENT ── */}
+      <main className="flex-1 p-4 md:p-8 pb-24 md:pb-8 overflow-y-auto">
+        {/* Mobile header */}
+        <div className="md:hidden mb-4">
+          <h2 className="text-gray-900 font-bold text-xl">My Account</h2>
+          <p className="text-gray-400 text-sm">{activeTab?.label}</p>
         </div>
 
-        <Tab.Group>
-          <div className="flex">
-            {/* Tabs List */}
-            <Tab.List className="flex flex-col w-56 space-y-2 border-r dark:border-gray-600 pr-4">
-              {tabs.map((tab) => (
-                <Tab
-                  key={tab.name}
-                  className={({ selected }) =>
-                    classNames(
-                      "py-2 px-4 text-left text-sm font-medium rounded hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none",
-                      selected
-                        ? "bg-blue-100 dark:bg-blue-600 text-blue-600 dark:text-white font-semibold"
-                        : "text-gray-600 dark:text-gray-300"
-                    )
-                  }
-                >
-                  {tab.name}
-                </Tab>
-              ))}
-            </Tab.List>
+        {/* Page title */}
+        <div className="hidden md:flex items-center gap-3 mb-6">
+          <span className="text-gray-700">{activeTab?.icon}</span>
+          <h1 className="text-2xl font-semibold text-gray-800">{activeTab?.label}</h1>
+        </div>
 
-            {/* Panels */}
-            <Tab.Panels className="flex-1 pl-6">
-              {tabs.map((tab) => (
-                <Tab.Panel key={tab.name}>{tab.component}</Tab.Panel>
-              ))}
-            </Tab.Panels>
-          </div>
-        </Tab.Group>
-      </div>
+        {/* Content */}
+        <div className="bg-white rounded-xl shadow-sm p-4 md:p-6">
+          {activeTab?.component}
+        </div>
+      </main>
+
+      {/* ── MOBILE BOTTOM TAB BAR ── */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50">
+        <div className="flex justify-around items-center py-2">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActivePage(tab.id)}
+              className={`flex flex-col items-center gap-1 px-2 py-1 transition ${
+                activePage === tab.id ? "text-gray-900" : "text-gray-400"
+              }`}
+            >
+              {tab.icon}
+              <span className="text-[10px]">{tab.label}</span>
+            </button>
+          ))}
+        </div>
+      </nav>
+
     </div>
   );
 };

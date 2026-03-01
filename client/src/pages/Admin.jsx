@@ -39,6 +39,7 @@ const Admin = () => {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [expandedId, setExpandedId] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [loadingProducts, setLoadingProducts] = useState(true);
 
   // ── Selection state ──────────────────────────────────────────────────────────
   const [selectedIds, setSelectedIds] = useState(new Set());
@@ -57,19 +58,19 @@ const Admin = () => {
   // ── Load products ────────────────────────────────────────────────────────────
   const loadProducts = async () => {
     try {
+      setLoadingProducts(true); // 👈 add this
       const data = await fetchProducts();
-      setProducts(
-        data.products.map((p) => ({ ...p, imagePreviews: p.images || [] }))
-      );
+      setProducts(data.products.map((p) => ({ ...p, imagePreviews: p.images || [] })));
       const lowStock = data.products.filter((p) => p.stock <= p.lowStockAlert);
       if (lowStock.length > 0) {
         toast.warning(`${lowStock.length} product(s) are low on stock!`, {
-          toastId: "low-stock-warning",
-          autoClose: 2000,
+          toastId: "low-stock-warning", autoClose: 2000,
         });
       }
     } catch {
       toast.error("Failed to load products");
+    } finally {
+      setLoadingProducts(false); // 👈 add this
     }
   };
 
@@ -474,15 +475,33 @@ const Admin = () => {
           </div>
         </div>
 
-        {products.length === 0 ? (
+        {loadingProducts ? (
+          // Skeleton
+          <div className="space-y-3">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="bg-white rounded-xl shadow-md p-4 flex items-center gap-4">
+                <div className="w-4 h-4 bg-gray-200 animate-pulse rounded" />
+                <div className="flex gap-2">
+                  <div className="w-12 h-12 bg-gray-200 animate-pulse rounded" />
+                  <div className="w-12 h-12 bg-gray-200 animate-pulse rounded" />
+                </div>
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 w-1/3 bg-gray-200 animate-pulse rounded" />
+                  <div className="h-3 w-1/4 bg-gray-200 animate-pulse rounded" />
+                </div>
+                <div className="w-16 h-6 bg-gray-200 animate-pulse rounded-full" />
+                <div className="w-8 h-8 bg-gray-200 animate-pulse rounded" />
+              </div>
+            ))}
+          </div>
+        ) : products.length === 0 ? (
           <p className="text-gray-500">No products added yet.</p>
         ) : (
           products.map((p) => (
             <div
               key={p._id}
-              className={`bg-white mb-3 rounded-xl shadow-md overflow-hidden border-2 transition-colors duration-200 ${
-                selectedIds.has(p._id) ? "border-blue-400" : "border-transparent"
-              }`}
+              className={`bg-white mb-3 rounded-xl shadow-md overflow-hidden border-2 transition-colors duration-200 ${selectedIds.has(p._id) ? "border-blue-400" : "border-transparent"
+                }`}
             >
               <details
                 onToggle={(e) => {
@@ -514,9 +533,8 @@ const Admin = () => {
                   </div>
 
                   {/* Stock badge */}
-                  <span className={`text-xs font-semibold px-2 py-1 rounded-full flex-shrink-0 ${
-                    p.stock <= p.lowStockAlert ? "bg-red-100 text-red-600" : "bg-green-100 text-green-600"
-                  }`}>
+                  <span className={`text-xs font-semibold px-2 py-1 rounded-full flex-shrink-0 ${p.stock <= p.lowStockAlert ? "bg-red-100 text-red-600" : "bg-green-100 text-green-600"
+                    }`}>
                     Stock: {p.stock}
                   </span>
 

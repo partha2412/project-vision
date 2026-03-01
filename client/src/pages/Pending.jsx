@@ -1,17 +1,26 @@
 import { useState, useEffect } from "react";
 import { fetchAllOrders, deleteOrder, updateOrderStatus } from "../api/orderApi";
-import { FaTrash } from "react-icons/fa"; // Trash icon
+import { FaTrash } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Package } from 'lucide-react';
+import { Package, ChevronDown, ChevronUp } from "lucide-react";
+
+const statusStyles = {
+  Pending: "bg-yellow-100 text-yellow-600",
+  Processing: "bg-blue-100 text-blue-600",
+  Shipped: "bg-purple-100 text-purple-600",
+  Delivered: "bg-green-100 text-green-700",
+  Cancelled: "bg-red-100 text-red-500",
+};
 
 const Pending = () => {
   const [filter, setFilter] = useState("all");
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [confirmDeleteId, setConfirmDeleteId] = useState(null); // Track which order is pending deletion
-  const [pendingStatus, setPendingStatus] = useState({}); // Track pending status changes
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  const [pendingStatus, setPendingStatus] = useState({});
+  const [expandedId, setExpandedId] = useState(null);
 
   const loadOrders = async () => {
     try {
@@ -25,18 +34,16 @@ const Pending = () => {
     }
   };
 
-  useEffect(() => {
-
-    loadOrders();
-  }, []);
+  useEffect(() => { loadOrders(); }, []);
 
   const handleDelete = async (id) => {
     try {
       await deleteOrder(id);
-      setOrders(orders.filter((order) => order._id !== id));
-      setConfirmDeleteId(null); // Reset confirmation
+      setOrders(orders.filter((o) => o._id !== id));
+      setConfirmDeleteId(null);
+      toast.success("Order deleted!");
     } catch (err) {
-      alert(err.message || "Failed to delete order");
+      toast.error(err.message || "Failed to delete order");
     }
   };
 
@@ -45,71 +52,63 @@ const Pending = () => {
   };
 
   const confirmStatusChange = async (id) => {
-    const newStatus = pendingStatus[id]; // string like "Shipped"
+    const newStatus = pendingStatus[id];
     if (!newStatus) return;
-
     try {
-      // Send directly as { status: "Shipped" }
-      const payload = { status: newStatus };
-
-      const updatedOrder = await updateOrderStatus(id, payload);
-      toast.success(`Order #${id.slice(-6)} status updated to ${updatedOrder.order.status}`);
-      //console.log("Updated order:", updatedOrder);
-
-      // Update orders state
-      setOrders(
-        orders.map((order) =>
-          order._id === id ? { ...order, status: newStatus } : order
-        )
-      );
-
-      // Clear pending status
-      setPendingStatus((prev) => {
-        const copy = { ...prev };
-        delete copy[id];
-        return copy;
-      });
+      const updatedOrder = await updateOrderStatus(id, { status: newStatus });
+      toast.success(`Order #${id.slice(-6)} → ${updatedOrder.order.status}`);
+      setOrders(orders.map((o) => o._id === id ? { ...o, status: newStatus } : o));
+      setPendingStatus((prev) => { const c = { ...prev }; delete c[id]; return c; });
     } catch (err) {
-      alert(err.message || "Failed to update status");
+      toast.error(err.message || "Failed to update status");
     }
   };
 
-
-
-  const cancelDelete = () => {
-    setConfirmDeleteId(null);
-  };
-
   const cancelStatusChange = (id) => {
-    setPendingStatus((prev) => {
-      const copy = { ...prev };
-      delete copy[id];
-      return copy;
-    });
+    setPendingStatus((prev) => { const c = { ...prev }; delete c[id]; return c; });
   };
 
-  const filteredOrders =
-    filter === "all"
-      ? orders
-      : orders.filter((o) => o.status?.toLowerCase() === filter.toLowerCase());
+  const filteredOrders = filter === "all"
+    ? orders
+    : orders.filter((o) => o.status?.toLowerCase() === filter.toLowerCase());
 
-  if (loading) return <p>Loading orders...</p>;
-  if (error) return <p className="text-red-500">{error}</p>;
+  // Loading skeleton
+  if (loading) return (
+    <div className="p-4 md:p-6 space-y-3">
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="bg-white rounded-xl p-4 shadow-sm space-y-2 animate-pulse">
+          <div className="h-4 w-1/4 bg-gray-200 rounded" />
+          <div className="h-3 w-1/3 bg-gray-200 rounded" />
+          <div className="h-3 w-1/2 bg-gray-200 rounded" />
+        </div>
+      ))}
+    </div>
+  );
+
+  if (error) return (
+    <div className="p-6 text-center text-red-500">{error}</div>
+  );
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold mb-6 flex items-center gap-2 ">
-        <Package className="w-8 h-8 text-blue-600" /> Orders
-      </h1>
+    <div className="p-3 md:p-6">
+      <ToastContainer position="top-right" autoClose={3000} theme="colored" />
 
-      {/* Filter Dropdown */}
-      <div className="mb-4">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <h1 className="text-xl md:text-3xl font-bold flex items-center gap-2">
+          <Package className="w-6 h-6 md:w-8 md:h-8 text-blue-600" />
+          Orders
+          <span className="text-sm font-normal text-gray-400 ml-1">({filteredOrders.length})</span>
+        </h1>
+
+        {/* Filter */}
         <select
-          className="border px-3 py-2 rounded"
+          className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gray-300"
           onChange={(e) => setFilter(e.target.value)}
           value={filter}
         >
-          <option value="all">All</option>
+          <option value="all">All Orders</option>
+          <option value="pending">Pending</option>
           <option value="processing">Processing</option>
           <option value="shipped">Shipped</option>
           <option value="delivered">Delivered</option>
@@ -117,147 +116,165 @@ const Pending = () => {
         </select>
       </div>
 
-      {/* Orders List */}
+      {/* Orders */}
       {filteredOrders.length === 0 ? (
-        <p>No orders found.</p>
+        <div className="flex flex-col items-center justify-center py-16 text-gray-400 gap-3">
+          <Package className="w-12 h-12" />
+          <p className="text-lg font-medium">No orders found</p>
+        </div>
       ) : (
-        <ul>
+        <div className="space-y-3">
           {filteredOrders.map((order) => (
-            <li
-              key={order._id}
-              className="border p-4 mb-3 rounded-lg shadow-sm bg-white relative"
-            >
-              {/* Delete Button (top-right corner) */}
-              <div className="absolute top-12 right-4 flex gap-2 duration-300">
-                {confirmDeleteId === order._id ? (
-                  <div className="flex flex-row-reverse gap-2 mr-4">
-                    <button
-                      onClick={() => handleDelete(order._id)}
-                      className="bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700 flex items-center gap-1"
-                    >
-                      <FaTrash /> Confirm
-                    </button>
-                    <button
-                      onClick={cancelDelete}
-                      className="bg-gray-300 text-gray-700 px-2 py-1 rounded text-xs hover:bg-gray-400"
-                    >
-                      Cancel
-                    </button>
+            <div key={order._id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition">
+
+              {/* Order Header Row */}
+              <div className="flex flex-wrap items-center gap-3 px-4 py-3">
+
+                {/* Order ID + Date */}
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className="w-9 h-9 bg-gray-100 rounded-lg flex items-center justify-center shrink-0">
+                    <Package className="w-4 h-4 text-gray-500" />
                   </div>
-                ) : (
-                  <button
-                    onClick={() => setConfirmDeleteId(order._id)}
-                    className="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600 flex items-center gap-1"
-                  >
-                    <FaTrash />
-                  </button>
-                )}
-              </div>
-
-              {/* Order header */}
-              <div className="flex justify-between items-center mb-1">
-                <div className="font-semibold text-lg">
-                  Order <span className="text-gray-500">#{order._id.slice(-6)}</span>
+                  <div>
+                    <p className="font-semibold text-gray-800 text-sm">#{order._id.slice(-8).toUpperCase()}</p>
+                    <p className="text-xs text-gray-400">{new Date(order.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</p>
+                  </div>
                 </div>
-                <div className="text-sm text-gray-500">
-                  Date: {new Date(order.createdAt).toLocaleString()}
+
+                {/* User */}
+                <div className="hidden sm:block text-sm text-gray-600 flex-1 min-w-0 truncate">
+                  {order.user ? `${order.user.firstname || ""} ${order.user.lastname || ""}` : "N/A"}
                 </div>
-              </div>
 
-              {/* User Info */}
-              <div className="text-sm mb-2">
-                <strong>User:</strong>{" "}
-                {order.user
-                  ? `${order.user.firstname || ""} ${order.user.lastname || ""} (${order.user.email || ""})`
-                  : "N/A"}
-              </div>
+                {/* Status Badge */}
+                <span className={`text-xs font-medium px-3 py-1 rounded-full shrink-0 ${statusStyles[order.status] || "bg-gray-100 text-gray-600"}`}>
+                  {order.status}
+                </span>
 
-              {/* Payment & Status */}
-              <div className="text-sm text-gray-700 mb-1 flex items-center gap-2">
-                <strong>Status:</strong>
-                <select
-                  className="border px-2 py-1 rounded"
-                  value={pendingStatus[order._id] || order.status} // load current status from DB
-                  onChange={(e) => handleStatusChange(order._id, e.target.value)}
+                {/* Total */}
+                <span className="font-bold text-gray-800 text-sm shrink-0">
+                  ₹{order.totalAmount?.toLocaleString()}
+                </span>
+
+                {/* Expand */}
+                <button
+                  onClick={() => setExpandedId(expandedId === order._id ? null : order._id)}
+                  className="p-1.5 rounded-lg hover:bg-gray-100 transition text-gray-400 shrink-0"
                 >
-                  {["Pending", "Processing", "Shipped", "Delivered", "Cancelled"].map((status) => (
-                    <option key={status} value={status}>
-                      {status}
-                    </option>
-                  ))}
-                </select>
-
-
-                {/* Confirm / Cancel buttons for status */}
-                {pendingStatus[order._id] && (
-                  <>
-                    <button
-                      onClick={() => confirmStatusChange(order._id)}
-                      className="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600"
-                    >
-                      Confirm
-                    </button>
-                    <button
-                      onClick={() => cancelStatusChange(order._id)}
-                      className="bg-gray-300 text-gray-700 px-2 py-1 rounded text-xs hover:bg-gray-400"
-                    >
-                      Cancel
-                    </button>
-                  </>
-                )}
+                  {expandedId === order._id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </button>
               </div>
 
-              {/* Paid / Delivered */}
-              <div className="text-sm text-gray-700 mb-1">
-                <strong>Paid:</strong> {order.isPaid ? "Yes" : "No"}
-              </div>
+              {/* Expanded Details */}
+              {expandedId === order._id && (
+                <div className="border-t border-gray-100 bg-gray-50 space-y-4">
 
-              {order.isPaid && order.paidAt && (
-                <div className="text-sm text-gray-700 mb-1">
-                  <strong>Paid At:</strong> {new Date(order.paidAt).toLocaleString()}
+                  {/* Status Change + Delete */}
+                  <div className="flex flex-wrap items-center p-2 gap-3">
+                    <select
+                      className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gray-300"
+                      value={pendingStatus[order._id] || order.status}
+                      onChange={(e) => handleStatusChange(order._id, e.target.value)}
+                    >
+                      {["Pending", "Processing", "Shipped", "Delivered", "Cancelled"].map((s) => (
+                        <option key={s} value={s}>{s}</option>
+                      ))}
+                    </select>
+
+                    {pendingStatus[order._id] && (
+                      <>
+                        <button onClick={() => confirmStatusChange(order._id)}
+                          className="px-3 py-1.5 bg-gray-900 text-white text-sm rounded-lg hover:bg-gray-700 transition">
+                          Confirm
+                        </button>
+                        <button onClick={() => cancelStatusChange(order._id)}
+                          className="px-3 py-1.5 bg-gray-200 text-gray-700 text-sm rounded-lg hover:bg-gray-300 transition">
+                          Cancel
+                        </button>
+                      </>
+                    )}
+
+                    {/* Delete */}
+                    <div className="ml-auto">
+                      {confirmDeleteId === order._id ? (
+                        <div className="flex gap-2">
+                          <button onClick={() => handleDelete(order._id)}
+                            className="px-3 py-1.5 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition flex items-center gap-1">
+                            <FaTrash className="text-xs" /> Confirm
+                          </button>
+                          <button onClick={() => setConfirmDeleteId(null)}
+                            className="px-3 py-1.5 bg-gray-200 text-gray-700 text-sm rounded-lg hover:bg-gray-300 transition">
+                            Cancel
+                          </button>
+                        </div>
+                      ) : (
+                        <button onClick={() => setConfirmDeleteId(order._id)}
+                          className="px-3 py-1.5 bg-red-50 text-red-500 text-sm rounded-lg hover:bg-red-100 transition flex items-center gap-1">
+                          <FaTrash className="text-xs" /> Delete
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* User detail */}
+                  <div className="bg-white p-3 rounded-lg text-sm">
+                    <p className="text-xs text-gray-400 mb-1">Customer</p>
+                    <p className="font-medium text-gray-800">
+                      {order.user ? `${order.user.firstname || ""} ${order.user.lastname || ""}` : "N/A"}
+                    </p>
+                    <p className="text-gray-500 text-xs">{order.user?.email}</p>
+                  </div>
+
+                  {/* Order Items */}
+                  <div className="space-y-2">
+                    {order.orderItems?.map((item, i) => (
+                      <div key={i} className="bg-white p-3 rounded-lg flex justify-between text-sm">
+                        <div>
+                          <p className="font-medium text-gray-800">{item.name || "Product"}</p>
+                          <p className="text-xs text-gray-400">Qty: {item.quantity}</p>
+                        </div>
+                        <p className="font-semibold text-gray-700">₹{(item.price * item.quantity).toLocaleString()}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Info Grid */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
+                    <div className="bg-white p-3 rounded-lg">
+                      <p className="text-xs text-gray-400 mb-1">Payment</p>
+                      <p className="font-medium text-gray-700">{order.paymentMethod}</p>
+                    </div>
+                    <div className="bg-white p-3 rounded-lg">
+                      <p className="text-xs text-gray-400 mb-1">Paid</p>
+                      <p className={`font-medium ${order.isPaid ? "text-green-600" : "text-red-500"}`}>
+                        {order.isPaid ? `Yes` : "No"}
+                      </p>
+                    </div>
+                    <div className="bg-white p-3 rounded-lg">
+                      <p className="text-xs text-gray-400 mb-1">Delivered</p>
+                      <p className={`font-medium ${order.isDelivered ? "text-green-600" : "text-red-500"}`}>
+                        {order.isDelivered ? "Yes" : "No"}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Shipping */}
+                  {order.shippingAddress && (
+                    <div className="bg-white p-3 rounded-lg text-sm">
+                      <p className="text-xs text-gray-400 mb-1">Shipping Address</p>
+                      <p className="text-gray-700">
+                        {order.shippingAddress.address}, {order.shippingAddress.city}, {order.shippingAddress.state} - {order.shippingAddress.postalCode}, {order.shippingAddress.country}
+                      </p>
+                    </div>
+                  )}
+
+
+
                 </div>
               )}
-
-              <div className="text-sm text-gray-700 mb-1">
-                <strong>Delivered:</strong> {order.isDelivered ? "Yes" : "No"}
-              </div>
-
-              {order.isDelivered && order.deliveredAt && (
-                <div className="text-sm text-gray-700 mb-1">
-                  <strong>Delivered At:</strong>{" "}
-                  {new Date(order.deliveredAt).toLocaleString()}
-                </div>
-              )}
-
-              {/* Order Items */}
-              <div className="text-sm text-gray-700 mb-2">
-                <strong>Items:</strong>{" "}
-                {order.orderItems && order.orderItems.length > 0
-                  ? order.orderItems
-                    .map(
-                      (item) =>
-                        `${item.product?.name || "Product"} × ${item.quantity} (₹${item.price})`
-                    )
-                    .join(", ")
-                  : "No items"}
-              </div>
-
-              {/* Total */}
-              <div className="text-sm text-gray-700 mb-1">
-                <strong>Total Amount:</strong> ₹
-                {order.totalAmount ? order.totalAmount.toFixed(2) : "0.00"}
-              </div>
-
-              {/* Shipping Address */}
-              <div className="text-sm text-gray-600 mt-2">
-                <strong>Shipping Address:</strong>{" "}
-                {order.shippingAddress
-                  ? `${order.shippingAddress.address}, ${order.shippingAddress.city}, ${order.shippingAddress.state} (${order.shippingAddress.postalCode}), ${order.shippingAddress.country}`
-                  : "N/A"}
-              </div>
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );
