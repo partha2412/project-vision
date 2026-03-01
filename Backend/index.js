@@ -12,7 +12,7 @@ const cartRoutes = require('./routes/cart.js');
 const notificationRoutes = require("./routes/notification.js");
 const wishlistRoutes = require('./routes/wishlist.js');
 const analytics = require("./routes/analytics.js");
-const front_url =  process.env.FRONTEND_URL
+const chatRoutes = require("./routes/chatRoutes.js");
 
 app.use(cors({
   origin: process.env.FRONTEND_URL,
@@ -34,7 +34,7 @@ app.use('/api/wishlist', wishlistRoutes);
 app.use("/api/admin/analytics", analytics );
 app.use("/api/notifications", notificationRoutes);
 
-
+app.use("/api/chat", chatRoutes);
 
 
    // Database connection with improved configuration
