@@ -4,7 +4,7 @@ import {
   LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, Tooltip, CartesianGrid, Legend, ResponsiveContainer,
 } from "recharts";
-import api from "../api/axios";
+import { getSalesOverview, getRevenueByCategory, getOrdersDistribution } from "../api/analyticsApi";
 import { ChartNoAxesCombined } from 'lucide-react';
 
 const Analytics = () => {
@@ -18,18 +18,15 @@ const Analytics = () => {
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        const token = localStorage.getItem("token");
-        const config = { headers: { Authorization: `Bearer ${token}` } };
-
         const [salesRes, revenueRes, ordersRes] = await Promise.all([
-          api.get("/admin/analytics/sales", config),
-          api.get("/admin/analytics/revenue-by-category", config),
-          api.get("/admin/analytics/orders-status", config),
+          getSalesOverview(),
+          getRevenueByCategory(),
+          getOrdersDistribution(),
         ]);
 
-        setSalesData(salesRes.data);
-        setRevenueByCategory(revenueRes.data);
-        setOrdersData(ordersRes.data);
+        setSalesData(salesRes);
+        setRevenueByCategory(revenueRes);
+        setOrdersData(ordersRes);
       } catch (err) {
         console.error("Analytics fetch failed:", err);
       }
@@ -38,16 +35,16 @@ const Analytics = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <h1 className="text-3xl font-bold mb-6 flex items-center gap-2">
-        <ChartNoAxesCombined className="w-8 h-8 text-blue-600"/> Analytics Dashboard
+    <div className="min-h-screen bg-gray-50 p-3 md:p-6">
+      <h1 className="text-xl md:text-3xl font-bold mb-6 flex items-center gap-2">
+        <ChartNoAxesCombined className="w-8 h-8 text-blue-600" /> Analytics Dashboard
       </h1>
 
-      <div className="grid md:grid-cols-2 gap-8">
+      <div className="grid md:grid-cols-2 gap-4 md:gap-8">
         {/* Line Chart: Sales Over Time */}
-        <div className="bg-white p-6 rounded-xl shadow-lg">
-          <h2 className="text-xl font-semibold mb-4">Sales Overview</h2>
-          <ResponsiveContainer width="100%" height={300}>
+        <div className="bg-white p-3 md:p-6 rounded-xl shadow-lg">
+          <h2 className="text-lg md:text-xl font-semibold mb-4">Sales Overview</h2>
+          <ResponsiveContainer width="100%" height={250}>
             <LineChart data={salesData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="month" />
@@ -60,9 +57,9 @@ const Analytics = () => {
         </div>
 
         {/* Bar Chart: Revenue by Category */}
-        <div className="bg-white p-6 rounded-xl shadow-lg">
-          <h2 className="text-xl font-semibold mb-4">Revenue by Category</h2>
-          <ResponsiveContainer width="100%" height={300}>
+        <div className="bg-white p-3 md:p-6 rounded-xl shadow-lg">
+          <h2 className="text-lg md:text-xl font-semibold mb-4">Revenue by Category</h2>
+          <ResponsiveContainer width="100%" height={250}>
             <BarChart data={revenueByCategory}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="category" />
@@ -75,9 +72,9 @@ const Analytics = () => {
         </div>
 
         {/* Pie Chart: Orders Distribution */}
-        <div className="bg-white p-6 rounded-xl shadow-lg md:col-span-2">
-          <h2 className="text-xl font-semibold mb-4">Orders Distribution</h2>
-          <ResponsiveContainer width="100%" height={350}>
+        <div className="bg-white p-3 md:p-6 rounded-xl shadow-lg md:col-span-2">
+          <h2 className="text-lg md:text-xl font-semibold mb-4">Orders Distribution</h2>
+          <ResponsiveContainer width="100%" height={280}>
             <PieChart>
               <Pie
                 data={ordersData}
@@ -85,7 +82,7 @@ const Analytics = () => {
                 nameKey="name"
                 cx="50%"
                 cy="50%"
-                outerRadius={120}
+                outerRadius={100}
                 label
               >
                 {ordersData.map((entry, index) => (

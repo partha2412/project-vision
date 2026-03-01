@@ -60,8 +60,8 @@ const AdminDashboard = () => {
       <ToastContainer position="top-right" autoClose={3000} theme="colored" /> {/* ✅ ADD THIS */}
 
       {showSidebar && (
-        <aside className="bg-white shadow-lg p-4 flex flex-col
-                    w-20 sm:w-20 md:w-64 transition-all duration-300">
+        <aside className="hidden md:flex bg-white shadow-lg p-4 flex-col
+                w-20 sm:w-20 md:w-64 transition-all duration-300">
 
           {/* Title */}
           <h2 className="text-indigo-600 font-bold mb-8
@@ -95,7 +95,7 @@ const AdminDashboard = () => {
 
 
       {/* Main Content */}
-      <main className="flex-1 p-6 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto pb-24 md:pb-6">
         {activePage === "analytics" && <Analytics />}
         {activePage === "admin" && <Admin />}
         {activePage === "pending" && <Pending />}
@@ -103,6 +103,21 @@ const AdminDashboard = () => {
         {activePage === "update profile" && <AdminSettings />}
 
       </main>
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50">
+        <div className="flex justify-around items-center py-2">
+          {menu.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setActivePage(item.id)}
+              className={`flex flex-col items-center gap-1 px-2 py-1 rounded-lg transition ${activePage === item.id ? "text-indigo-600" : "text-gray-400"
+                }`}
+            >
+              {item.icon}
+              <span className="text-[10px]">{item.label}</span>
+            </button>
+          ))}
+        </div>
+      </nav>
     </div>
   );
 };

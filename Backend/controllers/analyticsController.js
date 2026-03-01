@@ -15,7 +15,7 @@ exports.getSalesOverview = async (req, res) => {
     ]);
 
     const formatted = sales.map((s) => ({
-      month: new Date(2024, s._id - 1).toLocaleString("default", { month: "short" }),
+      month: new Date(new Date().getFullYear(), s._id - 1).toLocaleString("default", { month: "short" }),
       revenue: s.revenue,
     }));
 
@@ -29,11 +29,11 @@ exports.getSalesOverview = async (req, res) => {
 exports.getRevenueByCategory = async (req, res) => {
   try {
     const data = await Order.aggregate([
-      { $unwind: "$items" },
+      { $unwind: "$orderItems" },
       {
         $lookup: {
           from: "products",
-          localField: "items.product",
+          localField: "orderItems.product",
           foreignField: "_id",
           as: "productData",
         },
@@ -42,7 +42,7 @@ exports.getRevenueByCategory = async (req, res) => {
       {
         $group: {
           _id: "$productData.category",
-          revenue: { $sum: { $multiply: ["$items.price", "$items.quantity"] } },
+          revenue: { $sum: { $multiply: ["$orderItems.price", "$orderItems.quantity"] } },
         },
       },
       { $sort: { revenue: -1 } },
