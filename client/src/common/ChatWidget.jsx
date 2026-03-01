@@ -50,9 +50,9 @@ export default function ChatWidget() {
             );
             setMessages(prev => [...prev, {
                 role: 'assistant',
-                content: data.message,
+                content: data.message,  
                 time: getTime()
-            }]);
+            }]);            
         } catch {
             setMessages(prev => [...prev, {
                 role: 'assistant',
