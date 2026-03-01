@@ -20,6 +20,7 @@ import NotFound from './common/NotFound'
 
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
+import ChatWidget from './common/ChatWidget'
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -71,6 +72,7 @@ const App = () => {
             <Route path="/product/:id" element={<ProductDetail />} />
             <Route path='*' element={<NotFound />} />
           </Routes>
+          <ChatWidget />
         <Footer />
       </BrowserRouter>
   )
