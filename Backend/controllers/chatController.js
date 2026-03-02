@@ -22,7 +22,7 @@ export const sendChatMessage = async (req, res) => {
     query: ${JSON.stringify(req.body.messages)}
     `;
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: "gemini-2-Flash",
       contents: prompt
     });
 
