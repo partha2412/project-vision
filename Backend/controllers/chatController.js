@@ -1,25 +1,32 @@
 import { GoogleGenAI } from "@google/genai";
-
+import Product from "../models/Product.js";
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 const MODELS = [
+  "gemini-3-flash-preview",
   "gemini-2.0-flash",
   "gemini-2.0-flash-lite", 
-  "gemini-1.5-flash",
-  "gemini-1.5-flash-8b",
 ];
 
+async function fetchProduct() {
+  const res = await Product.find();
+  // console.log("Fetched products:", res);
+  return res;
+}
+fetchProduct();
+
 const generateWithFallback = async (prompt) => {
-  
+  for (const model of MODELS) {
     try {
       console.log(`Trying: ${model}`);
       const response = await ai.models.generateContent({
-        model:'gemini-2.0-flash',
+        model: model,
         contents: prompt,
       });
       return response.text;
     } catch (err) {
-      console.warn(`${model} failed (${err.status}), trying next...`);
+      console.warn(`${model} failed (${"\n" + err.status}), trying next...`);
+    }
       continue;
     }
   
@@ -29,7 +36,8 @@ const generateWithFallback = async (prompt) => {
 
 export const sendChatMessage = async (req, res) => {
   try {
-    const context = `
+    const context = await fetchProduct();
+    `
     Vision is an e-commerce website that specializes in selling a wide variety of glasses, 
     including sunglasses, prescription glasses, and blue light blocking glasses. The website 
     offers filtering by style, color, and price, detailed product descriptions, a virtual 
@@ -47,6 +55,7 @@ export const sendChatMessage = async (req, res) => {
     `;
 
     const reply = await generateWithFallback(prompt);
+    console.log("Response sent.");
     res.status(200).json({ message: reply });
 
   } catch (err) {
