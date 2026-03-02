@@ -14,7 +14,7 @@ const generateWithFallback = async (prompt) => {
     try {
       console.log(`Trying: ${model}`);
       const response = await ai.models.generateContent({
-        model,
+        model:'gemini-2.0-flash',
         contents: prompt,
       });
       return response.text;
