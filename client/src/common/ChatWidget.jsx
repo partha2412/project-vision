@@ -45,7 +45,9 @@ export default function ChatWidget() {
 
         try {
             const data = await sendChatMessage(
-                updated.map(({ role, content }) => ({ role, content })), // 👈 full history for context
+                updated
+                .slice(-2)
+                .map(({ role, content }) => ({ role, content })), // 👈 full history for context
                 JSON.parse(localStorage.getItem('cart') || '[]')
             );
             setMessages(prev => [...prev, {
