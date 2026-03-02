@@ -10,7 +10,7 @@ const MODELS = [
 ];
 
 const generateWithFallback = async (prompt) => {
-  for (const model of MODELS) {
+  
     try {
       console.log(`Trying: ${model}`);
       const response = await ai.models.generateContent({
@@ -22,7 +22,7 @@ const generateWithFallback = async (prompt) => {
       console.warn(`${model} failed (${err.status}), trying next...`);
       continue;
     }
-  }
+  
   // all models failed — return friendly message instead of crashing
   return "I'm currently unavailable. Please try again later.";
 };
