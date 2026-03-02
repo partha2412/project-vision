@@ -2,10 +2,33 @@ import { GoogleGenAI } from "@google/genai";
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
+const MODELS = [
+  "gemini-2.0-flash",
+  "gemini-2.0-flash-lite", 
+  "gemini-1.5-flash",
+  "gemini-1.5-flash-8b",
+];
+
+const generateWithFallback = async (prompt) => {
+  for (const model of MODELS) {
+    try {
+      console.log(`Trying: ${model}`);
+      const response = await ai.models.generateContent({
+        model,
+        contents: prompt,
+      });
+      return response.text;
+    } catch (err) {
+      console.warn(`${model} failed (${err.status}), trying next...`);
+      continue;
+    }
+  }
+  // all models failed — return friendly message instead of crashing
+  return "I'm currently unavailable. Please try again later.";
+};
+
 export const sendChatMessage = async (req, res) => {
   try {
-    console.log(req.body.messages);
-
     const context = `
     Vision is an e-commerce website that specializes in selling a wide variety of glasses, 
     including sunglasses, prescription glasses, and blue light blocking glasses. The website 
@@ -14,21 +37,23 @@ export const sendChatMessage = async (req, res) => {
     `;
 
     const prompt = `
-    - You are an AI assistant for a website - Vision.
+    - You are an AI assistant for Vision (an e-commerce glass selling site).
     - Answer the "query" based on the "context".
-    - In the "query" the whole conversation is passed. which context role: 'user' means the question is asked by the user, 'assistant' means the question is asked by you. And the 'content' is the message for both roles.the last message in the "query" is the current question asked by the user.
-    - If the answer not present in context, just say "I don't know".
+    - role: 'user' means question from user, 'assistant' means your previous reply.
+    - The last message in query is the current question.
+    - If answer not in context, say "I don't know".
     context: ${context}
     query: ${JSON.stringify(req.body.messages)}
     `;
-    const response = await ai.models.generateContent({
-      model: "gemini-2-Flash",
-      contents: prompt
-    });
 
-    res.status(200).json({ message: response.text });
+    const reply = await generateWithFallback(prompt);
+    res.status(200).json({ message: reply });
+
   } catch (err) {
+    // backend will NEVER crash — always sends a response
     console.error("Chat error:", err);
-    res.status(500).json({ message: err.message || "Chat failed" });
+    res.status(200).json({ 
+      message: "I'm currently unavailable. Please try again later." 
+    });
   }
 };
