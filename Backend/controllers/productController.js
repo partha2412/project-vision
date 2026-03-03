@@ -7,6 +7,8 @@ const mongoose = require("mongoose");
 const fs = require("fs");
 const csv = require("csv-parser");
 const XLSX = require("xlsx");
+const { generateEmbeddings } = require('./chatController.js');
+const { log } = require('console');
 
 const mapRowToProduct = (row) => {
   let images = [];
@@ -38,7 +40,7 @@ const mapRowToProduct = (row) => {
     brand: String(row.brand || ""),
 
     gstRate: Number(row.gstRate || 12),
-    
+
     images,
 
     isDeleted: false
@@ -133,7 +135,10 @@ exports.addProduct = async (req, res) => {
       gstRate,
       lowStockAlert,
     });
-
+    const text = `title:${product.title} gender:${product.category} productType:${product.productType} brand:${product.brand} description:${product.description} price:${product.price} discountPrice:${product.discountPrice}`;
+    const embedding = await generateEmbeddings(text);
+    product.embedding = JSON.parse(embedding);
+    await product.save();
     // ⚠️ Create low-stock notification automatically
     if (product.stock <= (product.lowStockAlert || 5)) {
       await Notification.create({
@@ -184,6 +189,28 @@ exports.addbulkProduct = async (req, res) => {
     if (!validProducts.length) {
       return res.status(400).json({ message: "No valid products found" });
     }
+    // Embeddings
+    // Map products → text strings (like your example)
+    const texts = validProducts.map(p =>
+      `title:${p.title} gender:${p.category} productType:${p.productType} brand:${p.brand} description:${p.description} price:${p.price} discountPrice:${p.discountPrice}`
+    );
+
+    // Single API call with all texts at once ✅
+    // contents: ['Dervin Women round...', 'Ray-Ban Men aviator...', ...]
+    const embeddings = await generateEmbeddings(texts);
+
+    validProducts.forEach((p, i) => {
+      p.embedding = embeddings[i];
+    });
+
+    const productsWithEmbeddings = validProducts.filter(p => p.embedding && p.embedding.length > 0);
+
+    if (!productsWithEmbeddings.length) {
+      return res.status(400).json({ message: "Embedding failed for all products" });
+    }
+
+    await Product.insertMany(productsWithEmbeddings, { ordered: false });
+
 
     // 3️⃣ Insert
     await Product.insertMany(validProducts, { ordered: false });
@@ -200,7 +227,7 @@ exports.addbulkProduct = async (req, res) => {
     });
 
   } catch (error) {
-    // console.error("Bulk upload error:", error);
+    console.error("Bulk upload error:", error);
 
     if (req.file?.path) {
       fs.unlinkSync(req.file.path);
@@ -239,13 +266,17 @@ exports.updateProductById = async (req, res) => {
       updateData,
       { new: true, runValidators: true }
     );
-
     if (!updatedProduct) {
       return res.status(404).json({
         success: false,
         message: "Product not found"
       });
     }
+    const text = `title:${updatedProduct.title} gender:${updatedProduct.category} productType:${updatedProduct.productType} brand:${updatedProduct.brand} description:${updatedProduct.description} price:${updatedProduct.price} discountPrice:${updatedProduct.discountPrice}`;
+    const embedding = await generateEmbeddings(text);
+    updatedProduct.embedding = JSON.parse(embedding);
+    await updatedProduct.save();
+
 
     return res.status(200).json({
       success: true,

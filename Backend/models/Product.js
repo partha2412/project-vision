@@ -81,6 +81,10 @@ const productSchema = new mongoose.Schema({
   isDeleted: {
     type: Boolean,
     default: false
+  },
+  embedding:{
+    type: [Number],
+    default: []
   }
 }, { timestamps: true });
 
