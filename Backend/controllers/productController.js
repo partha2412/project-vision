@@ -3,12 +3,11 @@ const Product = require('../models/Product.js');
 const Notification = require("../models/Notification.js");
 const { uploadImagesToCloudinary } = require('./imagecontroller.js');
 const mongoose = require("mongoose");
+const { generateEmbeddings } = require("../controllers/chatController.js");
 
 const fs = require("fs");
 const csv = require("csv-parser");
 const XLSX = require("xlsx");
-const { generateEmbeddings } = require('./chatController.js');
-const { log } = require('console');
 
 const mapRowToProduct = (row) => {
   let images = [];
@@ -43,7 +42,7 @@ const mapRowToProduct = (row) => {
 
     images,
 
-    isDeleted: false
+    isDeleted: false,
   };
 };
 const validateProduct = (p) => {
@@ -61,7 +60,7 @@ const parseCSV = (filePath) => {
     fs.createReadStream(filePath)
       .pipe(csv({ skipEmptyLines: true }))
       .on("data", (row) => {
-        products.push(mapRowToProduct(row)); // ✅ key change
+        products.push(mapRowToProduct(row));
       })
       .on("end", () => resolve(products))
       .on("error", reject);
@@ -72,10 +71,10 @@ const parseExcel = (filePath) => {
   const sheet = workbook.Sheets[workbook.SheetNames[0]];
   const rows = XLSX.utils.sheet_to_json(sheet);
 
-  return rows.map(mapRowToProduct); // ✅ key change
+  return rows.map(mapRowToProduct);
 };
 
-// ✅ Multer setup
+// Multer setup
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
@@ -86,7 +85,7 @@ exports.bulkUploadMiddleware = uploadFile.single("file");
 exports.uploadMiddleware = upload.array('images', 5); // max 5 images
 
 // ===============================
-// 📦 Add Product Controller
+// Add Product Controller
 // ===============================
 exports.addProduct = async (req, res) => {
   try {
@@ -135,10 +134,12 @@ exports.addProduct = async (req, res) => {
       gstRate,
       lowStockAlert,
     });
-    const text = `title:${product.title} gender:${product.category} productType:${product.productType} brand:${product.brand} description:${product.description} price:${product.price} discountPrice:${product.discountPrice}`;
-    const embedding = await generateEmbeddings(text);
-    product.embedding = JSON.parse(embedding);
-    await product.save();
+
+    // Generate embedding for the new product
+    const productText = `${product.title} ${product.discountPrice} ${product.productType} ${product.category} ${product.brand}`;
+    const embedding = await generateEmbeddings(productText);
+    await Product.findByIdAndUpdate(product._id, { embedding });
+
     // ⚠️ Create low-stock notification automatically
     if (product.stock <= (product.lowStockAlert || 5)) {
       await Notification.create({
@@ -189,31 +190,25 @@ exports.addbulkProduct = async (req, res) => {
     if (!validProducts.length) {
       return res.status(400).json({ message: "No valid products found" });
     }
-    // Embeddings
-    // Map products → text strings (like your example)
-    const texts = validProducts.map(p =>
-      `title:${p.title} gender:${p.category} productType:${p.productType} brand:${p.brand} description:${p.description} price:${p.price} discountPrice:${p.discountPrice}`
-    );
-
-    // Single API call with all texts at once ✅
-    // contents: ['Dervin Women round...', 'Ray-Ban Men aviator...', ...]
-    const embeddings = await generateEmbeddings(texts);
-
-    validProducts.forEach((p, i) => {
-      p.embedding = embeddings[i];
-    });
-
-    const productsWithEmbeddings = validProducts.filter(p => p.embedding && p.embedding.length > 0);
-
-    if (!productsWithEmbeddings.length) {
-      return res.status(400).json({ message: "Embedding failed for all products" });
-    }
-
-    await Product.insertMany(productsWithEmbeddings, { ordered: false });
-
 
     // 3️⃣ Insert
-    await Product.insertMany(validProducts, { ordered: false });
+    const insertResult = await Product.insertMany(validProducts, { ordered: false });
+
+    // Embeddings
+    // Build texts array
+    const texts = insertResult.map(p =>
+      `${p.title} ${p.discountPrice} ${p.productType} ${p.category} ${p.brand}`.trim()
+    );
+    const embeddings = await generateEmbeddings(texts); // chunking handled inside
+
+    await Product.bulkWrite(
+      insertResult.map((p, i) => ({
+        updateOne: {
+          filter: { _id: p._id },
+          update: { $set: { embedding: embeddings[i] } }
+        }
+      }))
+    );
 
     // 4️⃣ Cleanup
     fs.unlinkSync(req.file.path);
@@ -227,7 +222,7 @@ exports.addbulkProduct = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Bulk upload error:", error);
+    // console.error("Bulk upload error:", error);
 
     if (req.file?.path) {
       fs.unlinkSync(req.file.path);
@@ -266,17 +261,18 @@ exports.updateProductById = async (req, res) => {
       updateData,
       { new: true, runValidators: true }
     );
+
+    // Generate embedding for the new product
+    const productText = `${updatedProduct.title} ${updatedProduct.discountPrice} ${updatedProduct.productType} ${updatedProduct.category} ${updatedProduct.brand}`;
+    const embedding = await generateEmbeddings(productText);
+    await Product.findByIdAndUpdate(updatedProduct._id, { embedding });
+
     if (!updatedProduct) {
       return res.status(404).json({
         success: false,
         message: "Product not found"
       });
     }
-    const text = `title:${updatedProduct.title} gender:${updatedProduct.category} productType:${updatedProduct.productType} brand:${updatedProduct.brand} description:${updatedProduct.description} price:${updatedProduct.price} discountPrice:${updatedProduct.discountPrice}`;
-    const embedding = await generateEmbeddings(text);
-    updatedProduct.embedding = JSON.parse(embedding);
-    await updatedProduct.save();
-
 
     return res.status(200).json({
       success: true,
@@ -654,5 +650,4 @@ exports.deleteMultipleProducts = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
-
 
