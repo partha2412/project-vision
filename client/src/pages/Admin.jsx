@@ -268,11 +268,11 @@ const Admin = () => {
     setIsEmbedloading(true);
     try {
       const response = await embed_all_Products();
-      setEmbedResult(response);
+      setEmbedResult(response.message.message);
       toast.success(embedResult);
     }
     catch (err) {
-      toast.error("Embed Failed")
+      toast.error(embedResult)
     }
     setIsEmbedloading(false);
   }
