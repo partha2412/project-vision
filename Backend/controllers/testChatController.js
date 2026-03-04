@@ -55,45 +55,56 @@ export async function testChat(req, res) {
     }
 }
 
-async function productsEmbeding() {
-    const products = await Product.find({embedding:{$size:0}});
-    const batchSize = 80;
-    const delay = 1000;
-    let totalDone = 0;
-    let totalFailed = 0;
+export async function productsEmbeding(req, res) {
+    try {
+        const products = await Product.find({ embedding: { $size: 0 } });
+        const batchSize = 50;
+        const delay = 1000;
+        let totalDone = 0;
+        let totalFailed = 0;
 
-    for (let i = 0; i < products.length; i += batchSize) {
-        const batch = products.slice(i, i + batchSize);
+        for (let i = 0; i < products.length; i += batchSize) {
+            const batch = products.slice(i, i + batchSize);
 
-        const embeddings = await Promise.all(
-            batch.map(async (p) => {
-                const text =
-                    `title ${p.title} category ${p.category} brand ${p.brand} type ${p.productType} price ${p.discountPrice} stock ${p.stock}`;
-                const vector = await generateEmbeddings(text);
-                if (!vector) return null;
-                return { id: p._id, embedding: vector[0].values };
-            })
-        );
-
-        const batchFailed = embeddings.filter(item => item === null).length;
-        const batchDone = embeddings.length - batchFailed;
-        totalDone += batchDone;
-        totalFailed += batchFailed;
-
-        console.log(`[Batch ${i}–${Math.min(i + batchSize, products.length)}] ✅ Done: ${batchDone} | ❌ Failed: ${batchFailed}`);
-
-        for (const item of embeddings) {
-            if (!item) continue;
-            await Product.updateOne(
-                { _id: item.id },
-                { $set: { embedding: item.embedding } }
+            const embeddings = await Promise.all(
+                batch.map(async (p) => {
+                    const text =
+                        `title ${p.title} category ${p.category} brand ${p.brand} type ${p.productType} price ${p.discountPrice} stock ${p.stock}`;
+                    const vector = await generateEmbeddings(text);
+                    if (!vector) return null;
+                    return { id: p._id, embedding: vector[0].values };
+                })
             );
+
+            const batchFailed = embeddings.filter(item => item === null).length;
+            const batchDone = embeddings.length - batchFailed;
+            totalDone += batchDone;
+            totalFailed += batchFailed;
+
+            console.log(`[Batch ${i}–${Math.min(i + batchSize, products.length)}] ✅ Done: ${batchDone} | ❌ Failed: ${batchFailed}`);
+
+            for (const item of embeddings) {
+                if (!item) continue;
+                await Product.updateOne(
+                    { _id: item.id },
+                    { $set: { embedding: item.embedding } }
+                );
+            }
+
+            await new Promise(res => setTimeout(res, delay));
         }
 
-        await new Promise(res => setTimeout(res, delay));
+        console.log(`\n===== FINAL =====`);
+        console.log(`✅ Total Done:   ${totalDone}`);
+        console.log(`❌ Total Failed: ${totalFailed}`);
+        res.status(200).send({
+            message:"Embeddings done.",data:{
+                sucess: totalDone,
+                failed: totalFailed,
+            }
+        });
     }
-
-    console.log(`\n===== FINAL =====`);
-    console.log(`✅ Total Done:   ${totalDone}`);
-    console.log(`❌ Total Failed: ${totalFailed}`);
+    catch (err) {
+        res.status(500).send({message:"failed to embed all products"})
+    }
 }

@@ -14,6 +14,7 @@ import { FaEdit, FaTrash, FaSave, FaTimes } from "react-icons/fa";
 import { LayoutDashboard, PackagePlus, ChevronDown } from "lucide-react";
 import Papa from "papaparse";
 import * as XLSX from "xlsx";
+import { embed_all_Products } from "../api/chatApi";
 
 const Admin = () => {
   const initialFormState = {
@@ -40,6 +41,7 @@ const Admin = () => {
   const [expandedId, setExpandedId] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [loadingProducts, setLoadingProducts] = useState(true);
+  const [embedResult, setEmbedResult] = useState();
 
   // ── Selection state ──────────────────────────────────────────────────────────
   const [selectedIds, setSelectedIds] = useState(new Set());
@@ -54,6 +56,7 @@ const Admin = () => {
   const [bulkPreview, setBulkPreview] = useState([]);
   const [bulkHeaders, setBulkHeaders] = useState([]);
   const [showPreview, setShowPreview] = useState(false);
+  const [isEmbedloading, setIsEmbedloading] = useState(false);
 
   // ── Load products ────────────────────────────────────────────────────────────
   const loadProducts = async () => {
@@ -261,6 +264,19 @@ const Admin = () => {
     setEditableValues({});
   };
 
+  const handleEmbed = async () => {
+    setIsEmbedloading(true);
+    try {
+      const response = await embed_all_Products();
+      setEmbedResult(response);
+      toast.success(embedResult);
+    }
+    catch (err) {
+      toast.error("Embed Failed")
+    }
+    setIsEmbedloading(false);
+  }
+
   // ── Render ───────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-gray-100 p-4 sm:p-6 text-sm">
@@ -405,6 +421,14 @@ const Admin = () => {
             <span className="ml-2 text-sm text-gray-400 font-normal">
               ({products.length} total)
             </span>
+            <div className="my-2 text-[15px]">
+              <button onClick={handleEmbed}
+              disabled={isEmbedloading}
+              className={`flex items-center gap-2 px-2 py-1 hover:cursor-pointer rounded ${isEmbedloading ? "bg-blue-500 cursor-not-allowed text-white" : "bg-blue-500 hover:bg-blue-700 text-white"}`}
+              >
+                {isEmbedloading ? <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Embedding…</> : "Enbedded All"}
+              </button>
+            </div>
           </h2>
 
           <div className="flex flex-wrap items-center gap-2">
@@ -531,7 +555,14 @@ const Admin = () => {
                     <p className="font-semibold text-gray-800 truncate">{p.title}</p>
                     <p className="text-xs text-gray-400">#{p._id.toString().slice(-6)}</p>
                   </div>
-
+                  {/* Embed Status */}
+                  <span>
+                    {!p.embedding.length==0 ? (
+                      <p className="text-xs font-semibold px-3 py-1 rounded-full flex-shrink-0 bg-blue-200 text-black">embedded</p>
+                    ) : (
+                      <p className="text-xs font-semibold px-3 py-1 rounded-full flex-shrink-0 bg-red-200 text-black">No Embed</p>
+                    )}
+                  </span>
                   {/* Stock badge */}
                   <span className={`text-xs font-semibold px-2 py-1 rounded-full flex-shrink-0 ${p.stock <= p.lowStockAlert ? "bg-red-100 text-red-600" : "bg-green-100 text-green-600"
                     }`}>

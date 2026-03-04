@@ -10,3 +10,13 @@ export const sendChatMessage = async (messages) => {
     throw error.response ? error.response.data : { message: "Network error" };
   }
 };
+
+export const embed_all_Products = async ()=>{
+  try{
+    const response = await api.post("/chat/embed_all_Products");
+    return response.data;
+  }
+  catch(err){
+    return response.message;
+  }
+}
