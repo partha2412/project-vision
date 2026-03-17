@@ -605,7 +605,7 @@ exports.filterProductsByPrice = async (req, res) => {
 // Get all products
 exports.getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find();
+    const products = await Product.find().select('-embedding');
     res.status(200).json({ products });
   } catch (error) {
     console.error("Error fetching all products:", error);
