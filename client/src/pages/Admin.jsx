@@ -7,6 +7,7 @@ import {
   updateProductById,
   deleteMultipleProducts,
   deleteAllProducts,
+  fetchProducts_withembed,
 } from "../api/productApi";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -62,7 +63,7 @@ const Admin = () => {
   const loadProducts = async () => {
     try {
       setLoadingProducts(true); // 👈 add this
-      const data = await fetchProducts();
+      const data = await fetchProducts_withembed();
       setProducts(data.products.map((p) => ({ ...p, imagePreviews: p.images || [] })));
       const lowStock = data.products.filter((p) => p.stock <= p.lowStockAlert);
       if (lowStock.length > 0) {
@@ -557,7 +558,7 @@ const Admin = () => {
                   </div>
                   {/* Embed Status */}
                   <span>
-                    {!p.embedding.length==0 ? (
+                    {p.embedding? (
                       <p className="text-xs font-semibold px-3 py-1 rounded-full flex-shrink-0 bg-blue-200 text-black">embedded</p>
                     ) : (
                       <p className="text-xs font-semibold px-3 py-1 rounded-full flex-shrink-0 bg-red-200 text-black">No Embed</p>

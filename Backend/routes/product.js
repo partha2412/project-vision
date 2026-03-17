@@ -16,7 +16,7 @@ router.post(
   productController.addProduct
 );
 // Add Bulk
-router.post('/add_bulk', productController.bulkUploadMiddleware , productController.addbulkProduct);
+router.post('/add_bulk', productController.bulkUploadMiddleware, productController.addbulkProduct);
 
 // Update product by name
 router.put(
@@ -26,13 +26,17 @@ router.put(
 );
 
 
-// Get all products
+// Get all products With embeddings
 router.get('/', async (req, res) => {
   try {
-    const products = await Product.find({ isDeleted: false });
+    const products = await Product.find({ isDeleted: false }).lean();
+    const transformedProducts = products.map(product => ({
+      ...product,
+      embedding: Array.isArray(product.embedding) && product.embedding.length > 0
+    }));
     res.status(200).json({
       success: true,
-      products
+      products:transformedProducts,
     });
   } catch (error) {
     res.status(500).json({

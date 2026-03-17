@@ -3,7 +3,18 @@ import api from "./axios";
 // Fetch all products
 export const fetchProducts = async () => {
   try {
+    const response = await api.get("/product/all/");
+    return response.data;
+  } catch (error) {
+    throw error.response ? error.response.data : { message: "Network error" };
+  }
+};
+// Fetch all products with embedding
+export const fetchProducts_withembed = async () => {
+  try {
     const response = await api.get("/product/");
+    // console.log(response.data);
+    
     return response.data;
   } catch (error) {
     throw error.response ? error.response.data : { message: "Network error" };
