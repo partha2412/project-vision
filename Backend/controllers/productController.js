@@ -366,7 +366,7 @@ exports.getProductsByRange = async (req, res) => {
     const products = await Product.find({
       isDeleted: false,
       price: { $gte: minPrice, $lte: maxPrice }
-    }).select('-embedding');
+    },{ embedding: 0 });
 
     res.status(200).json({
       success: true,
@@ -487,7 +487,7 @@ exports.getSortedProducts = async (req, res) => {
       { $sort: { priceNum: sortOrder } },
 
       // Remove helper fields before sending response
-      { $project: { _priceMatch: 0, priceNum: 0 } }
+      { $project: { _priceMatch: 0, priceNum: 0, embedding: 0 } }
     ]);
 
     // Return sorted products
@@ -616,7 +616,7 @@ exports.getAllProducts = async (req, res) => {
 exports.getProductsByCategory = async (req, res) => {
   try {
     const category = req.params.category;
-    const products = await Product.find({ category: category }).select('-embedding');
+    const products = await Product.find({ category: category },{ embedding: 0 });
     res.json({ products });
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch products" });
