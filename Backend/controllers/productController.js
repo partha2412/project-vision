@@ -301,7 +301,7 @@ exports.getProductById = async (req, res) => {
       return res.status(400).json({ success: false, message: "Invalid product ID" });
     }
 
-    const product = await Product.findById(id);
+    const product = await Product.findById(id).select('-embedding');
 
     if (!product || product.isDeleted) {
       return res.status(404).json({ success: false, message: "Product not found" });
@@ -338,7 +338,7 @@ exports.searchProducts = async (req, res) => {
         { title: { $regex: query, $options: "i" } },
         { description: { $regex: query, $options: "i" } }
       ]
-    });
+    }).select('-embedding');
 
     res.status(200).json({
       success: true,
@@ -366,7 +366,7 @@ exports.getProductsByRange = async (req, res) => {
     const products = await Product.find({
       isDeleted: false,
       price: { $gte: minPrice, $lte: maxPrice }
-    });
+    }).select('-embedding');
 
     res.status(200).json({
       success: true,
@@ -516,7 +516,7 @@ exports.getSortedProducts = async (req, res) => {
 // ===============================
 exports.getTrendingProducts = async (req, res) => {
   try {
-    const products = await Product.find({ isDeleted: false })
+    const products = await Product.find({ isDeleted: false }).select('-embedding')
       .sort({ createdAt: -1 })
       .limit(20);
 
@@ -531,7 +531,7 @@ exports.getTrendingProducts = async (req, res) => {
 // ===============================
 exports.getBestRatingProducts = async (req, res) => {
   try {
-    const products = await Product.find({ isDeleted: false })
+    const products = await Product.find({ isDeleted: false }).select('-embedding')
       .sort({ rating: -1 })
       .limit(20);
 
@@ -547,7 +547,7 @@ exports.getBestRatingProducts = async (req, res) => {
 // ===============================
 exports.getBestSellerProducts = async (req, res) => {
   try {
-    const products = await Product.find({ isDeleted: false })
+    const products = await Product.find({ isDeleted: false }).select('-embedding')
       .sort({ numOfReviews: -1 }) // assuming reviews count = popularity
       .limit(20);
 
@@ -567,7 +567,7 @@ exports.getDiscountProducts = async (req, res) => {
       isDeleted: false,
       $expr: { $lt: ["$discountPrice", "$price"] },
       discountPrice: { $gt: 0 }
-    });
+    }).select('-embedding');
 
     res.status(200).json({ success: true, count: products.length, products });
   } catch (error) {
@@ -589,7 +589,7 @@ exports.filterProductsByPrice = async (req, res) => {
     // Fetch products in the range
     const products = await Product.find({
       discountPrice: { $gte: min, $lte: max },
-    });
+    }).select('-embedding');
 
     // Return in object format so frontend can do response.data.products
     res.status(200).json({ products });
@@ -616,7 +616,7 @@ exports.getAllProducts = async (req, res) => {
 exports.getProductsByCategory = async (req, res) => {
   try {
     const category = req.params.category;
-    const products = await Product.find({ category: category });
+    const products = await Product.find({ category: category }).select('-embedding');
     res.json({ products });
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch products" });
