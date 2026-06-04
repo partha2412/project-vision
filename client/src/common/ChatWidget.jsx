@@ -2,8 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { sendChatMessage } from '../api/chatApi';
 import { MessageCircle, X, Trash2, Send } from 'lucide-react';
 
-const SUGGESTIONS = ['Best Glasses Under 1000', 'show Oval Sunglasses', 'Glasses for women at the Best Price', 'Sports Glasses
-'];
+const SUGGESTIONS = ['Best Glasses Under 1000', 'show Oval Sunglasses', 'Glasses for women at the Best Price', 'Sports Glasses'];
 
 function getTime() {
     return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
