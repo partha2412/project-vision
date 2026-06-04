@@ -29,7 +29,7 @@ const Footer = () => {
       {/* Column 3 */}
       <div>
         <h3 className="font-bold mb-2">Contact Us</h3>
-        <p>Need help fast? Fill out our form or email parthasingh35@gmail.com</p>
+        <p>Need help fast? Fill out our form or email aarunima790@gmail.com</p>
 
         <div className="mt-6 flex items-center space-x-4 text-2xl">
           <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300">
